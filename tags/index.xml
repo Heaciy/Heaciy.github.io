@@ -6,67 +6,40 @@
     <description>Recent content in Tags on Heaciy&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Oct 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>css</title>
-      <link>https://heaciy.com/tags/css/</link>
-      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+      <title>neural network</title>
+      <link>https://heaciy.com/tags/neural-network/</link>
+      <pubDate>Sun, 13 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://heaciy.com/tags/css/</guid>
+      <guid>https://heaciy.com/tags/neural-network/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>html</title>
-      <link>https://heaciy.com/tags/html/</link>
-      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+      <title>Python</title>
+      <link>https://heaciy.com/tags/python/</link>
+      <pubDate>Sun, 13 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://heaciy.com/tags/html/</guid>
+      <guid>https://heaciy.com/tags/python/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>markdown</title>
-      <link>https://heaciy.com/tags/markdown/</link>
-      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+      <title>echo</title>
+      <link>https://heaciy.com/tags/echo/</link>
+      <pubDate>Thu, 19 Sep 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://heaciy.com/tags/markdown/</guid>
+      <guid>https://heaciy.com/tags/echo/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>themes</title>
-      <link>https://heaciy.com/tags/themes/</link>
-      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+      <title>literature</title>
+      <link>https://heaciy.com/tags/literature/</link>
+      <pubDate>Thu, 19 Sep 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://heaciy.com/tags/themes/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>privacy</title>
-      <link>https://heaciy.com/tags/privacy/</link>
-      <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/tags/privacy/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>shortcodes</title>
-      <link>https://heaciy.com/tags/shortcodes/</link>
-      <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/tags/shortcodes/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>emoji</title>
-      <link>https://heaciy.com/tags/emoji/</link>
-      <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/tags/emoji/</guid>
+      <guid>https://heaciy.com/tags/literature/</guid>
       <description></description>
     </item>
     
