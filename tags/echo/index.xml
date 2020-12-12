@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Heaciy&#39;s Blog</title>
-    <link>https://heaciy.com/post/</link>
-    <description>Recent content in Posts on Heaciy&#39;s Blog</description>
+    <title>echo on Heaciy&#39;s Blog</title>
+    <link>https://heaciy.com/tags/echo/</link>
+    <description>Recent content in echo on Heaciy&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Oct 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/post/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Neural Network With Python</title>
-      <link>https://heaciy.com/p/neural-network-with-python/</link>
-      <pubDate>Sun, 13 Oct 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/p/neural-network-with-python/</guid>
-      <description>import numpy import matplotlib.pyplot import scipy.special %matplotlib inline class neuralNetwork: def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate): # 初始化神经网络 self.inodes = inputnodes self.hnodes = hiddennodes self.onodes = outputnodes self.lr = learningrate # 学习率 # from node i to node j in the next layer self.wih = numpy.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes)) # 权重矩阵 self.who = numpy.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes)) self.activation_function = lambda x: scipy.special.expit(x) # 应用激活函数 def train(self, inputs_list, targets_list): inputs = numpy.</description>
-    </item>
-    
+    <lastBuildDate>Thu, 19 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/echo/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>夜深花睡</title>
       <link>https://heaciy.com/p/%E5%A4%9C%E6%B7%B1%E8%8A%B1%E7%9D%A1/</link>
