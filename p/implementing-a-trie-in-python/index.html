@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='In less than 100 lines of code'><title>Implementing a Trie in Python</title>
+
+<link rel='canonical' href='https://heaciy.com/p/implementing-a-trie-in-python/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Implementing a Trie in Python'>
+<meta property='og:description' content='In less than 100 lines of code'>
+<meta property='og:url' content='https://heaciy.com/p/implementing-a-trie-in-python/'>
+<meta property='og:site_name' content='Heaciy&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Python' /><meta property='article:tag' content='data structure' /><meta property='article:published_time' content='2020-12-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-12-19T00:00:00&#43;00:00'/><meta property='og:image' content='https://heaciy.com/p/implementing-a-trie-in-python/trie.jpeg' />
+<meta name="twitter:title" content="Implementing a Trie in Python">
+<meta name="twitter:description" content="In less than 100 lines of code"><meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:image" content='https://heaciy.com/p/implementing-a-trie-in-python/trie.jpeg' />
+    </head>
+    <body class="">
+        <div class="container flex on-phone--column align-items--flex-start extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+
+                
+                    
+                    <img src="/img/avatar_hu5506042264f2f143136192cbc8fadc99_165574_300x300_resize_box_2.png" width="300"
+                        height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+
+                <span class="emoji">🎉</span>
+            </figure>
+        
+        <h1 class="site-name"><a href="https://heaciy.com">Heaciy&#39;s Blog</a></h1>
+        <h2 class="site-description">Life is what happens to you while you&#39;re busy making other plans.</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+    </ol>
+</aside>
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://heaciy.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <img srcset="/p/implementing-a-trie-in-python/trie_hu5ca3eeea9d4841595d42211afa052e1d_72289_1024x0_resize_q75_box.jpeg 1024w, /p/implementing-a-trie-in-python/trie_hu5ca3eeea9d4841595d42211afa052e1d_72289_2000x0_resize_q75_box.jpeg 2000w"
+                    src="/p/implementing-a-trie-in-python/trie_hu5ca3eeea9d4841595d42211afa052e1d_72289_2000x0_resize_q75_box.jpeg" width="800" height="533" loading="lazy"
+                    alt="Featured image of post Implementing a Trie in Python" />
+            
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/cs/" 
+                    class="color-tag"
+                    data-image="/p/implementing-a-trie-in-python/trie_hu5ca3eeea9d4841595d42211afa052e1d_72289_20x20_fill_q75_box_smart1.jpeg" 
+                    data-key="implementing a trie in Python" 
+                    data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
+                    CS
+                </a>
+            
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/implementing-a-trie-in-python/">Implementing a Trie in Python</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        In less than 100 lines of code
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 19, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="c1"># char: 单字符,形如&#39;h&#39;,&#39;a&#39;,&#39;c&#39;,&#39;k&#39;</span>
+<span class="c1"># word: 词,形如&#34;hack&#34;</span>
+
+
+<span class="k">class</span> <span class="nc">TrieNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    字符节点
+</span><span class="s2">    &#34;&#34;&#34;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">char</span> <span class="o">=</span> <span class="n">char</span>  <span class="c1"># 存储的字符</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 子节点</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">word_finished</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># 是否是词尾</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 出现在word中的</span>
+
+
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    向字典树中添加词
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">root</span>  <span class="c1"># node的初始值为root节点*</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>  <span class="c1"># 遍历整个word</span>
+        <span class="n">found_in_child</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># 标记当前char是否在node的子结点列表中</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">char</span> <span class="o">==</span> <span class="n">char</span><span class="p">:</span>  <span class="c1"># node节点的子节点中包含当前的char</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 该字符在word中出现的次数加一</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">child</span>  <span class="c1"># node向下移动一位,即为当前字符</span>
+                <span class="n">found_in_child</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c1"># 标记为找到</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_in_child</span><span class="p">:</span>
+            <span class="c1"># 当前字符不在node的子节点列表中,则新建一个节点加入到node的子节点列表中</span>
+            <span class="n">new_node</span> <span class="o">=</span> <span class="n">TrieNode</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_node</span><span class="p">)</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">new_node</span>  <span class="c1"># node移至当前节点</span>
+    <span class="c1"># 当word中所有字符被遍历完后,node即为最后一个字符,将其标记为词尾</span>
+    <span class="n">node</span><span class="o">.</span><span class="n">word_finished</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    检查并返回:
+</span><span class="s2">    1. 该前缀是否出现在添加过的词中
+</span><span class="s2">    2. 如果是,那么有多少词组包含该前缀
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">root</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>  <span class="c1"># 如果当前节点无子节点则直接返回(False,0)</span>
+        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">prefix</span><span class="p">:</span>  <span class="c1"># 遍历prefix中的字符</span>
+        <span class="n">char_not_found</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c1"># 标记当前字符是否出现在node的子节点列表中,默认为True</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">char</span> <span class="o">==</span> <span class="n">char</span><span class="p">:</span>  <span class="c1"># 如果当前字符包含在node的子结点中</span>
+                <span class="n">char_not_found</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">child</span>  <span class="c1"># node向前移一位,即移至当前字符的位置</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">char_not_found</span><span class="p">:</span>  <span class="c1"># 如果当前字符不在node的子结点中则直接返回(False,0)</span>
+            <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="c1"># 执行至此步则表示prefix的所有字符都出现在字典树中,直接返回True和最后一个字符的counter</span>
+    <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">counter</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+    <span class="c1"># 构造根节点和字典树</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">TrieNode</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&#34;hackathon&#34;</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&#34;hack&#34;</span><span class="p">)</span>
+
+    <span class="c1"># 在字典树中查找</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&#34;hac&#34;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;hack&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;hackathon&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;ha&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;hammer&#39;</span><span class="p">))</span>
+
+<span class="c1"># 输出结果为:</span>
+<span class="c1"># (True, 2)</span>
+<span class="c1"># (True, 2)</span>
+<span class="c1"># (True, 1)</span>
+<span class="c1"># (True, 2)</span>
+<span class="c1"># (False, 0)</span>
+</code></pre></div><blockquote>
+<p>摘自: <a class="link" href="https://towardsdatascience.com/implementing-a-trie-data-structure-in-python-in-less-than-100-lines-of-code-a877ea23c1a1"  target="_blank" rel="noopener"
+    >Meidum: Implementing a Trie in Python</a></p>
+<p>原作者: <a class="link" href="https://medium.com/@rcshubha"  target="_blank" rel="noopener"
+    >Shubhadeep Roychowdhury</a></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/python/">Python</a>
+        
+            <a href="/tags/data-structure/">data structure</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/neural-network-with-python/">
+        
+        
+            <div class="article-image">
+                <img src="/p/neural-network-with-python/neural-network_hub24483d86c658fd613211ba0613ee712_190184_250x150_fill_q75_box_smart1.jpeg" width="250" height="150" 
+                        loading="lazy" data-key="neural network with python" data-hash="md5-6lGbruP6yrpkPmMhy9smww==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Neural Network With Python</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">&copy; 2020 Heaciy&#39;s Blog</section>
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="1.1.0">Stack</a></b> designed by
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<link rel="stylesheet" href="/css/highlight/light.min.css" media="(prefers-color-scheme: light)">
+<link rel="stylesheet" href="/css/highlight/dark.min.css" media="(prefers-color-scheme: dark)">
+
+    </body>
+</html>
