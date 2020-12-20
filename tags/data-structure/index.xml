@@ -13,7 +13,7 @@
       <pubDate>Sat, 19 Dec 2020 00:00:00 +0000</pubDate>
       
       <guid>https://heaciy.com/p/implementing-a-trie-in-python/</guid>
-      <description>from typing import Tuple # char: 单字符,形如&amp;#39;h&amp;#39;,&amp;#39;a&amp;#39;,&amp;#39;c&amp;#39;,&amp;#39;k&amp;#39; # word: 词,形如&amp;#34;hack&amp;#34; class TrieNode(object): &amp;#34;&amp;#34;&amp;#34; 字符节点 &amp;#34;&amp;#34;&amp;#34; def __init__(self, char: str): self.char = char # 存储的字符 self.children = [] # 子节点 self.word_finished = False # 是否是词尾 self.counter = 1 # 出现在word中的 def add(root, word: str): &amp;#34;&amp;#34;&amp;#34; 向字典树中添加词 &amp;#34;&amp;#34;&amp;#34; node = root # node的初始值为root节点* for char in word: # 遍历整个word found_in_child = False # 标记当前char是否在node的子结点列表中 for child in node.children: if child.char == char: # node节点的子节点中包含当前的char child.</description>
+      <description>from typing import Tuple # char: 单字符,形如&amp;#39;h&amp;#39;,&amp;#39;a&amp;#39;,&amp;#39;c&amp;#39;,&amp;#39;k&amp;#39; # word: 词,形如&amp;#34;hack&amp;#34; class TrieNode(object): &amp;#34;&amp;#34;&amp;#34; 字符节点 &amp;#34;&amp;#34;&amp;#34; def __init__(self, char: str): self.char = char # 存储的字符 self.children = [] # 该节点的子节点 self.word_finished = False # 是否是词尾 self.counter = 1 # 出现在word中的次数 def add(root, word: str): &amp;#34;&amp;#34;&amp;#34; 向字典树中添加词 &amp;#34;&amp;#34;&amp;#34; node = root # node的初始值为root节点* for char in word: # 遍历整个word found_in_child = False # 标记当前char是否在node的子结点列表中 for child in node.children: if child.char == char: # node节点的子节点中包含当前的char child.</description>
     </item>
     
   </channel>
