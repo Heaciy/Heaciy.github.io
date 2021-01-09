@@ -244,6 +244,9 @@
 
 
 <span class="k">def</span> <span class="nf">get_all_words</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">TrieNode</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    获取Trie中所有的词组
+</span><span class="s2">    &#34;&#34;&#34;</span>
     <span class="n">all_words</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">current_word</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># 递归方式</span>
@@ -274,6 +277,7 @@
     <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;hackathon&#39;</span><span class="p">))</span>
     <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;ha&#39;</span><span class="p">))</span>
     <span class="k">print</span><span class="p">(</span><span class="n">find_profix</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;hammer&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">get_all_words</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
 
 <span class="c1"># 输出结果为:</span>
 <span class="c1"># (True, 2)</span>
@@ -376,7 +380,7 @@
     
 
     <footer class="site-footer">
-    <section class="copyright">&copy; 2020 Heaciy&#39;s Blog</section>
+    <section class="copyright">&copy; 2021 Heaciy&#39;s Blog</section>
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
         Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="1.1.0">Stack</a></b> designed by

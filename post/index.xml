@@ -6,7 +6,20 @@
     <description>Recent content in Posts on Heaciy&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 01 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Happy New Year</title>
+      <link>https://heaciy.com/p/happy-new-year-2021/</link>
+      <pubDate>Fri, 01 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://heaciy.com/p/happy-new-year-2021/</guid>
+      <description>所以到底应该是说新年快乐呢还是元旦快乐呢？ 元旦快乐好像不是很好听，新年快乐的话那过年的时候说啥呢？
+愿望太多那就先面向抽象许个愿：🎈🎊🎉愿新年，胜旧年🎈🎉🎊
+愿：
+ 六级、系统分析师、系统架构师、考研都能取得好成绩 愿家人、朋友还有自己都能开开心心、健健康康的生活，平安喜乐  P.s. 我发现从小到大我都有这样一种感觉，2019的年末的时候在想，2020听上去好奇怪的感觉……但是到了2020的一刹那又好像突然什么都习惯了，心里也接受了这是新的一年的。 就在昨晚我还在想2021读着一点都不顺，到了今早 1月1号，“现在就应该是2021……”
+新的一年，也请继续加油，继续努力</description>
+    </item>
+    
     <item>
       <title>Implementing a Trie in Python</title>
       <link>https://heaciy.com/p/implementing-a-trie-in-python/</link>
