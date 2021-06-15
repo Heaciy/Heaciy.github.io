@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Python on Heaciy&#39;s Blog</title>
+    <title>python on Heaciy&#39;s Blog</title>
     <link>https://heaciy.com/tags/python/</link>
-    <description>Recent content in Python on Heaciy&#39;s Blog</description>
+    <description>Recent content in python on Heaciy&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Django Signal简析</title>
+      <link>https://heaciy.com/p/django-signal-principle-analysis/</link>
+      <pubDate>Thu, 10 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://heaciy.com/p/django-signal-principle-analysis/</guid>
+      <description>我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了……本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正题图来自 unsplash，原图链接🔗
+ 观察者模式 “观察者模式是一种对象行为模式。它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。[1]”
+“观察者模式是一种行为设计模式， 允许你定义一种订阅机制， 可在对象事件发生时通知多个 “观察” 该对象的其他对象。[2]”
+观察者模式有多种实现方式，比较经典的一种实现，有四个角色：Subject（被观察对象抽象类）、Observer（观察者抽象类）、ConcreateObserver（具体观察者）、ConcreateSubject(具体的被观察者)……
+这里就不赘述了……可以参见下面的链接
+ wikipedia：Observer pattern 百度百科：观察者模式 观察者模式（Observer模式）详解 观察者模式 菜鸟教程：观察者模式 观察者模式的python简单实现  Signal简述 可以先看看Django的官方文档
+ https://docs.djangoproject.com/zh-hans/3.0/topics/signals/ https://docs.djangoproject.com/zh-hans/3.0/ref/signals/  与观察者模式对应：sender就是被观察者、receiver是观察者。有所不同的就是多了个signal，也就是“信号”（也可使说是信号的“管理者”）。在普通观察者模式中，被观察对象抽象类中一般会维护一个观察者抽象类的引用列表，以此来传递消息，而django中则是借助Signal类进一步解耦，通过Signal类进行“信号传递”，具体解析如下：
+1. signal 信号类，维护一个receivers列表，用于存储sender和receiver的对应记录
+signal.connect()用于往signal.receivers中添加对应的receiver和sender记录
+signal_send()，在signal.receivers中查找sender对应的receivers并将对应信号(参数)传递给对应的receivers
+django预置了一些信号对象，pre_init、post_init、pre_save、post_save等，这些都是直接或间接的继承自Siganl类，单一职责原则，每个具体的信号对象只负责存储“一类信号”，比如前面列举的四个信号对象都是django model相关的。以pre_save为例，只有在调用某个model对象的save方法时（前）才会调用pre_save.send()发送相关数据（“信号”）。也就是说pre_save这个Signal对象的receivers列表中存储的sender都是model而receiver都是我们希望在进行model.save()前调用的函数来进行的一些相关操作。
+2. sender 信号的发送方，即调用signal.send()方法的类。比如，所有model类的父类都是BaseModel，而BaseModel有一个__init__函数在该函数中，首先就会调用pre_init.send(self.__class__,**kwargs)发送即将开始init的信号，然后再进行具体的init操作，在init之后再调用post_init.send发送init完成的信号。故这里的BaseModel类就是这两个信号对象(pre_init、post_init)的sender。而我们的model类都是继承自BaseModel，init方法也是继承来的，故此时的sender就是我们定义的model类。
+3. receiver 信号的接收方，为可调用对象，一般是个函数，接收signal.send()传递过来的参数，再进行相关的操作
+假如我们有个model对象为People，我们想要在构造每一个People时（new_people = People(name=&amp;quot;haha&amp;quot;,email=&amp;quot;haha@mail.com&amp;quot;)）打印出其相关信息，我们可以用一个函数打印其信息：
+def print_info(*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&amp;#34;) 然后使用pre_init.connect(print_info, sender=People)将其与sender绑定起来,即在pre_init的receivers列表中存一条对应的记录:
+((People_id,print_info_id),print_info_weakref) 此处的print_info函数即为一个receiver，pre_init信号中People类对应的receiver。
+当然也可以直接使用装饰器，不过也是同样的道理
+@receiver(pre_init,sender=People) def print_info_before_init(sender,*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&amp;#34;) 最终打印出来的结果是
+args: []kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}原理简析 django的整个信号模块都是依赖Signal这个类完成的</description>
+    </item>
+    
     <item>
       <title>Implementing a Trie in Python</title>
       <link>https://heaciy.com/p/implementing-a-trie-in-python/</link>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>CS on Heaciy&#39;s Blog</title>
-    <link>https://heaciy.com/categories/cs/</link>
-    <description>Recent content in CS on Heaciy&#39;s Blog</description>
+    <title>django on Heaciy&#39;s Blog</title>
+    <link>https://heaciy.com/tags/django/</link>
+    <description>Recent content in django on Heaciy&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 10 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/categories/cs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/django/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Django Signal简析</title>
       <link>https://heaciy.com/p/django-signal-principle-analysis/</link>
@@ -32,24 +32,6 @@ def print_info(*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&a
 当然也可以直接使用装饰器，不过也是同样的道理
 @receiver(pre_init,sender=People) def print_info_before_init(sender,*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&amp;#34;) 最终打印出来的结果是
 args: []kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}原理简析 django的整个信号模块都是依赖Signal这个类完成的</description>
-    </item>
-    
-    <item>
-      <title>Implementing a Trie in Python</title>
-      <link>https://heaciy.com/p/implementing-a-trie-in-python/</link>
-      <pubDate>Sat, 19 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/p/implementing-a-trie-in-python/</guid>
-      <description>from typing import Tuple # char: 单字符,形如&amp;#39;h&amp;#39;,&amp;#39;a&amp;#39;,&amp;#39;c&amp;#39;,&amp;#39;k&amp;#39; # word: 词,形如&amp;#34;hack&amp;#34; class TrieNode(object): &amp;#34;&amp;#34;&amp;#34; 字符节点 &amp;#34;&amp;#34;&amp;#34; def __init__(self, char: str): self.char = char # 存储的字符 self.children = [] # 该节点的子节点 self.word_finished = False # 是否是词尾 self.counter = 1 # 出现在word中的次数 def add(root, word: str): &amp;#34;&amp;#34;&amp;#34; 向字典树中添加词 &amp;#34;&amp;#34;&amp;#34; node = root # node的初始值为root节点* for char in word: # 遍历整个word found_in_child = False # 标记当前char是否在node的子结点列表中 for child in node.children: if child.char == char: # node节点的子节点中包含当前的char child.</description>
-    </item>
-    
-    <item>
-      <title>Neural Network With Python</title>
-      <link>https://heaciy.com/p/neural-network-with-python/</link>
-      <pubDate>Sun, 13 Oct 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://heaciy.com/p/neural-network-with-python/</guid>
-      <description>import numpy import matplotlib.pyplot import scipy.special %matplotlib inline class neuralNetwork: def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate): # 初始化神经网络 self.inodes = inputnodes self.hnodes = hiddennodes self.onodes = outputnodes self.lr = learningrate # 学习率 # from node i to node j in the next layer self.wih = numpy.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes)) # 权重矩阵 self.who = numpy.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes)) self.activation_function = lambda x: scipy.special.expit(x) # 应用激活函数 def train(self, inputs_list, targets_list): inputs = numpy.</description>
     </item>
     
   </channel>
