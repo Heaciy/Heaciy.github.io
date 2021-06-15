@@ -13,7 +13,7 @@
       <pubDate>Thu, 10 Jun 2021 00:00:00 +0000</pubDate>
       
       <guid>https://heaciy.com/p/django-signal-principle-analysis/</guid>
-      <description>我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了……本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正题图来自 unsplash，原图链接🔗
+      <description>我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了…… 本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正 题图来自 unsplash，原图链接🔗
  观察者模式 “观察者模式是一种对象行为模式。它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。[1]”
 “观察者模式是一种行为设计模式， 允许你定义一种订阅机制， 可在对象事件发生时通知多个 “观察” 该对象的其他对象。[2]”
 观察者模式有多种实现方式，比较经典的一种实现，有四个角色：Subject（被观察对象抽象类）、Observer（观察者抽象类）、ConcreateObserver（具体观察者）、ConcreateSubject(具体的被观察者)……
@@ -31,7 +31,7 @@ def print_info(*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&a
 ((People_id,print_info_id),print_info_weakref) 此处的print_info函数即为一个receiver，pre_init信号中People类对应的receiver。
 当然也可以直接使用装饰器，不过也是同样的道理
 @receiver(pre_init,sender=People) def print_info_before_init(sender,*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&amp;#34;) 最终打印出来的结果是
-args: []kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}原理简析 django的整个信号模块都是依赖Signal这个类完成的</description>
+args: [] kwargs: {&amp;#39;name&amp;#39;:&amp;#39;haha&amp;#39;,&amp;#39;email&amp;#39;:&amp;#39;haha.</description>
     </item>
     
   </channel>
