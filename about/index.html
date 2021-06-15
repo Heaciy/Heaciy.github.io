@@ -14,7 +14,26 @@
 <meta name="twitter:description" content="Hi, I&#39;m Heaciy.">
     </head>
     <body class="article-page keep-sidebar">
-        <div class="container flex on-phone--column align-items--flex-start extended ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            localStorage.setItem(colorSchemeKey, "auto");
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended ">
             <aside class="sidebar left-sidebar sticky">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
@@ -26,14 +45,18 @@
         
             <figure class="site-avatar">
                 
-
-                
                     
-                    <img src="/img/avatar_hu5506042264f2f143136192cbc8fadc99_165574_300x300_resize_box_2.png" width="300"
-                        height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                        
+                        <img src="/img/avatar_hu5506042264f2f143136192cbc8fadc99_165574_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
 
-                <span class="emoji">🎉</span>
+                
+                    <span class="emoji">🎉</span>
+                
             </figure>
         
         <h1 class="site-name"><a href="https://heaciy.com">Heaciy&#39;s Blog</a></h1>
@@ -136,8 +159,11 @@
             </a>
         </li>
         
+
+        
     </ol>
 </aside>
+
             <main class="main full-width">
     <article class="main-article">
     <header class="article-header">
@@ -167,30 +193,32 @@
 </header>
 
     <section class="article-content">
-    
-
-<h2 id="about-heaciy">About Heaciy</h2>
-
+    <h2 id="about-heaciy">About Heaciy</h2>
 <p>It’s not hard to image that Heaciy is not my real name. Few years ago I found it really hard to find a username that has never been used on the Internet, so I created it, and registered it as the username on every site that I can image. But why is Heaciy not any other characters? Save this story for later.🎨</p>
-
 <p>I will use these blogs to share some articles I like, record some useful knowledge, interesting things in daily life and problems encountered at work. Thanks for reading.🎈</p>
-
 <h2 id="about-me">About Me</h2>
-
 <p>College Student👨‍🎓 |  Software Engineering👷 | Programmer👨‍💻 | Pythonista🐍</p>
-
-<p>Favorite Books📚: <a href="https://book.douban.com/subject/26340138/">The Storied Life of A. J. Fikry</a> | <a href="https://book.douban.com/subject/1068920/">Gone with the Wind</a> | <a href="https://book.douban.com/subject/26184384/">Dimanches d&rsquo;août</a></p>
-
-<p>Favorite Movies🎬: <a href="https://movie.douban.com/subject/1769507/">Le silence de la mer</a> | <a href="https://movie.douban.com/subject/1950148/">Atonement</a> | <a href="https://movie.douban.com/subject/1291853/">The English Patient</a> | <a href="https://movie.douban.com/subject/1293839/">Roman Holiday</a> | <a href="https://movie.douban.com/subject/1291990/">Before Sunset</a></p>
-
+<p>Favorite Books📚: <a class="link" href="https://book.douban.com/subject/26340138/"  target="_blank" rel="noopener"
+    >The Storied Life of A. J. Fikry</a> | <a class="link" href="https://book.douban.com/subject/1068920/"  target="_blank" rel="noopener"
+    >Gone with the Wind</a> | <a class="link" href="https://book.douban.com/subject/26184384/"  target="_blank" rel="noopener"
+    >Dimanches d&rsquo;août</a></p>
+<p>Favorite Movies🎬: <a class="link" href="https://movie.douban.com/subject/1769507/"  target="_blank" rel="noopener"
+    >Le silence de la mer</a> | <a class="link" href="https://movie.douban.com/subject/1950148/"  target="_blank" rel="noopener"
+    >Atonement</a> | <a class="link" href="https://movie.douban.com/subject/1291853/"  target="_blank" rel="noopener"
+    >The English Patient</a> | <a class="link" href="https://movie.douban.com/subject/1293839/"  target="_blank" rel="noopener"
+    >Roman Holiday</a> | <a class="link" href="https://movie.douban.com/subject/1291990/"  target="_blank" rel="noopener"
+    >Before Sunset</a></p>
 <h2 id="contact">Contact</h2>
-
 <ul>
-<li><a href="https://github.com/heaciy">Github</a></li>
-<li><a href="https://weibo.com/u/7169836820">Weibo</a></li>
-<li><a href="https://t.me/heaciy">Telegram</a></li>
-<li><a href="https://twitter.com/Heaciy">Twitter</a></li>
-<li><a href="mailto:heaciyyy@gmail.com">Email</a></li>
+<li><a class="link" href="https://github.com/heaciy"  target="_blank" rel="noopener"
+    >Github</a></li>
+<li><a class="link" href="https://weibo.com/u/7169836820"  target="_blank" rel="noopener"
+    >Weibo</a></li>
+<li><a class="link" href="https://t.me/heaciy"  target="_blank" rel="noopener"
+    >Telegram</a></li>
+<li><a class="link" href="https://twitter.com/Heaciy"  target="_blank" rel="noopener"
+    >Twitter</a></li>
+<li><a class="link" href="mailto:heaciyyy@gmail.com" >Email</a></li>
 </ul>
 
 </section>
@@ -233,16 +261,22 @@
     
 
     <footer class="site-footer">
-    <section class="copyright">&copy; 2021 Heaciy&#39;s Blog</section>
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2021 Heaciy&#39;s Blog
+    </section>
+    
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="1.1.0">Stack</a></b> designed by
-        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
     
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
     
     <div class="pswp__bg"></div>
@@ -303,12 +337,29 @@
 
     </div>
 
-</div>
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
 
             </main>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
-    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');
@@ -320,8 +371,6 @@
         document.head.appendChild(customFont);
     }());
 </script>
-<link rel="stylesheet" href="/css/highlight/light.min.css" media="(prefers-color-scheme: light)">
-<link rel="stylesheet" href="/css/highlight/dark.min.css" media="(prefers-color-scheme: dark)">
 
     </body>
 </html>

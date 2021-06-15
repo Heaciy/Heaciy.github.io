@@ -31,7 +31,7 @@ def print_info(*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&a
 ((People_id,print_info_id),print_info_weakref) 此处的print_info函数即为一个receiver，pre_init信号中People类对应的receiver。
 当然也可以直接使用装饰器，不过也是同样的道理
 @receiver(pre_init,sender=People) def print_info_before_init(sender,*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&amp;#34;) 最终打印出来的结果是
-args: [] kwargs: {&amp;#39;name&amp;#39;:&amp;#39;haha&amp;#39;,&amp;#39;email&amp;#39;:&amp;#39;haha.</description>
+args: []kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.</description>
     </item>
     
     <item>
