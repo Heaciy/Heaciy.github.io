@@ -1360,7 +1360,6 @@ A good example of the importance and easy of use of these decorators can be seen
     &gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id=&#34;superuser-required&#34;&gt;Superuser required&lt;/h4&gt;
 &lt;p&gt;This is the same case as when we want to allow certain groups access to a view, but in this case only super users can visit it.&lt;/p&gt;
-&lt;p&gt;Python&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.core.exceptions&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PermissionDenied&lt;/span&gt;
 
 
@@ -1382,7 +1381,6 @@ A good example of the importance and easy of use of these decorators can be seen
     &gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id=&#34;ajax-required&#34;&gt;Ajax required&lt;/h4&gt;
 &lt;p&gt;This &lt;strong&gt;decorator&lt;/strong&gt; check if the request is an &lt;strong&gt;AJAX&lt;/strong&gt; request, useful decorator when we are working with &lt;strong&gt;Javascript frameworks&lt;/strong&gt; as &lt;strong&gt;jQuery&lt;/strong&gt; and a good way to try to secure our application&lt;/p&gt;
-&lt;p&gt;Python&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.http&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseBadRequest&lt;/span&gt;
 
 
@@ -1415,7 +1413,6 @@ A good example of the importance and easy of use of these decorators can be seen
     &gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id=&#34;time-it&#34;&gt;Time it&lt;/h4&gt;
 &lt;p&gt;This &lt;strong&gt;decorator&lt;/strong&gt; is very helpful if you need to improve the response time of one of then our views or if you just want to know how long it takes to run.&lt;/p&gt;
-&lt;p&gt;Python&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;timeit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
 
    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;timed&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kw&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
@@ -1437,7 +1434,6 @@ A good example of the importance and easy of use of these decorators can be seen
 &lt;h4 id=&#34;custom-functionality&#34;&gt;Custom Functionality&lt;/h4&gt;
 &lt;p&gt;The next &lt;strong&gt;decorator&lt;/strong&gt; is just an example about how you can &lt;strong&gt;check some permissions&lt;/strong&gt; or some checks in a easy way and 100% customizable.&lt;/p&gt;
 &lt;p&gt;Imagine you have a blog, shop, forum&amp;hellip;. Where users need to have a number of points in order to write a review, it would be a good way to avoid SPAM for example. We&amp;rsquo;ll create a decorator to check that the user is logged in and has more than 10 points, so you could write a review, otherwise we&amp;rsquo;ll raise a Forbidden&lt;/p&gt;
-&lt;p&gt;Python&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.http&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseForbidden&lt;/span&gt;
 
 
