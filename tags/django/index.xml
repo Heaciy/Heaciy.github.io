@@ -34,5 +34,15 @@ def print_info(*args,**kwargs): print(f&amp;#34;args: {args}\nkwargs: {kwargs}&a
 args: []kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.</description>
     </item>
     
+    <item>
+      <title>Top 6 Django Decorators</title>
+      <link>https://heaciy.com/p/top-6-django-decorators/</link>
+      <pubDate>Sun, 14 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://heaciy.com/p/top-6-django-decorators/</guid>
+      <description>作者👨‍💻：Pablo Iglesias 时间🕐：2018/06/27 原文链接🌐：https://www.bedjango.com/blog/top-6-django-decorators/ 声明👉：本文为转载，仅作为个人学习记录
+ What is a Decorator? A decorator is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&amp;rsquo;s so special about this pattern? As we can read at Python Wiki using It is a way of apparently modifying an object&amp;rsquo;s behavior, by enclosing it inside a decorating object with a similar interface.</description>
+    </item>
+    
   </channel>
 </rss>

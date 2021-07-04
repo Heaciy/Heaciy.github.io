@@ -1282,6 +1282,191 @@ kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}
 </description>
         </item>
         <item>
+        <title>Top 6 Django Decorators</title>
+        <link>https://heaciy.com/p/top-6-django-decorators/</link>
+        <pubDate>Sun, 14 Feb 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/p/top-6-django-decorators/</guid>
+        <description>&lt;img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg" alt="Featured image of post Top 6 Django Decorators" /&gt;&lt;blockquote&gt;
+&lt;p&gt;作者👨‍💻：Pablo Iglesias&lt;br/&gt;
+时间🕐：2018/06/27&lt;br/&gt;
+原文链接🌐：&lt;a class=&#34;link&#34; href=&#34;https://www.bedjango.com/blog/top-6-django-decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.bedjango.com/blog/top-6-django-decorators/&lt;/a&gt;&lt;br/&gt;
+声明👉：本文为转载，仅作为个人学习记录&lt;br/&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;what-is-a-decorator&#34;&gt;What is a Decorator?&lt;/h3&gt;
+&lt;p&gt;A &lt;a class=&#34;link&#34; href=&#34;https://docs.djangoproject.com/en/2.0/topics/http/decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;decorator&lt;/a&gt; is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&amp;rsquo;s so special about this pattern? As we can read at  &lt;a class=&#34;link&#34; href=&#34;https://wiki.python.org/moin/DecoratorPattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Python Wiki&lt;/a&gt; using It is a way of apparently modifying an object&amp;rsquo;s behavior, by enclosing it inside a decorating object with a similar interface. You can get more information about Pattern Design &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Decorator_pattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;why-i-should-use-decorators-in-my-web-application&#34;&gt;Why I should use decorators in my web application?&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Decorators&lt;/strong&gt; dynamically alter the functionality of a function, method or class without having to make subclasses or change the source code of the decorated class. Thanks to this our &lt;strong&gt;code&lt;/strong&gt; will be &lt;strong&gt;more cleaner&lt;/strong&gt;, &lt;strong&gt;more readable&lt;/strong&gt;, &lt;strong&gt;maintainable&lt;/strong&gt; (Which is no small thing), and reduce the boilerplate code allowing us to add functionality to multiple classes using a single method.
+A good example of the importance and easy of use of these decorators can be seen in the decorator &lt;a class=&#34;link&#34; href=&#34;https://docs.djangoproject.com/en/2.0/topics/auth/default/#the-login-required-decorator&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;@login_required&lt;/a&gt; that provides &lt;strong&gt;django&lt;/strong&gt;, and that you probably used if you have some experience with our favorite framework. It’s just a piece of code where we check if the user is not authenticated the user is redirected to the login url.&lt;/p&gt;
+&lt;p&gt;The way that the decorators as used is the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.contrib.auth.decorators&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;login_required&lt;/span&gt;
+
+
+&lt;span class=&#34;nd&#34;&gt;@login_required&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;…&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Each time that a user try to access to &lt;strong&gt;my_view&lt;/strong&gt;, the code inside &lt;strong&gt;login_required&lt;/strong&gt; will be ejecuted.&lt;/p&gt;
+&lt;h3 id=&#34;some-of-our-favorite-decorators&#34;&gt;Some of our favorite decorators&lt;/h3&gt;
+&lt;p&gt;In this section we will show you some of the &lt;strong&gt;decorators&lt;/strong&gt; that we think are &lt;strong&gt;most useful&lt;/strong&gt; or that we have ever used with positive results, keep in mind that many of these can be customized to suit your needs. For this post we will use the original decorators with their font.&lt;/p&gt;
+&lt;h4 id=&#34;group-required&#34;&gt;Group Required&lt;/h4&gt;
+&lt;p&gt;Sometimes we need to protect some views, to allow a certain group of users to access it. Instead of checking within it if the user belongs to that group/s, we can use the following decorator&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.contrib.auth.decorators&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;user_passes_test&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;group_required&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;group_names&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;Requires user membership in at least one of the groups passed in.&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;in_groups&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_authenticated&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;groups&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;filter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name__in&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;group_names&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_superuser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+               &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;user_passes_test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;in_groups&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# The way to use this decorator is:&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@group_required&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;‘&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;admins&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;’&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;‘&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;seller&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;’&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it &lt;a class=&#34;link&#34; href=&#34;https://djangosnippets.org/snippets/1703/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;anonymous-required&#34;&gt;Anonymous required&lt;/h4&gt;
+&lt;p&gt;This decorator is based on the &lt;strong&gt;decorator login_required&lt;/strong&gt; of &lt;strong&gt;Django&lt;/strong&gt;, but looks for the opposite case, that the user is anonymous, otherwise the user is redirected to the website defined in our &lt;strong&gt;settings.py&lt;/strong&gt; and can be useful when we want to protect logged user views, such as the login or registration view&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;anonymous_required&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;redirect_url&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;redirect_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+       &lt;span class=&#34;n&#34;&gt;redirect_url&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;settings&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LOGIN_REDIRECT_URL&lt;/span&gt;
+
+   &lt;span class=&#34;n&#34;&gt;actual_decorator&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;user_passes_test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;lambda&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_anonymous&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt;
+       &lt;span class=&#34;n&#34;&gt;login_url&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;redirect_url&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actual_decorator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actual_decorator&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# The way to use this decorator is:&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@anonymous_required&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it &lt;a class=&#34;link&#34; href=&#34;https://djangosnippets.org/snippets/2969/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;superuser-required&#34;&gt;Superuser required&lt;/h4&gt;
+&lt;p&gt;This is the same case as when we want to allow certain groups access to a view, but in this case only super users can visit it.&lt;/p&gt;
+&lt;p&gt;Python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.core.exceptions&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PermissionDenied&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;superuser_only&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+  &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;Limit view to superusers only.&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;_inner&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_superuser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;raise&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PermissionDenied&lt;/span&gt;           
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_inner&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# The way to use this decorator is:&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@superuser_only&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it &lt;a class=&#34;link&#34; href=&#34;https://djangosnippets.org/snippets/1575/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;ajax-required&#34;&gt;Ajax required&lt;/h4&gt;
+&lt;p&gt;This &lt;strong&gt;decorator&lt;/strong&gt; check if the request is an &lt;strong&gt;AJAX&lt;/strong&gt; request, useful decorator when we are working with &lt;strong&gt;Javascript frameworks&lt;/strong&gt; as &lt;strong&gt;jQuery&lt;/strong&gt; and a good way to try to secure our application&lt;/p&gt;
+&lt;p&gt;Python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.http&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseBadRequest&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;ajax_required&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;   AJAX request required decorator
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;   use it in your views:
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;   @ajax_required
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;   def my_view(request):
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;       ....
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;   &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;   
+
+   &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wrap&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_ajax&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseBadRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+   &lt;span class=&#34;n&#34;&gt;wrap&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__doc__&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__doc__&lt;/span&gt;
+   &lt;span class=&#34;n&#34;&gt;wrap&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt;
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wrap&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# The way to use this decorator is:&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@ajax_required&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it &lt;a class=&#34;link&#34; href=&#34;https://djangosnippets.org/snippets/771/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;time-it&#34;&gt;Time it&lt;/h4&gt;
+&lt;p&gt;This &lt;strong&gt;decorator&lt;/strong&gt; is very helpful if you need to improve the response time of one of then our views or if you just want to know how long it takes to run.&lt;/p&gt;
+&lt;p&gt;Python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;timeit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;timed&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kw&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+       &lt;span class=&#34;n&#34;&gt;ts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+       &lt;span class=&#34;n&#34;&gt;result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kw&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+       &lt;span class=&#34;n&#34;&gt;te&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%r&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt; (&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%r&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;, &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%r&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;) &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;%2.2f&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt; sec&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kw&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;te&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;result&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timed&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# The way to use this decorator is:&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@timeit&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;my_view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it &lt;a class=&#34;link&#34; href=&#34;https://www.zopyx.com/andreas-jung/contents/a-python-decorator-for-measuring-the-execution-time-of-methods&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;custom-functionality&#34;&gt;Custom Functionality&lt;/h4&gt;
+&lt;p&gt;The next &lt;strong&gt;decorator&lt;/strong&gt; is just an example about how you can &lt;strong&gt;check some permissions&lt;/strong&gt; or some checks in a easy way and 100% customizable.&lt;/p&gt;
+&lt;p&gt;Imagine you have a blog, shop, forum&amp;hellip;. Where users need to have a number of points in order to write a review, it would be a good way to avoid SPAM for example. We&amp;rsquo;ll create a decorator to check that the user is logged in and has more than 10 points, so you could write a review, otherwise we&amp;rsquo;ll raise a Forbidden&lt;/p&gt;
+&lt;p&gt;Python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;django.http&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseForbidden&lt;/span&gt;
+
+
+&lt;span class=&#34;n&#34;&gt;logger&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;logging&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;getLogger&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;user_can_write_a_review&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+   &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;View decorator that checks a user is allowed to write a review, in negative case the decorator return Forbidden&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+
+   &lt;span class=&#34;nd&#34;&gt;@functools.wraps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+   &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wrapper&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+       &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_authenticated&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;points&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+           &lt;span class=&#34;n&#34;&gt;logger&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;warning&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;The {} user has tried to write a review, but does not have enough points to do so&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;pk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseForbidden&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+
+       &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kwargs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+   &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wrapper&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can get more information about it asking myself at &lt;strong&gt;&lt;a class=&#34;link&#34; href=&#34;mailto:piglesias@emergya.com&#34; &gt;piglesias@emergya.com&lt;/a&gt;&lt;/strong&gt; or via twitter &lt;a class=&#34;link&#34; href=&#34;http://twitter.com/PyPiglesias?lang=es&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;@pypiglesias&lt;/a&gt;.  I really hope you found the post interesting or at least curious. From &lt;strong&gt;BeDjango&lt;/strong&gt; we would like to encourage you to share your decorators, ideas or questions as well as interesting topics for future posts&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;参考链接&#34;&gt;参考链接&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p09_meta_programming.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;python decorator&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>Happy New Year</title>
         <link>https://heaciy.com/p/happy-new-year-2021/</link>
         <pubDate>Fri, 01 Jan 2021 00:00:00 +0000</pubDate>
