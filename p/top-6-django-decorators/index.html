@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='django常用装饰器'><title>Top 6 Django Decorators</title>
+
+<link rel='canonical' href='https://heaciy.com/p/top-6-django-decorators/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><script src='//unpkg.com/valine/dist/Valine.min.js'></script><meta property='og:title' content='Top 6 Django Decorators'>
+<meta property='og:description' content='django常用装饰器'>
+<meta property='og:url' content='https://heaciy.com/p/top-6-django-decorators/'>
+<meta property='og:site_name' content='Heaciy&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='repost' /><meta property='article:tag' content='python' /><meta property='article:tag' content='django' /><meta property='article:published_time' content='2021-02-14T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-02-14T00:00:00&#43;00:00'/><meta property='og:image' content='https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg' />
+<meta name="twitter:title" content="Top 6 Django Decorators">
+<meta name="twitter:description" content="django常用装饰器"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg' />
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            localStorage.setItem(colorSchemeKey, "auto");
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu5506042264f2f143136192cbc8fadc99_165574_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🎉</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://heaciy.com">Heaciy&#39;s Blog</a></h1>
+        <h2 class="site-description">Life is what happens to you while you&#39;re busy making other plans.</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/index.xml'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="5" cy="19" r="1" />
+  <path d="M4 4a16 16 0 0 1 16 16" />
+  <path d="M4 11a9 9 0 0 1 9 9" />
+</svg>
+
+
+
+                
+                <span>Feed</span>
+            </a>
+        </li>
+        
+
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://heaciy.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/top-6-django-decorators/">
+                
+                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg" loading="lazy" alt="Featured image of post Top 6 Django Decorators" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/cs/" >
+                CS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/top-6-django-decorators/">Top 6 Django Decorators</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        django常用装饰器
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Feb 14, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>作者👨‍💻：Pablo Iglesias<br/>
+时间🕐：2018/06/27<br/>
+原文链接🌐：<a class="link" href="https://www.bedjango.com/blog/top-6-django-decorators/"  target="_blank" rel="noopener"
+    >https://www.bedjango.com/blog/top-6-django-decorators/</a><br/>
+声明👉：本文为转载，仅作为个人学习记录<br/></p>
+</blockquote>
+<h3 id="what-is-a-decorator">What is a Decorator?</h3>
+<p>A <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/http/decorators/"  target="_blank" rel="noopener"
+    >decorator</a> is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&rsquo;s so special about this pattern? As we can read at  <a class="link" href="https://wiki.python.org/moin/DecoratorPattern"  target="_blank" rel="noopener"
+    >Python Wiki</a> using It is a way of apparently modifying an object&rsquo;s behavior, by enclosing it inside a decorating object with a similar interface. You can get more information about Pattern Design <a class="link" href="https://en.wikipedia.org/wiki/Decorator_pattern"  target="_blank" rel="noopener"
+    >here</a>.</p>
+<h3 id="why-i-should-use-decorators-in-my-web-application">Why I should use decorators in my web application?</h3>
+<p><strong>Decorators</strong> dynamically alter the functionality of a function, method or class without having to make subclasses or change the source code of the decorated class. Thanks to this our <strong>code</strong> will be <strong>more cleaner</strong>, <strong>more readable</strong>, <strong>maintainable</strong> (Which is no small thing), and reduce the boilerplate code allowing us to add functionality to multiple classes using a single method.
+A good example of the importance and easy of use of these decorators can be seen in the decorator <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/auth/default/#the-login-required-decorator"  target="_blank" rel="noopener"
+    >@login_required</a> that provides <strong>django</strong>, and that you probably used if you have some experience with our favorite framework. It’s just a piece of code where we check if the user is not authenticated the user is redirected to the login url.</p>
+<p>The way that the decorators as used is the following:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+
+
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="err">…</span>
+</code></pre></div><p>Each time that a user try to access to <strong>my_view</strong>, the code inside <strong>login_required</strong> will be ejecuted.</p>
+<h3 id="some-of-our-favorite-decorators">Some of our favorite decorators</h3>
+<p>In this section we will show you some of the <strong>decorators</strong> that we think are <strong>most useful</strong> or that we have ever used with positive results, keep in mind that many of these can be customized to suit your needs. For this post we will use the original decorators with their font.</p>
+<h4 id="group-required">Group Required</h4>
+<p>Sometimes we need to protect some views, to allow a certain group of users to access it. Instead of checking within it if the user belongs to that group/s, we can use the following decorator</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">user_passes_test</span>
+
+
+<span class="k">def</span> <span class="nf">group_required</span><span class="p">(</span><span class="o">*</span><span class="n">group_names</span><span class="p">):</span>
+   <span class="s2">&#34;&#34;&#34;Requires user membership in at least one of the groups passed in.&#34;&#34;&#34;</span>
+
+   <span class="k">def</span> <span class="nf">in_groups</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
+           <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__in</span><span class="o">=</span><span class="n">group_names</span><span class="p">))</span> <span class="o">|</span> <span class="n">u</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">:</span>
+               <span class="k">return</span> <span class="bp">True</span>
+       <span class="k">return</span> <span class="bp">False</span>
+   <span class="k">return</span> <span class="n">user_passes_test</span><span class="p">(</span><span class="n">in_groups</span><span class="p">)</span>
+
+
+<span class="c1"># The way to use this decorator is:</span>
+<span class="nd">@group_required</span><span class="p">(</span><span class="err">‘</span><span class="n">admins</span><span class="err">’</span><span class="p">,</span> <span class="err">‘</span><span class="n">seller</span><span class="err">’</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">)</span>
+    <span class="o">...</span>
+</code></pre></div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/1703/"  target="_blank" rel="noopener"
+    >here</a></p>
+<h4 id="anonymous-required">Anonymous required</h4>
+<p>This decorator is based on the <strong>decorator login_required</strong> of <strong>Django</strong>, but looks for the opposite case, that the user is anonymous, otherwise the user is redirected to the website defined in our <strong>settings.py</strong> and can be useful when we want to protect logged user views, such as the login or registration view</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">anonymous_required</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">redirect_url</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+   <span class="k">if</span> <span class="ow">not</span> <span class="n">redirect_url</span><span class="p">:</span>
+       <span class="n">redirect_url</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">LOGIN_REDIRECT_URL</span>
+
+   <span class="n">actual_decorator</span> <span class="o">=</span> <span class="n">user_passes_test</span><span class="p">(</span>
+       <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">(),</span>
+       <span class="n">login_url</span><span class="o">=</span><span class="n">redirect_url</span>
+   <span class="p">)</span>
+
+   <span class="k">if</span> <span class="n">function</span><span class="p">:</span>
+       <span class="k">return</span> <span class="n">actual_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">actual_decorator</span>
+
+
+<span class="c1"># The way to use this decorator is:</span>
+<span class="nd">@anonymous_required</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">)</span>
+    <span class="o">...</span>
+</code></pre></div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/2969/"  target="_blank" rel="noopener"
+    >here</a></p>
+<h4 id="superuser-required">Superuser required</h4>
+<p>This is the same case as when we want to allow certain groups access to a view, but in this case only super users can visit it.</p>
+<p>Python</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">PermissionDenied</span>
+
+
+<span class="k">def</span> <span class="nf">superuser_only</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+  <span class="s2">&#34;&#34;&#34;Limit view to superusers only.&#34;&#34;&#34;</span>
+
+   <span class="k">def</span> <span class="nf">_inner</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">:</span>
+           <span class="k">raise</span> <span class="n">PermissionDenied</span>           
+       <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">_inner</span>
+
+
+<span class="c1"># The way to use this decorator is:</span>
+<span class="nd">@superuser_only</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/1575/"  target="_blank" rel="noopener"
+    >here</a></p>
+<h4 id="ajax-required">Ajax required</h4>
+<p>This <strong>decorator</strong> check if the request is an <strong>AJAX</strong> request, useful decorator when we are working with <strong>Javascript frameworks</strong> as <strong>jQuery</strong> and a good way to try to secure our application</p>
+<p>Python</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseBadRequest</span>
+
+
+<span class="k">def</span> <span class="nf">ajax_required</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+   <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">   AJAX request required decorator
+</span><span class="s2">   use it in your views:
+</span><span class="s2">
+</span><span class="s2">   @ajax_required
+</span><span class="s2">   def my_view(request):
+</span><span class="s2">       ....
+</span><span class="s2">
+</span><span class="s2">   &#34;&#34;&#34;</span>   
+
+   <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">is_ajax</span><span class="p">():</span>
+           <span class="k">return</span> <span class="n">HttpResponseBadRequest</span><span class="p">()</span>
+       <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+   <span class="n">wrap</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="vm">__doc__</span>
+   <span class="n">wrap</span><span class="o">.</span><span class="vm">__name__</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+   <span class="k">return</span> <span class="n">wrap</span>
+
+
+<span class="c1"># The way to use this decorator is:</span>
+<span class="nd">@ajax_required</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/771/"  target="_blank" rel="noopener"
+    >here</a></p>
+<h4 id="time-it">Time it</h4>
+<p>This <strong>decorator</strong> is very helpful if you need to improve the response time of one of then our views or if you just want to know how long it takes to run.</p>
+<p>Python</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+
+   <span class="k">def</span> <span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+       <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+       <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+       <span class="n">te</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+       <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> (</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">) </span><span class="si">%2.2f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kw</span><span class="p">,</span> <span class="n">te</span> <span class="o">-</span> <span class="n">ts</span><span class="p">))</span>
+       <span class="k">return</span> <span class="n">result</span>
+
+   <span class="k">return</span> <span class="n">timed</span>
+
+
+<span class="c1"># The way to use this decorator is:</span>
+<span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div><p>You can get more information about it <a class="link" href="https://www.zopyx.com/andreas-jung/contents/a-python-decorator-for-measuring-the-execution-time-of-methods"  target="_blank" rel="noopener"
+    >here</a></p>
+<h4 id="custom-functionality">Custom Functionality</h4>
+<p>The next <strong>decorator</strong> is just an example about how you can <strong>check some permissions</strong> or some checks in a easy way and 100% customizable.</p>
+<p>Imagine you have a blog, shop, forum&hellip;. Where users need to have a number of points in order to write a review, it would be a good way to avoid SPAM for example. We&rsquo;ll create a decorator to check that the user is logged in and has more than 10 points, so you could write a review, otherwise we&rsquo;ll raise a Forbidden</p>
+<p>Python</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseForbidden</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">user_can_write_a_review</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+   <span class="s2">&#34;&#34;&#34;View decorator that checks a user is allowed to write a review, in negative case the decorator return Forbidden&#34;&#34;&#34;</span>
+
+   <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+   <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">()</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">points</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+           <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;The {} user has tried to write a review, but does not have enough points to do so&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span>
+           <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">()</span>
+
+       <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+   <span class="k">return</span> <span class="n">wrapper</span>
+</code></pre></div><p>You can get more information about it asking myself at <strong><a class="link" href="mailto:piglesias@emergya.com" >piglesias@emergya.com</a></strong> or via twitter <a class="link" href="http://twitter.com/PyPiglesias?lang=es"  target="_blank" rel="noopener"
+    >@pypiglesias</a>.  I really hope you found the post interesting or at least curious. From <strong>BeDjango</strong> we would like to encourage you to share your decorators, ideas or questions as well as interesting topics for future posts</p>
+<hr>
+<h3 id="参考链接">参考链接</h3>
+<ul>
+<li><a class="link" href="https://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p09_meta_programming.html"  target="_blank" rel="noopener"
+    >python decorator</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/repost/">repost</a>
+        
+            <a href="/tags/python/">python</a>
+        
+            <a href="/tags/django/">django</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/django-signal-principle-analysis/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1494129935429-873eafa78178.jpg" loading="lazy" data-key="django-signal-principle-analysis" data-hash="https://gitee.com/Heaciy/img/raw/master/post/photo-1494129935429-873eafa78178.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Django Signal简析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/internal-sort/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1585776245991-cf89dd7fc73a.jpg" loading="lazy" data-key="internal sort" data-hash="https://gitee.com/Heaciy/img/raw/master/post/photo-1585776245991-cf89dd7fc73a.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">常用内部排序算法</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/implementing-a-trie-in-python/">
+        
+        
+            <div class="article-image">
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu5ca3eeea9d4841595d42211afa052e1d_72289_250x150_fill_q75_box_smart1.jpeg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="implementing a trie in Python" 
+                        data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Implementing a Trie in Python</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/neural-network-with-python/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;amp;ixlib=rb-1.2.1&amp;amp;auto=format&amp;amp;fit=crop&amp;amp;w=1653&amp;amp;q=80" loading="lazy" data-key="neural network with python" data-hash="https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;amp;ixlib=rb-1.2.1&amp;amp;auto=format&amp;amp;fit=crop&amp;amp;w=1653&amp;amp;q=80"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Neural Network With Python</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div id="vcomments" class="valine-container"></div>
+<style>
+    .valine-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+<script async="async">
+    new Valine({
+        el: '#vcomments',  
+        appId: 'GvRq0fD2lU22a9zvtTz1KWbr-MdYXbMMI',
+        appKey: 'ii7hhKwHBCBo95atXNpFNcLf',
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2021 Heaciy&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
