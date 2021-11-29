@@ -396,7 +396,8 @@ kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}
 				width=&#34;373&#34;
 				height=&#34;569&#34;
 				loading=&#34;lazy&#34;
-				alt=&#34;Signal Class Diagram&#34;&gt;
+				alt=&#34;Signal Class Diagram&#34;
+				referrer=&#34;no-referrer|origin|unsafe-url&#34;&gt;
 		&lt;/a&gt;
 		
 		&lt;figcaption&gt;Signal Class Diagram&lt;/figcaption&gt;
@@ -408,7 +409,8 @@ kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}
 				width=&#34;956&#34;
 				height=&#34;538&#34;
 				loading=&#34;lazy&#34;
-				alt=&#34;Signal Class Diagram Detail&#34;&gt;
+				alt=&#34;Signal Class Diagram Detail&#34;
+				referrer=&#34;no-referrer|origin|unsafe-url&#34;&gt;
 		&lt;/a&gt;
 		
 		&lt;figcaption&gt;Signal Class Diagram Detail&lt;/figcaption&gt;
