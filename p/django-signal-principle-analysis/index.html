@@ -9,10 +9,10 @@
 <meta property='og:description' content='从Observer pattern到Django signal'>
 <meta property='og:url' content='https://heaciy.com/p/django-signal-principle-analysis/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='python' /><meta property='article:tag' content='django' /><meta property='article:published_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='og:image' content='https://gitee.com/Heaciy/img/raw/master/post/photo-1494129935429-873eafa78178.jpg' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='python' /><meta property='article:tag' content='django' /><meta property='article:published_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='og:image' content='https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;ixlib=rb-1.2.1&amp;q=80&amp;w=2000' />
 <meta name="twitter:title" content="Django Signal简析">
 <meta name="twitter:description" content="从Observer pattern到Django signal"><meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content='https://gitee.com/Heaciy/img/raw/master/post/photo-1494129935429-873eafa78178.jpg' />
+    <meta name="twitter:image" content='https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;ixlib=rb-1.2.1&amp;q=80&amp;w=2000' />
     </head>
     <body class="">
     <script>
@@ -184,7 +184,7 @@
         <div class="article-image">
             <a href="/p/django-signal-principle-analysis/">
                 
-                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1494129935429-873eafa78178.jpg" loading="lazy" alt="Featured image of post Django Signal简析" referrer="no-referrer|origin|unsafe-url" />
+                    <img src="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000" loading="lazy" alt="Featured image of post Django Signal简析" referrer="no-referrer|origin|unsafe-url" />
                 
             </a>
         </div>
@@ -283,32 +283,8 @@
 kwargs: {'name':'haha','email':'haha.mail.com'}
 </code></pre><h3 id="原理简析">原理简析</h3>
 <p>django的整个信号模块都是依赖Signal这个类完成的</p>
-<p><figure style="flex-grow: 65; flex-basis: 157px">
-		<a href="/p/django-signal-principle-analysis/signal.png" data-size="373x569"><img src="/p/django-signal-principle-analysis/signal.png"
-				srcset="/p/django-signal-principle-analysis/signal_hu0d4340ace52137d0792da51c154fc30e_53377_480x0_resize_box_2.png 480w, /p/django-signal-principle-analysis/signal_hu0d4340ace52137d0792da51c154fc30e_53377_1024x0_resize_box_2.png 1024w"
-				width="373"
-				height="569"
-				loading="lazy"
-				alt="Signal Class Diagram"
-				referrer="no-referrer|origin|unsafe-url">
-		</a>
-		
-		<figcaption>Signal Class Diagram</figcaption>
-		
-	</figure>
-<figure style="flex-grow: 177; flex-basis: 426px">
-		<a href="/p/django-signal-principle-analysis/signal_detail.png" data-size="956x538"><img src="/p/django-signal-principle-analysis/signal_detail.png"
-				srcset="/p/django-signal-principle-analysis/signal_detail_huba212b28afdc2707efba4351cf327446_99360_480x0_resize_box_2.png 480w, /p/django-signal-principle-analysis/signal_detail_huba212b28afdc2707efba4351cf327446_99360_1024x0_resize_box_2.png 1024w"
-				width="956"
-				height="538"
-				loading="lazy"
-				alt="Signal Class Diagram Detail"
-				referrer="no-referrer|origin|unsafe-url">
-		</a>
-		
-		<figcaption>Signal Class Diagram Detail</figcaption>
-		
-	</figure></p>
+<p><img src="/.%5csignal.png" alt="Signal Class Diagram"  referrer="no-referrer|origin|unsafe-url" />
+<img src="/.%5csignal_detail.png" alt="Signal Class Diagram Detail"  referrer="no-referrer|origin|unsafe-url" /></p>
 <h4 id="1-signal的属性和__init__方法">1. Signal的属性和__init__方法</h4>
 <p>1.receivers：一个列表用于存取该Signal中对应的sender和receiver并存下receiver的引用(或弱引用)，在调用connect()方法时会往receivers中添加对应关系，而在调用send()方法时会在其中查找对应关系</p>
 <p>数据结构：</p>
@@ -368,7 +344,8 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="c1"># 每次connect或disconnect后都要清除缓存</span>
         <span class="c1"># 该缓存会在send时构建</span>
-</code></pre></div><p>2.disconnect：从对应Signal对象的receivers列表中删除对应记录（一般用于手动删除在connect时使用weak=False的情况，即该条记录存的是receiver的强引用，若不手动删除该条记录会导致“内存泄漏”，与<a class="link" href="https://docs.python.org/zh-cn/3.8/library/gc.html"  target="_blank" rel="noopener"
+</code></pre></div><p>​</p>
+<p>2.disconnect：从对应Signal对象的receivers列表中删除对应记录（一般用于手动删除在connect时使用weak=False的情况，即该条记录存的是receiver的强引用，若不手动删除该条记录会导致“内存泄漏”，与<a class="link" href="https://docs.python.org/zh-cn/3.8/library/gc.html"  target="_blank" rel="noopener"
     >gc的引用计数</a>有关）</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dispatch_uid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="s2">&#34;&#34;&#34;
@@ -395,10 +372,12 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
                 <span class="k">break</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># 变更后清除缓存</span>
     <span class="k">return</span> <span class="n">disconnected</span>
-</code></pre></div><p>3.has_listeners：检查某个sender是否有receiver</p>
+</code></pre></div><p>​</p>
+<p>3.has_listeners：检查某个sender是否有receiver</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">has_listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
-</code></pre></div><p>4.send：给某个sender对应的所有receivers发送相应的信号，首先会检查这个sender是否有receivers。如果有，先调用_live_receivers获取当前sender对应的所有的receiver的强引用，然后依次调用每个receiver传入相关的参数。最后，返回<code>[(receiver,response),]</code>（这里的receiver是强引用即可直接调用的receiver函数，response是调用receiver函数返回的结果）</p>
+</code></pre></div><p>​</p>
+<p>4.send：给某个sender对应的所有receivers发送相应的信号，首先会检查这个sender是否有receivers。如果有，先调用_live_receivers获取当前sender对应的所有的receiver的强引用，然后依次调用每个receiver传入相关的参数。最后，返回<code>[(receiver,response),]</code>（这里的receiver是强引用即可直接调用的receiver函数，response是调用receiver函数返回的结果）</p>
 <p>参数解析：</p>
 <ul>
 <li>sender：发送信号的类</li>
@@ -413,6 +392,7 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>  <span class="c1"># _live_receivers返回的是该sender对应的所有的receivers的强引用</span>
     <span class="p">]</span>
 </code></pre></div><p><strong>注：</strong> 当调用某个receiver发生异常时程序会直接退出，可能导致其他剩下的receiver并没有被调用执行</p>
+<p>​</p>
 <p>5.send_robust：“健壮版”的send，当调用某个receiver发生异常时会将异常捕捉并存储起来，故该sender的所有的receiver都能被调用执行。该函数会返回<code>[(receiver,response / err),]</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">send_robust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
     <span class="c1"># 相比send方法调用receiver方法异常时直接退出，send_robust会收集异常并返回</span>
@@ -431,7 +411,8 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         <span class="k">else</span><span class="p">:</span>
             <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">receiver</span><span class="p">,</span> <span class="n">response</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">responses</span>
-</code></pre></div><p>6._clean_dead_receivers：清除Signal.receivers中的dead receiver，该函数会在send或send_robust中对Signal.receivers加锁了的情况下调用</p>
+</code></pre></div><p>​</p>
+<p>6._clean_dead_receivers：清除Signal.receivers中的dead receiver，该函数会在send或send_robust中对Signal.receivers加锁了的情况下调用</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">_clear_dead_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Note: caller is assumed to hold self.lock.</span>
     <span class="c1"># 清除dead_receivers</span>
@@ -442,7 +423,8 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
             <span class="c1"># 弱引用，并且该弱引用对应的对象已消亡</span>
         <span class="p">]</span>
-</code></pre></div><p><strong>注：</strong> 其实这里说的清除dead receiver，就是删除Signal.receivers中那些原函数/对象（即receiver函数或包含receievr函数的对象）已经被垃圾回收了的weakref，至于那些在connect时使用weak=False添加的强引用则需要手动调用disconnect进行手动清除，否则可能会导致内存泄露</p>
+</code></pre></div><p>​</p>
+<p><strong>注：</strong> 其实这里说的清除dead receiver，就是删除Signal.receivers中那些原函数/对象（即receiver函数或包含receievr函数的对象）已经被垃圾回收了的weakref，至于那些在connect时使用weak=False添加的强引用则需要手动调用disconnect进行手动清除，否则可能会导致内存泄露</p>
 <p>7._live_receivers：先通过self._dead_receivers检查是否有dead receivers如果有则先过滤一遍Signal.receivers，然后从Signal.receivers中找出该sender对应所有的receiver，并返回包含所有receiver强引用的列表</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">_live_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
     <span class="s2">&#34;&#34;&#34;
@@ -947,7 +929,7 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         
             <div class="article-image">
                 
-                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg" loading="lazy" data-key="top-6-django-decorators" data-hash="https://gitee.com/Heaciy/img/raw/master/post/photo-1505322033502-1f4385692e6a.jpg" referrer="no-referrer|origin|unsafe-url"/>
+                    <img src="/.%5cphoto-1505322033502-1f4385692e6a.jpg" loading="lazy" data-key="top-6-django-decorators" data-hash="/.\photo-1505322033502-1f4385692e6a.jpg" referrer="no-referrer|origin|unsafe-url"/>
                 
             </div>
         
@@ -965,7 +947,7 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         
             <div class="article-image">
                 
-                    <img src="https://gitee.com/Heaciy/img/raw/master/post/photo-1585776245991-cf89dd7fc73a.jpg" loading="lazy" data-key="internal sort" data-hash="https://gitee.com/Heaciy/img/raw/master/post/photo-1585776245991-cf89dd7fc73a.jpg" referrer="no-referrer|origin|unsafe-url"/>
+                    <img src="/.%5cphoto-1585776245991-cf89dd7fc73a.jpg" loading="lazy" data-key="internal sort" data-hash="/.\photo-1585776245991-cf89dd7fc73a.jpg" referrer="no-referrer|origin|unsafe-url"/>
                 
             </div>
         
@@ -1037,6 +1019,7 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
 <script async="async">
     new Valine({
         el: '#vcomments',  
+        serverURLs: 'https://us.avoscloud.com',
         appId: 'GvRq0fD2lU22a9zvtTz1KWbr-MdYXbMMI',
         appKey: 'ii7hhKwHBCBo95atXNpFNcLf',
     })
@@ -1050,7 +1033,7 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         
             2019 - 
         
-        2021 Heaciy&#39;s Blog
+        2023 Heaciy&#39;s Blog
     </section>
     
     <section class="powerby">
