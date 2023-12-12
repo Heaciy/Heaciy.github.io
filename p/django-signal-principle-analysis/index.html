@@ -283,8 +283,32 @@
 kwargs: {'name':'haha','email':'haha.mail.com'}
 </code></pre><h3 id="原理简析">原理简析</h3>
 <p>django的整个信号模块都是依赖Signal这个类完成的</p>
-<p><img src="/.%5csignal.png" alt="Signal Class Diagram"  referrer="no-referrer|origin|unsafe-url" />
-<img src="/.%5csignal_detail.png" alt="Signal Class Diagram Detail"  referrer="no-referrer|origin|unsafe-url" /></p>
+<p><figure style="flex-grow: 65; flex-basis: 157px">
+		<a href="/p/django-signal-principle-analysis/signal.png" data-size="373x569"><img src="/p/django-signal-principle-analysis/signal.png"
+				srcset="/p/django-signal-principle-analysis/signal_hu0d4340ace52137d0792da51c154fc30e_53377_480x0_resize_box_2.png 480w, /p/django-signal-principle-analysis/signal_hu0d4340ace52137d0792da51c154fc30e_53377_1024x0_resize_box_2.png 1024w"
+				width="373"
+				height="569"
+				loading="lazy"
+				alt="Signal Class Diagram"
+				referrer="no-referrer|origin|unsafe-url">
+		</a>
+		
+		<figcaption>Signal Class Diagram</figcaption>
+		
+	</figure>
+<figure style="flex-grow: 177; flex-basis: 426px">
+		<a href="/p/django-signal-principle-analysis/signal_detail.png" data-size="956x538"><img src="/p/django-signal-principle-analysis/signal_detail.png"
+				srcset="/p/django-signal-principle-analysis/signal_detail_huba212b28afdc2707efba4351cf327446_99360_480x0_resize_box_2.png 480w, /p/django-signal-principle-analysis/signal_detail_huba212b28afdc2707efba4351cf327446_99360_1024x0_resize_box_2.png 1024w"
+				width="956"
+				height="538"
+				loading="lazy"
+				alt="Signal Class Diagram Detail"
+				referrer="no-referrer|origin|unsafe-url">
+		</a>
+		
+		<figcaption>Signal Class Diagram Detail</figcaption>
+		
+	</figure></p>
 <h4 id="1-signal的属性和__init__方法">1. Signal的属性和__init__方法</h4>
 <p>1.receivers：一个列表用于存取该Signal中对应的sender和receiver并存下receiver的引用(或弱引用)，在调用connect()方法时会往receivers中添加对应关系，而在调用send()方法时会在其中查找对应关系</p>
 <p>数据结构：</p>
@@ -928,8 +952,13 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         
         
             <div class="article-image">
-                
-                    <img src="/.%5cphoto-1505322033502-1f4385692e6a.jpg" loading="lazy" data-key="top-6-django-decorators" data-hash="/.\photo-1505322033502-1f4385692e6a.jpg" referrer="no-referrer|origin|unsafe-url"/>
+                <img src="/p/top-6-django-decorators/_hu3d03a01dcc18bc5be0e67db3d8d209a6_149949_153c978c4bce9cab5600dcb5341107b4.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="top-6-django-decorators" 
+                        data-hash="md5-PRnx8Jul2UCqDWD5pa/ytA=="
+                        referrer="no-referrer|origin|unsafe-url">
                 
             </div>
         
@@ -946,8 +975,13 @@ kwargs: {'name':'haha','email':'haha.mail.com'}
         
         
             <div class="article-image">
-                
-                    <img src="/.%5cphoto-1585776245991-cf89dd7fc73a.jpg" loading="lazy" data-key="internal sort" data-hash="/.\photo-1585776245991-cf89dd7fc73a.jpg" referrer="no-referrer|origin|unsafe-url"/>
+                <img src="/p/internal-sort/_hu3d03a01dcc18bc5be0e67db3d8d209a6_55454_2b8512ae7c6cc1351d689b45567ba42e.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="internal sort" 
+                        data-hash="md5-3lXz&#43;sQLfNqSI4vWVm6ELQ=="
+                        referrer="no-referrer|origin|unsafe-url">
                 
             </div>
         
