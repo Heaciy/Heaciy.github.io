@@ -231,8 +231,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# [&amp;#39;hack&amp;#39;, &amp;#39;hackathon&amp;#39;]&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;工作原理&#34;&gt;工作原理
-&lt;/h3&gt;&lt;p&gt;算法的主要步骤&lt;/p&gt;
+&lt;/div&gt;&lt;h2 id=&#34;工作原理&#34;&gt;工作原理
+&lt;/h2&gt;&lt;p&gt;算法的主要步骤&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;首先要考虑的是如何将word加入到Trie中, 这也是&lt;code&gt;add&lt;/code&gt;方法的职责所在。它的工作方式非常简单。它需要两个参数:root node(即根节点，一般使用*)和word&lt;/li&gt;
 &lt;li&gt;然后它从单词的第一个字符开始遍历, 一次一个字符&lt;/li&gt;
