@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="从Observer pattern到Django signal">
+<title>Django Signal简析</title>
+
+<link rel='canonical' href='https://heaciy.com/p/django-signal-principle-analysis/'>
+
+<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Django Signal简析">
+<meta property='og:description' content="从Observer pattern到Django signal">
+<meta property='og:url' content='https://heaciy.com/p/django-signal-principle-analysis/'>
+<meta property='og:site_name' content='Heaciy&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='python' /><meta property='article:tag' content='django' /><meta property='article:published_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-06-10T00:00:00&#43;00:00'/><meta property='og:image' content='https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000' />
+<meta name="twitter:title" content="Django Signal简析">
+<meta name="twitter:description" content="从Observer pattern到Django signal"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000' />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Heaciy&#39;s Blog</a></h1>
+            <h2 class="site-description">Life is what happens to you while you&#39;re busy making other plans.</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/heaciy'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/heaciy'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+
+        
+            <div class="widget--toc--custom">
+                <nav id="TableOfContents">
+  <ol>
+    <li><a href="#观察者模式">观察者模式</a></li>
+    <li><a href="#signal简述">Signal简述</a>
+      <ol>
+        <li><a href="#1-signal">1. signal</a></li>
+        <li><a href="#2-sender">2. sender</a></li>
+        <li><a href="#3-receiver">3. receiver</a></li>
+      </ol>
+    </li>
+    <li><a href="#原理简析">原理简析</a>
+      <ol>
+        <li><a href="#1-signal的属性和__init__方法">1. Signal的属性和__init__方法</a></li>
+        <li><a href="#2-signal中的方法">2. Signal中的方法</a></li>
+        <li><a href="#3-大概流程">3. 大概流程</a></li>
+        <li><a href="#4-很奇怪的一点">4. 很奇怪的一点</a></li>
+        <li><a href="#5-多说一句">5. 多说一句</a></li>
+      </ol>
+    </li>
+    <li><a href="#源码简析">源码简析</a></li>
+    <li><a href="#一些可能有用的链接">一些可能有用的链接</a></li>
+  </ol>
+</nav>
+            </div>
+        
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/django-signal-principle-analysis/">
+                
+                    <img src="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000" loading="lazy" alt="Featured image of post Django Signal简析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/cs/" >
+                CS
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/django-signal-principle-analysis/">Django Signal简析</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            从Observer pattern到Django signal
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 10, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    12 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了……<br/>
+本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正<br/>
+题图来自 unsplash，<a class="link" href="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000"  target="_blank" rel="noopener"
+    >原图链接🔗</a></p>
+</blockquote>
+<h2 id="观察者模式">观察者模式
+</h2><p>“观察者模式是一种对象行为模式。它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。<a class="link" href="https://baike.baidu.com/item/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/5881786"  target="_blank" rel="noopener"
+    >[1]</a>”</p>
+<p>“观察者模式是一种行为设计模式， 允许你定义一种订阅机制， 可在对象事件发生时通知多个 “观察” 该对象的其他对象。<a class="link" href="https://refactoringguru.cn/design-patterns/observer"  target="_blank" rel="noopener"
+    >[2]</a>”</p>
+<p>观察者模式有多种实现方式，比较经典的一种实现，有四个角色：Subject（被观察对象抽象类）、Observer（观察者抽象类）、ConcreateObserver（具体观察者）、ConcreateSubject(具体的被观察者)……</p>
+<p>这里就不赘述了……可以参见下面的链接</p>
+<ul>
+<li><a class="link" href="https://en.wikipedia.org/wiki/Observer_pattern"  target="_blank" rel="noopener"
+    >wikipedia：Observer pattern</a></li>
+<li><a class="link" href="https://baike.baidu.com/item/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/5881786"  target="_blank" rel="noopener"
+    >百度百科：观察者模式</a></li>
+<li><a class="link" href="http://c.biancheng.net/view/1390.html"  target="_blank" rel="noopener"
+    >观察者模式（Observer模式）详解</a></li>
+<li><a class="link" href="https://refactoringguru.cn/design-patterns/observer"  target="_blank" rel="noopener"
+    >观察者模式</a></li>
+<li><a class="link" href="https://www.runoob.com/design-pattern/observer-pattern.html"  target="_blank" rel="noopener"
+    >菜鸟教程：观察者模式</a></li>
+<li><a class="link" href="https://juejin.cn/post/6844903471586476039"  target="_blank" rel="noopener"
+    >观察者模式的python简单实现</a></li>
+</ul>
+<h2 id="signal简述">Signal简述
+</h2><p>可以先看看Django的官方文档</p>
+<ul>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/topics/signals/"  target="_blank" rel="noopener"
+    >https://docs.djangoproject.com/zh-hans/3.0/topics/signals/</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/"  target="_blank" rel="noopener"
+    >https://docs.djangoproject.com/zh-hans/3.0/ref/signals/</a></li>
+</ul>
+<p>与观察者模式对应：sender就是被观察者、receiver是观察者。有所不同的就是多了个signal，也就是“信号”（也可使说是信号的“管理者”）。在普通观察者模式中，被观察对象抽象类中一般会维护一个观察者抽象类的引用列表，以此来传递消息，而django中则是借助Signal类进一步解耦，通过Signal类进行“信号传递”，具体解析如下：</p>
+<h3 id="1-signal">1. signal
+</h3><p>信号类，维护一个receivers列表，用于存储sender和receiver的对应记录</p>
+<p><code>signal.connect()</code>用于往<code>signal.receivers</code>中添加对应的receiver和sender记录</p>
+<p><code>signal_send()</code>，在<code>signal.receivers</code>中查找sender对应的receivers并将对应信号(参数)传递给对应的receivers</p>
+<p>django预置了一些信号对象，pre_init、post_init、pre_save、post_save等，这些都是直接或间接的继承自Siganl类，单一职责原则，每个具体的信号对象只负责存储“一类信号”，比如前面列举的四个信号对象都是django model相关的。以pre_save为例，只有在调用某个model对象的save方法时（前）才会调用pre_save.send()发送相关数据（“信号”）。也就是说pre_save这个Signal对象的receivers列表中存储的sender都是model而receiver都是我们希望在进行model.save()前调用的函数来进行的一些相关操作。</p>
+<h3 id="2-sender">2. sender
+</h3><p>信号的发送方，即调用<code>signal.send()</code>方法的类。比如，所有model类的父类都是BaseModel，而BaseModel有一个__init__函数在该函数中，首先就会调用<code>pre_init.send(self.__class__,**kwargs)</code>发送即将开始init的信号，然后再进行具体的init操作，在init之后再调用<code>post_init.send</code>发送init完成的信号。故这里的BaseModel类就是这两个信号对象(pre_init、post_init)的sender。而我们的model类都是继承自BaseModel，init方法也是继承来的，故此时的sender就是我们定义的model类。</p>
+<h3 id="3-receiver">3. receiver
+</h3><p>信号的接收方，为可调用对象，一般是个函数，接收signal.send()传递过来的参数，再进行相关的操作</p>
+<p>假如我们有个model对象为People，我们想要在构造每一个People时（<code>new_people = People(name=&quot;haha&quot;,email=&quot;haha@mail.com&quot;)</code>）打印出其相关信息，我们可以用一个函数打印其信息：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">print_info</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="se">\n</span><span class="s2">kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后使用<code>pre_init.connect(print_info, sender=People)</code>将其与sender绑定起来,即在pre_init的receivers列表中存一条对应的记录:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">((</span><span class="n">People_id</span><span class="p">,</span><span class="n">print_info_id</span><span class="p">),</span><span class="n">print_info_weakref</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此处的<code>print_info</code>函数即为一个receiver，pre_init信号中People类对应的receiver。</p>
+<p>当然也可以直接使用装饰器，不过也是同样的道理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@receiver</span><span class="p">(</span><span class="n">pre_init</span><span class="p">,</span><span class="n">sender</span><span class="o">=</span><span class="n">People</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">print_info_before_init</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="se">\n</span><span class="s2">kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>最终打印出来的结果是</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">args: []
+</span></span><span class="line"><span class="cl">kwargs: {&#39;name&#39;:&#39;haha&#39;,&#39;email&#39;:&#39;haha.mail.com&#39;}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="原理简析">原理简析
+</h2><p>django的整个信号模块都是依赖Signal这个类完成的</p>
+<p><img src="/p/django-signal-principle-analysis/signal.png"
+	width="373"
+	height="569"
+	srcset="/p/django-signal-principle-analysis/signal_hu8251001186732828751.png 480w, /p/django-signal-principle-analysis/signal_hu17536644674691067904.png 1024w"
+	loading="lazy"
+	
+		alt="Signal Class Diagram"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="65"
+		data-flex-basis="157px"
+	
+>
+<img src="/p/django-signal-principle-analysis/signal_detail.png"
+	width="956"
+	height="538"
+	srcset="/p/django-signal-principle-analysis/signal_detail_hu3840407809679362127.png 480w, /p/django-signal-principle-analysis/signal_detail_hu9076136509210613243.png 1024w"
+	loading="lazy"
+	
+		alt="Signal Class Diagram Detail"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<h3 id="1-signal的属性和__init__方法">1. Signal的属性和__init__方法
+</h3><p>1.receivers：一个列表用于存取该Signal中对应的sender和receiver并存下receiver的引用(或弱引用)，在调用connect()方法时会往receivers中添加对应关系，而在调用send()方法时会在其中查找对应关系</p>
+<p>数据结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 如果在调用connect方法添加时weak参数为True（默认为True）</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 则存储receiver的弱引用，在垃圾回收时会自动处理</span>
+</span></span><span class="line"><span class="cl"><span class="p">[((</span><span class="n">receiver_id</span><span class="p">,</span><span class="n">sender_id</span><span class="p">),</span><span class="n">receiver_weakref</span><span class="p">),]</span>  <span class="c1"># 弱引用</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 如果connect方法的weak参数为False</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 则存储receiver的强引用，最终需要调用disconnect销毁记录</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 否则相关变量无法被垃圾回收，也就是”内存泄露“</span>
+</span></span><span class="line"><span class="cl"><span class="p">[((</span><span class="n">receiver_id</span><span class="p">,</span><span class="n">sender_id</span><span class="p">),</span><span class="n">receiver</span><span class="p">),]</span>  <span class="c1"># 强引用</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2.providing_args：该signal接受的参数的列表</p>
+<p>3.lock：threading.lock，对相应操作加锁以保证安全</p>
+<p>4.use_caching：bool类型，标识是否使用缓存，如果使用缓存我们会缓存每一个sender类的receivers并存储到self.sender_receivers_cache中</p>
+<p>5.sender_receivers_cache：signal对每一个sender的receivers进行缓存</p>
+<p>数据结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;sender1&#34;</span><span class="p">:</span> <span class="p">[</span><span class="err">receiver</span><span class="mi">1</span><span class="err">_weakref</span><span class="p">,</span> <span class="err">receiver</span><span class="mi">2</span><span class="err">_weakref</span><span class="p">,</span><span class="err">...</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;sender2&#34;</span><span class="p">:</span> <span class="p">[</span><span class="err">receiver</span><span class="mi">3</span><span class="err">_weakref</span><span class="p">,</span> <span class="err">receiver</span><span class="mi">4</span><span class="err">_weakref</span><span class="p">,</span><span class="err">...</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>每次send时会使用sender_receivers_cache快速判断该sender是否有receiver，如果有则再调用_live_receivers获取其对应的receivers的强应用列表</p>
+<p>6._dead_receivers：bool类型，用于标识self.reivers中是否含有失效的 receiver的弱引用。当弱引用指向的receiver被垃圾回收时会调用Signal._remove_receiver方法将_dead_receivers置为True</p>
+<h3 id="2-signal中的方法">2. Signal中的方法
+</h3><p>说在前面：receiver和sender都必须是<a class="link" href="https://stackoverflow.com/questions/14535730/what-does-hashable-mean-in-python"  target="_blank" rel="noopener"
+    >可哈希的</a></p>
+<p>1.connect：将receiver和sender通过对应的Signal连接起来（即将对应记录添加到对应Signal对象的receivers属性列表中）</p>
+<p>参数解析：</p>
+<ul>
+<li>receiver：需要接收信号的receiver</li>
+<li>sender：发送该信号的sender</li>
+<li>weak：是否使用弱引用，默认为True。如果为True则存储receiver对应的weakref否则直接存储强引用。由于设置了<code>weakref.finalize(receiver_object, self._remove_receiver)</code>若存储弱引用则可以在receiver垃圾回收时自动清除Signal.receivers中对应的记录（见下面的分析）若存储强引用则需要先手动调用disconnect方法删除Signal.receivers中对应的记录否则该receiver将无法被垃圾回收导致“内存泄漏”</li>
+<li>dispatch_uid：默认为None，如果使用了该值（一般为一个字符串），相当于为该receiver自定义个唯一名称（不允许重复），存储时将会使用<code>dispatch_uid</code>代替<code>id(sender)</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weak</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dispatch_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">dispatch_uid</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">dispatch_uid</span><span class="p">,</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>  <span class="c1"># 如果设置了dispatch_uid则使用其期待id值作为唯一标识</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">_make_id</span><span class="p">(</span><span class="n">receiver</span><span class="p">),</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">weak</span><span class="p">:</span>  <span class="c1"># 如果使用弱引用</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span>
+</span></span><span class="line"><span class="cl">        <span class="n">receiver_object</span> <span class="o">=</span> <span class="n">receiver</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Check for bound methods</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s1">&#39;__self__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s1">&#39;__func__&#39;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 如果该receiver是对象方法，则receiver_object为包含该receiver的对象</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakMethod</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receiver_object</span> <span class="o">=</span> <span class="n">receiver</span><span class="o">.</span><span class="vm">__self__</span>
+</span></span><span class="line"><span class="cl">        <span class="n">receiver</span> <span class="o">=</span> <span class="n">ref</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 获取该receiver的弱引用</span>
+</span></span><span class="line"><span class="cl">        <span class="n">weakref</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">receiver_object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_receiver</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># receiver_object垃圾回收时调用self._remove_receiver将self._dead_receivers置为True</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 在后面的send或send_robust中对self.receivers加锁后清理</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">r_key</span> <span class="o">==</span> <span class="n">lookup_key</span> <span class="k">for</span> <span class="n">r_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">):</span>  <span class="c1"># 检查是否有重复</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lookup_key</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 每次connect或disconnect后都要清除缓存</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 该缓存会在send时构建</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​</p>
+<p>2.disconnect：从对应Signal对象的receivers列表中删除对应记录（一般用于手动删除在connect时使用weak=False的情况，即该条记录存的是receiver的强引用，若不手动删除该条记录会导致“内存泄漏”，与<a class="link" href="https://docs.python.org/zh-cn/3.8/library/gc.html"  target="_blank" rel="noopener"
+    >gc的引用计数</a>有关）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dispatch_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    将signal中的receiver与sender“断开连接”
+</span></span></span><span class="line"><span class="cl"><span class="s2">    该函数主要针对那些在connect时weak参数为False的情况，即signal的receivers列表
+</span></span></span><span class="line"><span class="cl"><span class="s2">    中存储的是rceiver的强引用
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    如果在connect时使用的弱引用(weak=True), 则不需要手动调用disconnect方法
+</span></span></span><span class="line"><span class="cl"><span class="s2">    receiver和sender的记录会被自动删除
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">dispatch_uid</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">dispatch_uid</span><span class="p">,</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>  <span class="c1"># 如果提供了dispatch_uid则使用其替代 id(receiver)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">_make_id</span><span class="p">(</span><span class="n">receiver</span><span class="p">),</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">disconnected</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>  <span class="c1"># 先清除dead_receivers</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span><span class="n">r_key</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">r_key</span> <span class="o">==</span> <span class="n">lookup_key</span><span class="p">:</span>  <span class="c1"># 根据lookup_key在self.receivers中查找</span>
+</span></span><span class="line"><span class="cl">                <span class="n">disconnected</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>  <span class="c1"># 删除self.receivers中的对应记录</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># 变更后清除缓存</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">disconnected</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​</p>
+<p>3.has_listeners：检查某个sender是否有receiver</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">has_listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​</p>
+<p>4.send：给某个sender对应的所有receivers发送相应的信号，首先会检查这个sender是否有receivers。如果有，先调用_live_receivers获取当前sender对应的所有的receiver的强引用，然后依次调用每个receiver传入相关的参数。最后，返回<code>[(receiver,response),]</code>（这里的receiver是强引用即可直接调用的receiver函数，response是调用receiver函数返回的结果）</p>
+<p>参数解析：</p>
+<ul>
+<li>sender：发送信号的类</li>
+<li>**named：传递给该sender对应的receivers的参数</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">receiver</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>  <span class="c1"># _live_receivers返回的是该sender对应的所有的receivers的强引用</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>注：</strong> 当调用某个receiver发生异常时程序会直接退出，可能导致其他剩下的receiver并没有被调用执行</p>
+<p>​</p>
+<p>5.send_robust：“健壮版”的send，当调用某个receiver发生异常时会将异常捕捉并存储起来，故该sender的所有的receiver都能被调用执行。该函数会返回<code>[(receiver,response / err),]</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">send_robust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 相比send方法调用receiver方法异常时直接退出，send_robust会收集异常并返回</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Call each receiver with whatever arguments it can accept.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Return a list of tuple pairs [(receiver, response), ... ].</span>
+</span></span><span class="line"><span class="cl">    <span class="n">responses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">response</span> <span class="o">=</span> <span class="n">receiver</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">receiver</span><span class="p">,</span> <span class="n">err</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl">            <span class="c1"># 如果调用receiver出现异常则捕获并返回相应的异常而不影响其他receiver的调用</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">receiver</span><span class="p">,</span> <span class="n">response</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">responses</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​</p>
+<p>6._clean_dead_receivers：清除Signal.receivers中的dead receiver，该函数会在send或send_robust中对Signal.receivers加锁了的情况下调用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_clear_dead_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Note: caller is assumed to hold self.lock.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 清除dead_receivers</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 还原_dead_receivers为False</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 弱引用，并且该弱引用对应的对象已消亡</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​</p>
+<p><strong>注：</strong> 其实这里说的清除dead receiver，就是删除Signal.receivers中那些原函数/对象（即receiver函数或包含receievr函数的对象）已经被垃圾回收了的weakref，至于那些在connect时使用weak=False添加的强引用则需要手动调用disconnect进行手动清除，否则可能会导致内存泄露</p>
+<p>7._live_receivers：先通过self._dead_receivers检查是否有dead receivers如果有则先过滤一遍Signal.receivers，然后从Signal.receivers中找出该sender对应所有的receiver，并返回包含所有receiver强引用的列表</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_live_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Filter sequence of receivers to get resolved, live receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    This checks for weak references and resolves them, then returning only
+</span></span></span><span class="line"><span class="cl"><span class="s2">    live receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">receivers</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_caching</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span><span class="p">:</span>  <span class="c1"># 如果使用缓存并且self.receivers中无dead_receivers</span>
+</span></span><span class="line"><span class="cl">        <span class="n">receivers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>  <span class="c1"># 直接从缓存中获取</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># We could end up here with NO_RECEIVERS even if we do check this case in</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># .send() prior to calling _live_receivers() due to concurrent .send() call.</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 其实我们在调用_live_receivers方法的send方法中已经检查过一次了</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">receivers</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">receivers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># 如果不使用缓存或者存在待清理的dead receivers</span>
+</span></span><span class="line"><span class="cl">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>  <span class="c1"># 先清理dead_receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="n">senderkey</span> <span class="o">=</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receivers</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="p">(</span><span class="n">receiverkey</span><span class="p">,</span> <span class="n">r_senderkey</span><span class="p">),</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="c1"># 遍历self.receivers进行查找匹配</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">r_senderkey</span> <span class="o">==</span> <span class="n">NONE_ID</span> <span class="ow">or</span> <span class="n">r_senderkey</span> <span class="o">==</span> <span class="n">senderkey</span><span class="p">:</span>  <span class="c1"># 如果senderkey为id(None)或匹配</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 将receiver(weakref)添加到receivers中</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 更新缓存</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_caching</span><span class="p">:</span>  <span class="c1"># 如果使用缓存</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="ow">not</span> <span class="n">receivers</span><span class="p">:</span>  <span class="c1"># 如果该sender没有receiver (receivers为空)</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="p">[</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="n">NO_RECEIVERS</span>  <span class="c1"># 将cache中该sender的receivers置为空</span>
+</span></span><span class="line"><span class="cl">                <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果该sender存在对应的receiver</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># Note, we must cache the weakref versions.</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># 注意我们应该缓存弱引用</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="p">[</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="n">receivers</span>  <span class="c1"># 将该sender及其所有的receivers缓存起来</span>
+</span></span><span class="line"><span class="cl">    <span class="n">non_weak_receivers</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="n">receivers</span><span class="p">:</span>  <span class="c1"># receivers要么为[] 要么为[receiver]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Dereference the weak reference.</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># https://www.kite.com/python/docs/weakref.ReferenceType</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receiver</span> <span class="o">=</span> <span class="n">receiver</span><span class="p">()</span>  <span class="c1"># 获取弱引用所指的实际对象，若已消亡则返回None，否则返回对象的强引用(“可直接调用”)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">receiver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># weakref所指的原对象尚未消亡</span>
+</span></span><span class="line"><span class="cl">                <span class="n">non_weak_receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 添加实际可调用的receiver对象</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">non_weak_receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 不是弱引用则直接添加</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">non_weak_receivers</span>  <span class="c1"># 可调用对象receiver的列表</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>8._remove_receivers：将Signal._dead_receivers置为True，在后面调用send或send_robust方法时会先检查_dead_receivers，如果为True则先调用_clean_dead_receivers进行清理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_remove_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Mark that the self.receivers list has dead weakrefs. If so, we will</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># clean those up in connect, disconnect and _live_receivers while</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># holding self.lock. Note that doing the cleanup here isn&#39;t a good</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># idea, _remove_receiver() will be called as side effect of garbage</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># collection, and so the call can happen while we are already holding</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># self.lock.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 标记self.receivers中有dead weakrefs(weakref所指对象已消亡).如果存在dead receiver</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 程序会在调用connect, disconnect和_live_receivers时在加锁的情况下清除dead weakrefs</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 注意在这里执行具体的清除操作并不是一个好主意，在垃圾回收时_remove_receiver()会被</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 自动触发，而我们可能在其他操作中对receivers加了锁，此时清理receivers将会导致冲突</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>注：</strong> 由于在connect方法中的设置了<code>weakref.finalize(receiver_object, self._remove_receiver)</code>，在receiver_object垃圾回收时会自动触发_remove_receiver方法。如果将清除过滤Signal.receivers的过程放在这个函数中，而其它地方可能正在在加锁的情况下使用receivers则会导致冲突。故_remove_receivers只将Signal._dead_receivers置为True，从而把清理dead receiver的过程延迟到了connect、disconnect、send、send_robust中加锁进行</p>
+<h3 id="3-大概流程">3. 大概流程
+</h3><p>通过Signal.connect向Signal.receivers中注册对应的<code>((receiver_id, sender_id), receiver_weakref)</code>记录，然后sender会在恰当的时候调用恰当的Signal并使用Signal.send发送恰当的信号给对应的所有receiver。这就是信号的大致传递过程</p>
+<h3 id="4-很奇怪的一点">4. 很奇怪的一点
+</h3><p>程序里面有个奇怪的<code>None</code>，在connect时不指定sender则sender，默认sender就会是None，而在sender中调用Siganl.send方法该方法又会调用Signal._live_receivers方法，在Signal._live_receivers中会寻找该sender对应的receiver，而匹配条件居然是<code>if r_senderkey == NONE_ID or r_senderkey == senderkey</code>，sender为None的receivers也会被匹配？有点不太理解这里的做法</p>
+<h3 id="5-多说一句">5. 多说一句
+</h3><p>异步问题，当一个sender注册的receiver过多时，调用send方法时可能会非常占用时间造成阻塞，观察者模式好像都有这个问题，可以使用异步改善？（在网上看到的，具体如何改善我还没搞清楚，等弄明白了再补上……）</p>
+<h2 id="源码简析">源码简析
+</h2><p>源码：</p>
+<ul>
+<li><a class="link" href="https://github.com/django/django/blob/main/django/dispatch/dispatcher.py"  target="_blank" rel="noopener"
+    >Github</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/_modules/django/dispatch/dispatcher/#Signal.disconnect"  target="_blank" rel="noopener"
+    >Django Docs</a></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span><span class="lnt">330
+</span><span class="lnt">331
+</span><span class="lnt">332
+</span><span class="lnt">333
+</span><span class="lnt">334
+</span><span class="lnt">335
+</span><span class="lnt">336
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">threading</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">weakref</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">django.utils.inspect</span> <span class="kn">import</span> <span class="n">func_accepts_kwargs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回对象的id,在connect存储记录和send查询记录时会用到</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 注意：sender和receiver都必须是可哈希的</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_make_id</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s1">&#39;__func__&#39;</span><span class="p">):</span>  <span class="c1"># 如果是对象方法</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="vm">__self__</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="vm">__func__</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># django.utils.inspect.func_accepts_kwargs</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 检查传入的函数是否接受**kwargs参数</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">func_accepts_kwargs</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">NONE_ID</span> <span class="o">=</span> <span class="n">_make_id</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># A marker for caching</span>
+</span></span><span class="line"><span class="cl"><span class="n">NO_RECEIVERS</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Signal</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    所有signal的基类
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Base class for all signals
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Internal attributes:
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">        receivers
+</span></span></span><span class="line"><span class="cl"><span class="s2">            { receiverkey (id) : weakref(receiver) }
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">providing_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_caching</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        创建新的signal
+</span></span></span><span class="line"><span class="cl"><span class="s2">        providing_args: 在调用send()方法时可以传入这个signal的参数列表
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="o">=</span> <span class="p">[]</span>  
+</span></span><span class="line"><span class="cl">        <span class="c1"># ((receiver_id,sender_id),receiver_weakref)或者是((dispatch_id,sender_id),receiverweak_ref)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 具体是强引用还是weakref取决于connect时的weak参数是True还是False</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 默认weak为True使用弱引用，若为False则删除该条记录时需要手动disconnect</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">providing_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">providing_args</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">providing_args</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">providing_args</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>  <span class="c1"># 加锁保证操作数据时线程安全</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">use_caching</span> <span class="o">=</span> <span class="n">use_caching</span>  <span class="c1"># 是否使用缓存</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 为了便利即使不使用缓存我们也会创建空的缓存</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 关于缓存需要注意的一点是：如果use_caching为True，对于每一个sender</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 我们会在sender_receiver_cache中缓存其所有的receiver。</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 该缓存在调用.connect()或者.disconnect()时会被清除，而在调用send时会被填充</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakKeyDictionary</span><span class="p">()</span> <span class="k">if</span> <span class="n">use_caching</span> <span class="k">else</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span> <span class="o">=</span> <span class="kc">False</span>  
+</span></span><span class="line"><span class="cl">        <span class="c1"># receivers属性列表中是否含有“失效”的receiver引用(已被垃圾回收)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 在_clear_dead_receivers方法中会检查其值，如果为True则代表其中</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 有失效的receiver引用，则过滤清理一遍receivers属性列表</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weak</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dispatch_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        # 通过signal将receiver连接到sender
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Arguments:
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            receiver
+</span></span></span><span class="line"><span class="cl"><span class="s2">                A function or an instance method which is to receive signals.
+</span></span></span><span class="line"><span class="cl"><span class="s2">                Receivers must be hashable objects.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">                If weak is True, then receiver must be weak referenceable.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">                Receivers must be able to accept keyword arguments.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">                If a receiver is connected with a dispatch_uid argument, it
+</span></span></span><span class="line"><span class="cl"><span class="s2">                will not be added if another receiver was already connected
+</span></span></span><span class="line"><span class="cl"><span class="s2">                with that dispatch_uid.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            sender
+</span></span></span><span class="line"><span class="cl"><span class="s2">                The sender to which the receiver should respond. Must either be
+</span></span></span><span class="line"><span class="cl"><span class="s2">                a Python object, or None to receive events from any sender.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            weak
+</span></span></span><span class="line"><span class="cl"><span class="s2">                Whether to use weak references to the receiver. By default, the
+</span></span></span><span class="line"><span class="cl"><span class="s2">                module will attempt to use weak references to the receiver
+</span></span></span><span class="line"><span class="cl"><span class="s2">                objects. If this parameter is false, then strong references will
+</span></span></span><span class="line"><span class="cl"><span class="s2">                be used.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            dispatch_uid
+</span></span></span><span class="line"><span class="cl"><span class="s2">                An identifier used to uniquely identify a particular instance of
+</span></span></span><span class="line"><span class="cl"><span class="s2">                a receiver. This will usually be a string, though it may be
+</span></span></span><span class="line"><span class="cl"><span class="s2">                anything hashable.
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># If DEBUG is on, check that we got a good receiver</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 如果在DEBUG模式下，则检查该receiver是否满足要求</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">configured</span> <span class="ow">and</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">assert</span> <span class="n">callable</span><span class="p">(</span><span class="n">receiver</span><span class="p">),</span> <span class="s2">&#34;Signal receivers must be callable.&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Check for **kwargs</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="ow">not</span> <span class="n">func_accepts_kwargs</span><span class="p">(</span><span class="n">receiver</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&#34;Signal receivers must accept keyword arguments (**kwargs).&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">dispatch_uid</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">dispatch_uid</span><span class="p">,</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>  <span class="c1"># 如果设置了dispatch_uid作为某receiver的标识</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">_make_id</span><span class="p">(</span><span class="n">receiver</span><span class="p">),</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>  <span class="c1"># 没有dispatch_uid则使用receiver的id</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">weak</span><span class="p">:</span>  <span class="c1"># 如果使用weak则存储该receiver的弱引用，否则就直接存储强引用(强引用最终需要手动disconnect)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receiver_object</span> <span class="o">=</span> <span class="n">receiver</span>  <span class="c1"># 强引用</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Check for bound methods</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s1">&#39;__self__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s1">&#39;__func__&#39;</span><span class="p">):</span>  <span class="c1"># 检查是否是对象方法</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># https://docs.python.org/zh-cn/3/library/weakref.html#weakref.WeakMethod</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakMethod</span>
+</span></span><span class="line"><span class="cl">                <span class="n">receiver_object</span> <span class="o">=</span> <span class="n">receiver</span><span class="o">.</span><span class="vm">__self__</span>  <span class="c1"># 包含该对象方法的对象</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 使用弱引用替代强引用</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receiver</span> <span class="o">=</span> <span class="n">ref</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 普通函数方法则直接取其弱引用</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># 当receiver方法、或包含该方法对象消亡时从signal的receivers列表中清除该条记录</span>
+</span></span><span class="line"><span class="cl">            <span class="n">weakref</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">receiver_object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_receiver</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># https://docs.python.org/zh-cn/3/library/weakref.html#weakref.finalize</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 当receiver对象垃圾回收时调用_remove_receiver置self._dead_receivers = True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>  <span class="c1"># 清除、过滤dead_receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">r_key</span> <span class="o">==</span> <span class="n">lookup_key</span> <span class="k">for</span> <span class="n">r_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">):</span>  <span class="c1"># 查重</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lookup_key</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>  <span class="c1"># 添加((receiver_id,sender_id),receiver_weakref)</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># 变更后清除缓存</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dispatch_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        将signal中的receiver与sender“断开连接”
+</span></span></span><span class="line"><span class="cl"><span class="s2">        该函数主要针对那些在connect时weak参数为False的情况，即signal的receivers列表
+</span></span></span><span class="line"><span class="cl"><span class="s2">        中存储的是rceiver的强引用
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        如果在connect时使用的弱引用(weak=True), 则不需要手动调用disconnect方法
+</span></span></span><span class="line"><span class="cl"><span class="s2">        receiver和sender的记录会被自动删除
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Arguments:
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            receiver
+</span></span></span><span class="line"><span class="cl"><span class="s2">                The registered receiver to disconnect. May be none if
+</span></span></span><span class="line"><span class="cl"><span class="s2">                dispatch_uid is specified.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            sender
+</span></span></span><span class="line"><span class="cl"><span class="s2">                The registered sender to disconnect
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            dispatch_uid
+</span></span></span><span class="line"><span class="cl"><span class="s2">                the unique identifier of the receiver to disconnect
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">dispatch_uid</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">dispatch_uid</span><span class="p">,</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>  <span class="c1"># 如果提供了dispatch_uid则使用其替代 id(receiver)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lookup_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">_make_id</span><span class="p">(</span><span class="n">receiver</span><span class="p">),</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">disconnected</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>  <span class="c1"># 先清除dead_receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">                <span class="p">(</span><span class="n">r_key</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">r_key</span> <span class="o">==</span> <span class="n">lookup_key</span><span class="p">:</span>  <span class="c1"># 根据lookup_key在self.receivers中查找</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">disconnected</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>  <span class="c1"># 删除self.receivers中的对应记录</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">break</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># 变更后清除缓存</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">disconnected</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">has_listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 通过调用_live_receivers方法看sender的recivers是否为空</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Send signal from sender to all connected receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">        从sender中发送信号给所有连接到该sender的receiver
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        If any receiver raises an error, the error propagates back through send,
+</span></span></span><span class="line"><span class="cl"><span class="s2">        terminating the dispatch loop. So it&#39;s possible that all receivers
+</span></span></span><span class="line"><span class="cl"><span class="s2">        won&#39;t be called if an error is raised.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Arguments:
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            sender
+</span></span></span><span class="line"><span class="cl"><span class="s2">                The sender of the signal. Either a specific object or None.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            named
+</span></span></span><span class="line"><span class="cl"><span class="s2">                Named arguments which will be passed to receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Return a list of tuple pairs [(receiver, response), ... ].
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 如果该signal得receivers为空或者该sender对应的receivers缓存为空</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">receiver</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">))</span>  <span class="c1"># 这里的receiver就是具体的receiver函数</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># _live_receiver返回的是receiver的可调用对象(就是具体的receiver函数，强引用)的列表</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 返回[(receiver函数,调用receiver函数的结果)]如果调用某个receiver时发生异常程序会直接退出</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 导致其他的剩下的receiver并未被执行</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">send_robust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Send signal from sender to all connected receivers catching errors.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Arguments:
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            sender
+</span></span></span><span class="line"><span class="cl"><span class="s2">                The sender of the signal. Can be any Python object (normally one
+</span></span></span><span class="line"><span class="cl"><span class="s2">                registered with a connect if you actually want something to
+</span></span></span><span class="line"><span class="cl"><span class="s2">                occur).
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">            named
+</span></span></span><span class="line"><span class="cl"><span class="s2">                Named arguments which will be passed to receivers. These
+</span></span></span><span class="line"><span class="cl"><span class="s2">                arguments must be a subset of the argument names defined in
+</span></span></span><span class="line"><span class="cl"><span class="s2">                providing_args.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Return a list of tuple pairs [(receiver, response), ... ].
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        If any receiver raises an error (specifically any subclass of
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Exception), return the error instance as the result for that receiver.
+</span></span></span><span class="line"><span class="cl"><span class="s2">        相比send方法调用receiver方法异常时直接退出，send_robust会收集异常并返回
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Call each receiver with whatever arguments it can accept.</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Return a list of tuple pairs [(receiver, response), ... ].</span>
+</span></span><span class="line"><span class="cl">        <span class="n">responses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_receivers</span><span class="p">(</span><span class="n">sender</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span> <span class="o">=</span> <span class="n">receiver</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">receiver</span><span class="p">,</span> <span class="n">err</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl">                <span class="c1"># 如果调用receiver出现异常则捕获并返回相应的异常而不影响其他receiver的调用</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">receiver</span><span class="p">,</span> <span class="n">response</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">responses</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">_clear_dead_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Note: caller is assumed to hold self.lock.</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 清除dead_receivers</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># 弱引用，并且该弱引用对应的对象已消亡</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">_live_receivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        Filter sequence of receivers to get resolved, live receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        This checks for weak references and resolves them, then returning only
+</span></span></span><span class="line"><span class="cl"><span class="s2">        live receivers.
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">receivers</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_caching</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span><span class="p">:</span>  <span class="c1"># 如果使用缓存并且self.receivers中无dead_receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="n">receivers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>  <span class="c1"># 直接从缓存中获取</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># We could end up here with NO_RECEIVERS even if we do check this case in</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># .send() prior to calling _live_receivers() due to concurrent .send() call.</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 在调用_live_receivers方法的方法中已经检查过一次了</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">receivers</span> <span class="ow">is</span> <span class="n">NO_RECEIVERS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">receivers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># 如果不使用缓存或者存在待清理的dead receivers</span>
+</span></span><span class="line"><span class="cl">            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">_clear_dead_receivers</span><span class="p">()</span>  <span class="c1"># 先清理dead_receivers</span>
+</span></span><span class="line"><span class="cl">                <span class="n">senderkey</span> <span class="o">=</span> <span class="n">_make_id</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">receivers</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">                <span class="k">for</span> <span class="p">(</span><span class="n">receiverkey</span><span class="p">,</span> <span class="n">r_senderkey</span><span class="p">),</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="c1"># 遍历self.receivers进行查找匹配</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="n">r_senderkey</span> <span class="o">==</span> <span class="n">NONE_ID</span> <span class="ow">or</span> <span class="n">r_senderkey</span> <span class="o">==</span> <span class="n">senderkey</span><span class="p">:</span>  <span class="c1"># 如果senderkey为id(None)或匹配</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 将receiver(weakref)添加到receivers中</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># 更新缓存</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_caching</span><span class="p">:</span>  <span class="c1"># 如果使用缓存</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="ow">not</span> <span class="n">receivers</span><span class="p">:</span>  <span class="c1"># 如果该sender没有receiver (receivers为空)</span>
+</span></span><span class="line"><span class="cl">                        <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="p">[</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="n">NO_RECEIVERS</span>  <span class="c1"># 将cache中该sender的receivers置为空</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果该sender存在对应的receiver</span>
+</span></span><span class="line"><span class="cl">                        <span class="c1"># Note, we must cache the weakref versions.</span>
+</span></span><span class="line"><span class="cl">                        <span class="c1"># 注意我们应该缓存弱引用</span>
+</span></span><span class="line"><span class="cl">                        <span class="bp">self</span><span class="o">.</span><span class="n">sender_receivers_cache</span><span class="p">[</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="n">receivers</span>  <span class="c1"># 将该sender及其所有的receivers缓存起来</span>
+</span></span><span class="line"><span class="cl">        <span class="n">non_weak_receivers</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="n">receivers</span><span class="p">:</span>  <span class="c1"># receivers要么为[] 要么为[receiver]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># Dereference the weak reference.</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># https://www.kite.com/python/docs/weakref.ReferenceType</span>
+</span></span><span class="line"><span class="cl">                <span class="n">receiver</span> <span class="o">=</span> <span class="n">receiver</span><span class="p">()</span>  <span class="c1"># 获取弱引用所指的实际对象，若已消亡则返回None，否则返回对象的强引用(“可直接调用”)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">receiver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># ref所指的原对象尚未消亡</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">non_weak_receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 添加实际可调用的对象</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">non_weak_receivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">receiver</span><span class="p">)</span>  <span class="c1"># 不是弱引用则直接添加</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">non_weak_receivers</span>  <span class="c1"># 可调用对象receiver的列表</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">_remove_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Mark that the self.receivers list has dead weakrefs. If so, we will</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># clean those up in connect, disconnect and _live_receivers while</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># holding self.lock. Note that doing the cleanup here isn&#39;t a good</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># idea, _remove_receiver() will be called as side effect of garbage</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># collection, and so the call can happen while we are already holding</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># self.lock.</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 标记self.receivers中有dead weakrefs(weakref所指对象已消亡).如果存在dead receiver</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 程序会在调用connect, disconnect和_live_receivers时在加锁的情况下清除dead weakrefs</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 注意在这里执行具体的清除操作并不是一个好主意，在垃圾回收时_remove_receiver()会被</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 自动触发，而我们可能在其他操作中对receivers加了锁，此时清理receivers将会导致冲突</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_dead_receivers</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">receiver</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    A decorator for connecting receivers to signals. Used by passing in the
+</span></span></span><span class="line"><span class="cl"><span class="s2">    signal (or list of signals) and keyword arguments to connect::
+</span></span></span><span class="line"><span class="cl"><span class="s2">    用来将receivers连接到对应signal的装饰器. 使用时传入signal(或者是装有signal的列表)
+</span></span></span><span class="line"><span class="cl"><span class="s2">    以及相关的关键字参数
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        @receiver(post_save, sender=MyModel)
+</span></span></span><span class="line"><span class="cl"><span class="s2">        def signal_receiver(sender, **kwargs):
+</span></span></span><span class="line"><span class="cl"><span class="s2">            ...
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">        @receiver([post_save, post_delete], sender=MyModel)
+</span></span></span><span class="line"><span class="cl"><span class="s2">        def signals_receiver(sender, **kwargs):
+</span></span></span><span class="line"><span class="cl"><span class="s2">            ...
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>  <span class="c1"># 传入的是signal列表</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signal</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># 调用connect方法，sender的信息包含在kwargs中了</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">func</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">_decorator</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>除此之外，django已经为我们预置了一些信号:</p>
+<p><code>pre_init</code>、<code>post_init</code>、<code>pre_save</code>、<code>post_save</code>、<code>pre_delete</code>、<code>post_delete</code>、<code>m2m_change</code>……(<a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/"  target="_blank" rel="noopener"
+    >详细用法见官方文档</a>)</p>
+<p>django在<a class="link" href="https://github.com/django/django/blob/main/django/db/models/signals.py"  target="_blank" rel="noopener"
+    ><code>django/db/models/signals.py</code></a>中定义了与数据库Model相关的信号对象:</p>
+<ul>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#pre-init"  target="_blank" rel="noopener"
+    >pre_init &amp; post_init</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#pre-save"  target="_blank" rel="noopener"
+    >pre_save &amp; post_save</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#pre-delete"  target="_blank" rel="noopener"
+    >pre_delete &amp; post_delete</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#m2m-changed"  target="_blank" rel="noopener"
+    >m2m_change</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#class-prepared"  target="_blank" rel="noopener"
+    >class_prepared</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#pre-migrate"  target="_blank" rel="noopener"
+    >pre_migrate &amp; post_migrate</a></li>
+</ul>
+<p>在<a class="link" href="https://github.com/django/django/blob/main/django/core/signals.py"  target="_blank" rel="noopener"
+    ><code>django/core/signals.py</code></a>中定义了与request和setting相关的信号对象:</p>
+<ul>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#request-started"  target="_blank" rel="noopener"
+    >request_started &amp; request_finished</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#got-request-exception"  target="_blank" rel="noopener"
+    >got_request_exception</a></li>
+<li><a class="link" href="https://docs.djangoproject.com/zh-hans/3.0/ref/signals/#setting-changed"  target="_blank" rel="noopener"
+    >setting_changed</a></li>
+</ul>
+<p>django为我们预置这些信号对象，并且在<u>适当的时候</u>调用<u>适当的信号对象</u>发送<u>适当的“信号”</u>。比如在<a class="link" href="https://github.com/django/django/blob/316cc34d046ad86e100227772294f906fae1c2e5/django/db/models/base.py#L404"  target="_blank" rel="noopener"
+    ><code>django/db/models/base.py</code></a>中，在Model类的__init__方法开始位置调用<a class="link" href="https://github.com/django/django/blob/316cc34d046ad86e100227772294f906fae1c2e5/django/db/models/base.py#L415"  target="_blank" rel="noopener"
+    >pre_init.send()</a>在__init__的结束位置调用<a class="link" href="https://github.com/django/django/blob/316cc34d046ad86e100227772294f906fae1c2e5/django/db/models/base.py#L509"  target="_blank" rel="noopener"
+    >post_init.send()</a>，而我们的model又都是继承自该Model。</p>
+<p>django为我们预置好了一些信号，并且在做相应操作时会发送对应的信号，所以我们需要做的就是在需要用到时，定义对应的receiver去接收对应的信号📶即可。当然我们也可以直接实例化或继承Signal类来定义我们自己的信号。具体的使用可以参见<a class="link" href="https://www.liujiangblog.com/course/django/170"  target="_blank" rel="noopener"
+    >这篇博客</a></p>
+<h2 id="一些可能有用的链接">一些可能有用的链接
+</h2><ul>
+<li><a class="link" href="https://docs.python.org/zh-cn/3/library/weakref.html"  target="_blank" rel="noopener"
+    >Python 弱引用</a></li>
+<li>Python 垃圾回收
+<ol>
+<li><a class="link" href="https://docs.python.org/zh-cn/3.8/library/gc.html"  target="_blank" rel="noopener"
+    >python gc模块接口文档</a></li>
+<li><a class="link" href="https://www.jianshu.com/p/1e375fb40506"  target="_blank" rel="noopener"
+    >简书 Python垃圾回收机制</a></li>
+<li><a class="link" href="https://zhuanlan.zhihu.com/p/83251959"  target="_blank" rel="noopener"
+    >知乎 Python垃圾回收机制</a></li>
+</ol>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/python/">Python</a>
+        
+            <a href="/tags/django/">Django</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/top-6-django-decorators/">
+        
+        
+            <div class="article-image">
+                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu7783161890850055115.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Top 6 Django Decorators"
+                        data-key="top-6-django-decorators" 
+                        data-hash="md5-PRnx8Jul2UCqDWD5pa/ytA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Top 6 Django Decorators</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/internal-sort/">
+        
+        
+            <div class="article-image">
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 常用内部排序算法"
+                        data-key="internal sort" 
+                        data-hash="md5-3lXz&#43;sQLfNqSI4vWVm6ELQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">常用内部排序算法</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/analyzing-libpcap-pcap-file/">
+        
+        
+            <div class="article-image">
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Libpcap格式pcap包分析"
+                        data-key="analyzing libpcap pcap file" 
+                        data-hash="md5-wJjNzR7Z5H9&#43;DJNoTHgiFA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Libpcap格式pcap包分析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/implementing-a-trie-in-python/">
+        
+        
+            <div class="article-image">
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Implementing a Trie in Python"
+                        data-key="implementing a trie in Python" 
+                        data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Implementing a Trie in Python</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/neural-network-with-python/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;amp;ixlib=rb-1.2.1&amp;amp;auto=format&amp;amp;fit=crop&amp;amp;w=1653&amp;amp;q=80" loading="lazy" data-key="neural network with python" data-hash="https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;amp;ixlib=rb-1.2.1&amp;amp;auto=format&amp;amp;fit=crop&amp;amp;w=1653&amp;amp;q=80"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Neural Network With Python</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "heaciy" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 Heaciy&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

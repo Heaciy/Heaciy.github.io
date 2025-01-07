@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Pages on Heaciy&#39;s Blog</title>
+        <link>https://heaciy.com/page/</link>
+        <description>Recent content in Pages on Heaciy&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <copyright>Heaciy&#39;s Blog</copyright>
+        <lastBuildDate>Fri, 09 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/page/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Archives</title>
+        <link>https://heaciy.com/archives/</link>
+        <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/archives/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>About</title>
+        <link>https://heaciy.com/about/</link>
+        <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/about/</guid>
+        <description>&lt;h2 id=&#34;about-heaciy&#34;&gt;About Heaciy
+&lt;/h2&gt;&lt;p&gt;It’s not hard to image that Heaciy is not my real name. Few years ago I found it really hard to find a username that has never been used on the Internet, so I created it, and registered it as the username on every site that I can image. But why is Heaciy not any other characters? Save this story for later.🎨&lt;/p&gt;
+&lt;p&gt;I will use these blogs to share some articles I like, record some useful knowledge, interesting things in daily life and problems encountered at work. Thanks for reading.🎈&lt;/p&gt;
+&lt;h2 id=&#34;about-me&#34;&gt;About Me
+&lt;/h2&gt;&lt;p&gt;College Student👨‍🎓 |  Software Engineering👷 | Programmer👨‍💻 | Pythonista🐍&lt;/p&gt;
+&lt;p&gt;Favorite Books📚: &lt;a class=&#34;link&#34; href=&#34;https://book.douban.com/subject/26340138/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;The Storied Life of A. J. Fikry&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://book.douban.com/subject/1068920/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Gone with the Wind&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://book.douban.com/subject/26184384/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Dimanches d&amp;rsquo;août&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Favorite Movies🎬: &lt;a class=&#34;link&#34; href=&#34;https://movie.douban.com/subject/1769507/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Le silence de la mer&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://movie.douban.com/subject/1950148/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Atonement&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://movie.douban.com/subject/1291853/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;The English Patient&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://movie.douban.com/subject/1293839/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Roman Holiday&lt;/a&gt; | &lt;a class=&#34;link&#34; href=&#34;https://movie.douban.com/subject/1291990/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Before Sunset&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;contact&#34;&gt;Contact
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/heaciy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Github&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://weibo.com/u/7169836820&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Weibo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://t.me/heaciy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Telegram&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://twitter.com/Heaciy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;mailto:heaciyyy@gmail.com&#34; &gt;Email&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>Search</title>
+        <link>https://heaciy.com/search/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/search/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>
