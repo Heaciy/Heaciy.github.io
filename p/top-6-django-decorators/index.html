@@ -250,23 +250,19 @@
             <div class="widget--toc">
                 <nav id="TableOfContents">
   <ol>
-    <li>
+    <li><a href="#what-is-a-decorator">What is a Decorator?</a></li>
+    <li><a href="#why-i-should-use-decorators-in-my-web-application">Why I should use decorators in my web application?</a></li>
+    <li><a href="#some-of-our-favorite-decorators">Some of our favorite decorators</a>
       <ol>
-        <li><a href="#what-is-a-decorator">What is a Decorator?</a></li>
-        <li><a href="#why-i-should-use-decorators-in-my-web-application">Why I should use decorators in my web application?</a></li>
-        <li><a href="#some-of-our-favorite-decorators">Some of our favorite decorators</a>
-          <ol>
-            <li><a href="#group-required">Group Required</a></li>
-            <li><a href="#anonymous-required">Anonymous required</a></li>
-            <li><a href="#superuser-required">Superuser required</a></li>
-            <li><a href="#ajax-required">Ajax required</a></li>
-            <li><a href="#time-it">Time it</a></li>
-            <li><a href="#custom-functionality">Custom Functionality</a></li>
-          </ol>
-        </li>
-        <li><a href="#参考链接">参考链接</a></li>
+        <li><a href="#group-required">Group Required</a></li>
+        <li><a href="#anonymous-required">Anonymous required</a></li>
+        <li><a href="#superuser-required">Superuser required</a></li>
+        <li><a href="#ajax-required">Ajax required</a></li>
+        <li><a href="#time-it">Time it</a></li>
+        <li><a href="#custom-functionality">Custom Functionality</a></li>
       </ol>
     </li>
+    <li><a href="#参考链接">参考链接</a></li>
   </ol>
 </nav>
             </div>
@@ -371,13 +367,13 @@
     >https://www.bedjango.com/blog/top-6-django-decorators/</a><br/>
 声明👉：本文为转载，仅作为个人学习记录<br/></p>
 </blockquote>
-<h3 id="what-is-a-decorator">What is a Decorator?
-</h3><p>A <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/http/decorators/"  target="_blank" rel="noopener"
+<h2 id="what-is-a-decorator">What is a Decorator?
+</h2><p>A <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/http/decorators/"  target="_blank" rel="noopener"
     >decorator</a> is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&rsquo;s so special about this pattern? As we can read at  <a class="link" href="https://wiki.python.org/moin/DecoratorPattern"  target="_blank" rel="noopener"
     >Python Wiki</a> using It is a way of apparently modifying an object&rsquo;s behavior, by enclosing it inside a decorating object with a similar interface. You can get more information about Pattern Design <a class="link" href="https://en.wikipedia.org/wiki/Decorator_pattern"  target="_blank" rel="noopener"
     >here</a>.</p>
-<h3 id="why-i-should-use-decorators-in-my-web-application">Why I should use decorators in my web application?
-</h3><p><strong>Decorators</strong> dynamically alter the functionality of a function, method or class without having to make subclasses or change the source code of the decorated class. Thanks to this our <strong>code</strong> will be <strong>more cleaner</strong>, <strong>more readable</strong>, <strong>maintainable</strong> (Which is no small thing), and reduce the boilerplate code allowing us to add functionality to multiple classes using a single method.
+<h2 id="why-i-should-use-decorators-in-my-web-application">Why I should use decorators in my web application?
+</h2><p><strong>Decorators</strong> dynamically alter the functionality of a function, method or class without having to make subclasses or change the source code of the decorated class. Thanks to this our <strong>code</strong> will be <strong>more cleaner</strong>, <strong>more readable</strong>, <strong>maintainable</strong> (Which is no small thing), and reduce the boilerplate code allowing us to add functionality to multiple classes using a single method.
 A good example of the importance and easy of use of these decorators can be seen in the decorator <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/auth/default/#the-login-required-decorator"  target="_blank" rel="noopener"
     >@login_required</a> that provides <strong>django</strong>, and that you probably used if you have some experience with our favorite framework. It’s just a piece of code where we check if the user is not authenticated the user is redirected to the login url.</p>
 <p>The way that the decorators as used is the following:</p>
@@ -400,10 +396,10 @@ A good example of the importance and easy of use of these decorators can be seen
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Each time that a user try to access to <strong>my_view</strong>, the code inside <strong>login_required</strong> will be ejecuted.</p>
-<h3 id="some-of-our-favorite-decorators">Some of our favorite decorators
-</h3><p>In this section we will show you some of the <strong>decorators</strong> that we think are <strong>most useful</strong> or that we have ever used with positive results, keep in mind that many of these can be customized to suit your needs. For this post we will use the original decorators with their font.</p>
-<h4 id="group-required">Group Required
-</h4><p>Sometimes we need to protect some views, to allow a certain group of users to access it. Instead of checking within it if the user belongs to that group/s, we can use the following decorator</p>
+<h2 id="some-of-our-favorite-decorators">Some of our favorite decorators
+</h2><p>In this section we will show you some of the <strong>decorators</strong> that we think are <strong>most useful</strong> or that we have ever used with positive results, keep in mind that many of these can be customized to suit your needs. For this post we will use the original decorators with their font.</p>
+<h3 id="group-required">Group Required
+</h3><p>Sometimes we need to protect some views, to allow a certain group of users to access it. Instead of checking within it if the user belongs to that group/s, we can use the following decorator</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -448,8 +444,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div>
 </div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/1703/"  target="_blank" rel="noopener"
     >here</a></p>
-<h4 id="anonymous-required">Anonymous required
-</h4><p>This decorator is based on the <strong>decorator login_required</strong> of <strong>Django</strong>, but looks for the opposite case, that the user is anonymous, otherwise the user is redirected to the website defined in our <strong>settings.py</strong> and can be useful when we want to protect logged user views, such as the login or registration view</p>
+<h3 id="anonymous-required">Anonymous required
+</h3><p>This decorator is based on the <strong>decorator login_required</strong> of <strong>Django</strong>, but looks for the opposite case, that the user is anonymous, otherwise the user is redirected to the website defined in our <strong>settings.py</strong> and can be useful when we want to protect logged user views, such as the login or registration view</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -496,8 +492,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div>
 </div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/2969/"  target="_blank" rel="noopener"
     >here</a></p>
-<h4 id="superuser-required">Superuser required
-</h4><p>This is the same case as when we want to allow certain groups access to a view, but in this case only super users can visit it.</p>
+<h3 id="superuser-required">Superuser required
+</h3><p>This is the same case as when we want to allow certain groups access to a view, but in this case only super users can visit it.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -540,8 +536,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div>
 </div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/1575/"  target="_blank" rel="noopener"
     >here</a></p>
-<h4 id="ajax-required">Ajax required
-</h4><p>This <strong>decorator</strong> check if the request is an <strong>AJAX</strong> request, useful decorator when we are working with <strong>Javascript frameworks</strong> as <strong>jQuery</strong> and a good way to try to secure our application</p>
+<h3 id="ajax-required">Ajax required
+</h3><p>This <strong>decorator</strong> check if the request is an <strong>AJAX</strong> request, useful decorator when we are working with <strong>Javascript frameworks</strong> as <strong>jQuery</strong> and a good way to try to secure our application</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -606,8 +602,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div>
 </div><p>You can get more information about it <a class="link" href="https://djangosnippets.org/snippets/771/"  target="_blank" rel="noopener"
     >here</a></p>
-<h4 id="time-it">Time it
-</h4><p>This <strong>decorator</strong> is very helpful if you need to improve the response time of one of then our views or if you just want to know how long it takes to run.</p>
+<h3 id="time-it">Time it
+</h3><p>This <strong>decorator</strong> is very helpful if you need to improve the response time of one of then our views or if you just want to know how long it takes to run.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -648,8 +644,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div>
 </div><p>You can get more information about it <a class="link" href="https://www.zopyx.com/andreas-jung/contents/a-python-decorator-for-measuring-the-execution-time-of-methods"  target="_blank" rel="noopener"
     >here</a></p>
-<h4 id="custom-functionality">Custom Functionality
-</h4><p>The next <strong>decorator</strong> is just an example about how you can <strong>check some permissions</strong> or some checks in a easy way and 100% customizable.</p>
+<h3 id="custom-functionality">Custom Functionality
+</h3><p>The next <strong>decorator</strong> is just an example about how you can <strong>check some permissions</strong> or some checks in a easy way and 100% customizable.</p>
 <p>Imagine you have a blog, shop, forum&hellip;. Where users need to have a number of points in order to write a review, it would be a good way to avoid SPAM for example. We&rsquo;ll create a decorator to check that the user is logged in and has more than 10 points, so you could write a review, otherwise we&rsquo;ll raise a Forbidden</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -696,8 +692,8 @@ A good example of the importance and easy of use of these decorators can be seen
 </div><p>You can get more information about it asking myself at <strong><a class="link" href="mailto:piglesias@emergya.com" >piglesias@emergya.com</a></strong> or via twitter <a class="link" href="http://twitter.com/PyPiglesias?lang=es"  target="_blank" rel="noopener"
     >@pypiglesias</a>.  I really hope you found the post interesting or at least curious. From <strong>BeDjango</strong> we would like to encourage you to share your decorators, ideas or questions as well as interesting topics for future posts</p>
 <hr>
-<h3 id="参考链接">参考链接
-</h3><ul>
+<h2 id="参考链接">参考链接
+</h2><ul>
 <li><a class="link" href="https://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p09_meta_programming.html"  target="_blank" rel="noopener"
     >python decorator</a></li>
 </ul>
