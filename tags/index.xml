@@ -7,7 +7,23 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <copyright>Heaciy&#39;s Blog</copyright>
-        <lastBuildDate>Thu, 19 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 09 Jul 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Literature</title>
+        <link>https://heaciy.com/tags/literature/</link>
+        <pubDate>Wed, 09 Jul 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/tags/literature/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Poem</title>
+        <link>https://heaciy.com/tags/poem/</link>
+        <pubDate>Wed, 09 Jul 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/tags/poem/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Network</title>
         <link>https://heaciy.com/tags/network/</link>
         <pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate>
@@ -37,14 +53,6 @@
         <pubDate>Thu, 10 Jun 2021 00:00:00 +0000</pubDate>
         
         <guid>https://heaciy.com/tags/django/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Literature</title>
-        <link>https://heaciy.com/tags/literature/</link>
-        <pubDate>Sun, 06 Jun 2021 00:00:00 +0000</pubDate>
-        
-        <guid>https://heaciy.com/tags/literature/</guid>
         <description></description>
         </item>
         <item>
