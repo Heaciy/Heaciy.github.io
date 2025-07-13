@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Network on Heaciy&#39;s Blog</title>
+        <link>https://heaciy.com/tags/network/</link>
+        <description>Recent content in Network on Heaciy&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <copyright>Heaciy&#39;s Blog</copyright>
+        <lastBuildDate>Thu, 19 Jun 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/tags/network/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>zxcvbn 原理详解</title>
+        <link>https://heaciy.com/p/zxcvbn-explained/</link>
+        <pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/p/zxcvbn-explained/</guid>
+        <description>&lt;img src="https://heaciy.com/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.jpg" alt="Featured image of post zxcvbn 原理详解" /&gt;&lt;blockquote&gt;
+&lt;p&gt;前言：
+因为工作中的一个计算密码强度的需求，了解到 zxcvbn 这个库，花了段时间看了看它的 java 实现和相关论文，编写此文作为笔记存档。注意：本文侧重其算法实现和复杂度计算，不涉及其使用方法以及与其他库的对比。本文中的公式均摘自 Dropbox 相关博客和论文。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;概述&#34;&gt;概述
+&lt;/h2&gt;&lt;p&gt;zxcvbn 是一个由 Dropbox 开发的密码强度估算库，灵感来自于密码爆破工具，其全称是 &amp;ldquo;zxcvbn: realistic password strength estimation&amp;rdquo;，旨在提供一种更准确、用户友好的密码强度评估方法。zxcvbn 的强度估计是基于一个想法：&lt;/p&gt;
+&lt;p&gt;猜测密码难度 ≈ 破解者使用最优策略所需尝试的次数（guesses）&lt;/p&gt;
+&lt;p&gt;换句话说，zxcvbn 试图模拟一个最聪明的黑客（利用所有已知技术和词库）如何最有效地破解这个密码。然后根据所需的尝试次数来估算破解时间和给出打分。&lt;/p&gt;
+&lt;p&gt;zxcvbn 将密码破解难度的计算大致分为了三步：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;匹配：模式匹配，zxcvbn 会尝试对输入密码进行子串划分，它尝试以多种方式将密码拆成子串，每个子串对应一种模式(match)，即该子串符合什么特征，如若密码字典(包含常用单词、姓名)、键盘路径，具体有哪几种模式将在下文具体介绍。&lt;/li&gt;
+&lt;li&gt;评估：破解所需的尝试次数，对于每个识别出的模式子串，zxcvbn 会计算其可能的尝试次数。&lt;/li&gt;
+&lt;li&gt;搜索：使用 &lt;strong&gt;动态规划&lt;/strong&gt; 算法，zxcvbn 试图找出一组首尾相接子串组合，使得总猜测数最小。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;模式匹配&#34;&gt;模式匹配
+&lt;/h2&gt;&lt;h3 id=&#34;zxcvbn-包含的匹配模式&#34;&gt;zxcvbn 包含的匹配模式
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;字典匹配&lt;/strong&gt;：维护一个带排名的弱密码字典，如：admin、admin123、logitech&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;反向字典匹配&lt;/strong&gt;：基于字典匹配，弱密码字典中的词汇倒序，如：drowssap，nimda&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;leet 匹配&lt;/strong&gt;：基于字典匹配，将一些字符做相似替换，如：p@ssw0rd&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;键位匹配&lt;/strong&gt;：键盘上的连续字符，如：qwerty、qazwx&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;重复匹配&lt;/strong&gt;：重复的字符或者序列，如：zzz、ababab&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;顺序匹配&lt;/strong&gt;：有顺序的连续字符，如：abc、123、246&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;日期匹配&lt;/strong&gt;：日期字符串，如：20000102、7/8/1947&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;暴力破解匹配&lt;/strong&gt;：无法使用上述方法匹配的序列，如：x$JQhMzt&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;正则匹配&lt;/strong&gt;：实际代码中比论文中还多了一种正则匹配，内置常见的数据格式正则比如最近的年份&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;模式匹配的实现原理&#34;&gt;模式匹配的实现原理
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;字典匹配、反向字典匹配、leet 匹配&lt;/strong&gt; ：首先将整个密码字符串小写，然后再获取该小写密码的所有子串，遍历子串看其是否在密码排名字典中；反向字典匹配在此基础上将子串反转判断其是否在排名字典中；leet 匹配则会根据替换规则，得到一个子串的所有 leet 替换值，再判断替换后的子串是否在排名字典中，如&lt;code&gt;@ba1one&lt;/code&gt;，l33t 表会将&lt;code&gt;@&lt;/code&gt;映射到&lt;code&gt;a&lt;/code&gt;，将&lt;code&gt;1&lt;/code&gt;映射到&lt;code&gt;i&lt;/code&gt;或者&lt;code&gt;l&lt;/code&gt;(即按照 leet 规则将字符串中的符号和数字替换为对应的字母)，因此它会通过替换 &lt;code&gt;[@-&amp;gt;a, 1-&amp;gt;i]&lt;/code&gt; 和 &lt;code&gt;[@-&amp;gt;a, 1-&amp;gt;l]&lt;/code&gt;分两次尝试去排名字典中匹配，第二次会匹配中单词&lt;code&gt;abalone&lt;/code&gt;(单词：鲍鱼)；
+zxcvbn 的密码字典包括：英语词汇表、常用人名、常用密码、常用姓氏、美国电影和电视剧名&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;顺序匹配&lt;/strong&gt;：通过计算相邻字符的 unicode 码的差值来找到顺序，一个”递增“或”递减“的子串其相邻字符的 unicode 码的差值是相同的；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;重复匹配&lt;/strong&gt;：通过使用贪婪正则&lt;code&gt;&amp;quot;(.+)\1+&amp;quot;&lt;/code&gt;和懒惰正则&lt;code&gt;&amp;quot;(.+?)\1+&amp;quot;&lt;/code&gt;来识别密码字符串中的重复块。对于字符串 &amp;ldquo;aabaab&amp;rdquo; 贪婪模式的结果(aab)较懒惰模式的结果(aa)会胜出，因为贪婪模式覆盖的长度为 6(&amp;ldquo;aabaab&amp;rdquo;)而贪婪模式覆盖的长度为 2(&amp;ldquo;aa&amp;rdquo;)；对于 &amp;ldquo;aaaaa&amp;rdquo; 懒惰模式覆盖长度为 5(&amp;ldquo;aaaaa&amp;rdquo;)，而贪婪模式覆盖长度为 4(&amp;ldquo;aaaa&amp;rdquo;)，故懒惰模式胜出。在得到整个密码的所有重复单元后，会再对每个重复单元再执行完整的匹配过程(即对子串再执行一遍搜索的模式匹配)，以此识别重复的单词或日期；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;键位匹配&lt;/strong&gt;：遍历密码字符串，对比多种键盘键位的邻接图，找到密码中键位相邻的模式子串，并记录每个模式子串的长度、转折次数、shift 键(如!@#$%QAZ)的数量以及键盘种类。如密码“zxcvfR$321”将会被记录为以下数据：键盘种类-qwerty、转折次数-3、shift键数量-2(R和$)、长度-10；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;日期匹配&lt;/strong&gt;：对于不带分隔符( &lt;code&gt;/ \ _ . - 空格&lt;/code&gt;)的日期格式，遍历整个密码字符串，匹配长度为 4~8 的数字子串如&lt;code&gt;&#39;1191&#39;&lt;/code&gt;&lt;em&gt;、&lt;/em&gt;&lt;code&gt;&#39;11111991&#39;&lt;/code&gt;，然后针对不同长度使用不同的分割策略分割为三部分组合、过滤出日期，再从这些日期中挑出离现在最近的日期作为最优解；对于带分隔符的日期格式，遍历整个密码字符串，匹配长度为 6~10 的数字子串如&lt;code&gt;&#39;1/1/91&#39;&lt;/code&gt;、&lt;code&gt;&#39;11/11/1991&#39;&lt;/code&gt;，使用正则匹配分割为三部分，然后重复上述的逻辑；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;正则匹配&lt;/strong&gt;：&lt;a class=&#34;link&#34; href=&#34;https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/matching.coffee#L37&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;实际代码实现中&lt;/a&gt;只内置了一种常用正则即最近年份用于匹配 19** 或者 20** 这种年份，如 1999、2019；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;评估尝试次数&#34;&gt;评估尝试次数
+&lt;/h2&gt;&lt;h3 id=&#34;每种模式的猜测次数计算&#34;&gt;每种模式的猜测次数计算
+&lt;/h3&gt;&lt;p&gt;对于模式匹配阶段的结果，在评估阶段会计算其中每一个模式子串的猜测次数，对每种模式的子串的猜测计算方法根据模式匹配特点决定：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;字典和反向字典匹配&lt;/strong&gt;：假设攻击者按照弱密码流行度顺序猜测&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对于字典匹配，模式子串的猜测次数即为弱密码字典排名值；&lt;/li&gt;
+&lt;li&gt;对于反向字典匹配，由于需要尝试字典值的正反两种情况，因此还要在流行度排名值的基础上乘二；&lt;/li&gt;
+&lt;li&gt;对于仅首字母、仅尾字母和全部字母为大写的三种情况，也需要在流行度排名值得基础上乘二；&lt;/li&gt;
+&lt;li&gt;对于其他的大小写情况(如：对于密码&lt;code&gt;paSswOrd&lt;/code&gt;，需要在猜出&lt;code&gt;password&lt;/code&gt;的基础上，再猜出哪些位置的字母是大写)使用下面的公式计算：&lt;/li&gt;
+&lt;/ul&gt;
+$$
+   \frac{1}{2}\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}
+   $$&lt;p&gt;公式解读：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$U$：大写字母数量&lt;/li&gt;
+&lt;li&gt;$L$：小写字母数量&lt;/li&gt;
+&lt;li&gt;$\min(U,L)$：取两值中的较小值，当大写字母数量大于小写字母数量时，改为猜测小写字母&lt;/li&gt;
+&lt;li&gt;$\binom{U+L}{i}$：组合公式 $C^{i}_{U+L}$ ，即从 $U+L$ 个中选出 $i$ 个有多少种选法&lt;/li&gt;
+&lt;li&gt;$\frac{1}{2}\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}$：攻击者不知道其中有多少个大写字母，假设攻击者从 1 个大写字母尝试到 $min(U,L)$，当尝试到大写字母数量为 $i$ 时，此轮共需要尝试 $C^i_{U+L}$ 次，记为 $\binom{U+L}{i}$，$i$ 需要从 1 尝试到 $min(U,L)$，总数为 $\binom{U+L}{i}+\binom{U+L}{i}+&amp;hellip;+\binom{U+L}{min(U,L)}$ 记为 $\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}$，最后添加一个 $\frac{1}{2}$ 来取平均猜测次数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Leet 匹配&lt;/strong&gt;：在字典匹配的基础上，与上述大小写替换的计算方式一致，只不过是将大写字符替换改为了 leet 字符替换。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;键位匹配&lt;/strong&gt;：对于键位匹配，假设攻击者总是从较短的键位匹配长度(最短为 2)和较少的方向(最少为 1)开始计算。以 &lt;code&gt;qwertyhnm&lt;/code&gt; 为例，它从 &lt;code&gt;q&lt;/code&gt; 开始，长度为 9，包含 3 个方向：最开始向右(&lt;code&gt;qwerty&lt;/code&gt;)，然后向右下(&lt;code&gt;yhn&lt;/code&gt;)，然后向右(&lt;code&gt;nm&lt;/code&gt;)。&lt;/p&gt;
+$$
+   \frac{1}{2}\sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}SD^j
+   $$&lt;p&gt;公式解读：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$L$：密码的长度&lt;/li&gt;
+&lt;li&gt;$T$：密码在键盘上方向段数&lt;/li&gt;
+&lt;li&gt;$D$：键盘上每个键平均的相邻键数&lt;/li&gt;
+&lt;li&gt;$S$：键盘上键的个数&lt;/li&gt;
+&lt;li&gt;$i$：假设键位匹配模式子串的长度为 $i$，从 2 开始（1 长度没有“转向”的意义）&lt;/li&gt;
+&lt;li&gt;$j$：假设长度为 $i$ 的键位匹配模式子串包含 $j$ 个方向段，即对应 $j-1$ 次转向，不能超过 $i-1$ 或最大方向段数 $T$&lt;/li&gt;
+&lt;li&gt;$SD^j$：键盘上任意一个字符都有可能作为起始字符，每一个方向段都有 $D$ 种方向选择，共 $j$ 段。(&lt;em&gt;这里应该也是估算，因为第二个方向段的方向肯定与第一个方向段方向不同，那能选的方向应该是 $D-1$，对应 $S \cdot D \cdot D^{j-1}$，不过这里的数量级应该是一样的且 $D$ 本身不是精确值，所以直接简化为 $SD^j$ 也无妨&lt;/em&gt;)&lt;/li&gt;
+&lt;li&gt;$\binom{i-1}{j-1}$：在 $i$ 个键上包含 $j$ 个方向段，可以这样理解：$j$ 个方向段对应 $j-1$ 次转向，转向应该发生在“内部键”上，而 $i$ 个键位对应 $i-2$ 个内部键(即去除首尾键)，那位该问题转化为在 $i-2$ 个内部键中挑选出 $j-1$ 个作为转向键，对应的组合公式即为 $\binom{i-2}{j-1}$。&lt;strong&gt;⁉️ 离谱的来的，怎么跟论文里的公式对不上 😅&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;$\frac{1}{2}\sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}SD^j$：假设攻击者总是从较短的序列长度(最短为 2)和较少的方向段数(最少为 1)开始猜测，针对 $i$ 从 $2$ 到 $L$ 的每种序列长度的情况，方向段数从 1 最多尝试到 $min(T,i-1)$ 次；每种长度的模式子串的首字符有 $S$ 种选择，每个方向段有 $D$ 种方向选择，共有 $j$ 个方向段，故针对每种空间模式的模式子串都有 $SD^j$ 种可能；$\frac{1}{2}$ 用于计算平均情况；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;⚠️ 注意 ⚠️：上述个人理解与论文中的公式对不上 😅，不必惊慌数量级应该是一样的那就先凑合用论文中的公式吧，当然我的理解可能也是错的欢迎指正。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;其实下面&lt;a class=&#34;link&#34; href=&#34;https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_wheeler.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;参考链接里的论文&lt;/a&gt;中存在多处公式与代码实现不符且存在错误……经过查看 &lt;a class=&#34;link&#34; href=&#34;https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/scoring.coffee#L288&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Dropbox 官方的代码库实现&lt;/a&gt;和相关的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/nulab/zxcvbn4j/blob/c08b8b8455623023ef040406afc0fb988b4e3c12/src/main/java/com/nulabinc/zxcvbn/guesses/SpatialGuess.java#L25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;java 库实现&lt;/a&gt;后发现，实际并没有使用论文中提到的 $\frac{1}{2}$ 来计算平均尝试情况，除了键位匹配，字典匹配的实现中也没有使用 $\frac{1}{2}$ 来计算平均值。代码实现中实际使用的公式如下：&lt;/strong&gt;&lt;/p&gt;
+$$
+   \sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}\cdot S \cdot D^j \cdot \text{shift\_factor}
+   $$&lt;p&gt;公式解读：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$\text{shift\_factor}$：大写因子，即按住 shift 键输入的值，比如大写的字母或是数字键对应的符号如 !@# 等。
+&lt;ul&gt;
+&lt;li&gt;当整个模式子串全部为&amp;quot;小写&amp;quot;时因子值为 1；&lt;/li&gt;
+&lt;li&gt;当整个模式子串全部大写时，因为值为 2，因为假定攻击者先尝试全部小写再尝试全部大写，所以尝试了两次；&lt;/li&gt;
+&lt;li&gt;其余情况使用公式 $\sum_{i=1}^{\min(\text{shifted},\text{unshifted})}\binom{\text{shifted}+\text{unshifted}}{i}$ 计算，$shifted$ 是按住 shift 键输入的个数，$unshifted$ 是不需要按住 shift 键输入的个数，这个公式就不展开介绍了，原理与上面的字典匹配中的大小写模式计算一致。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;重复匹配&lt;/strong&gt;：整个重复的模式子串由 n 个重复的基础字串组成，如 &lt;code&gt;nownownow&lt;/code&gt; 由基础子串 &lt;code&gt;now&lt;/code&gt; 重复 3 次组成；重复匹配首先会递归的检测基础子串 &lt;code&gt;now&lt;/code&gt; 的匹配模式，并计算其猜测次数 $g$；子串 &lt;code&gt;now&lt;/code&gt; 的模式为字典模式，在字典表中排名第 42 位，子串重复了 3 次，整个重复模式子串的猜测次数为：$g\times n$，即 &lt;code&gt;nownownow&lt;/code&gt; 的猜测次数为 $42\times 3$。&lt;/p&gt;
+&lt;p&gt;如何理解这里的乘法呢：密码 &lt;code&gt;123abcabcabc&lt;/code&gt; 中存在一段重复的子串 &lt;code&gt;abcabcabc&lt;/code&gt;，只看基础单元 &lt;code&gt;abc&lt;/code&gt; 攻击者需要尝试 $g$ 次才能猜对，在猜对基础单元后对于整个重复子串 &lt;code&gt;abcabcabc&lt;/code&gt; 需要尝试将基础单元重复 3 次才能完整匹配中这段完整的重复子串：尝试重复 &lt;code&gt;abc&lt;/code&gt;、尝试 &lt;code&gt;abcabc&lt;/code&gt;、尝试 &lt;code&gt;abcabcabc&lt;/code&gt;，即从重复 1 次 一直到重复 $n$ 次，所以要猜对这段完整的重复子串需要猜测 $g\times n$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;顺序匹配&lt;/strong&gt;：顺序匹配的猜测次数计算方法为：$S\cdot N\cdot \lvert d\lvert$，$S$ 为起始字符的可选个数，$N$ 为长度，$d$ 为相邻前后字符的 Unicode 编码差值（如 &lt;code&gt;9753&lt;/code&gt; 的前后字符差值为 -2）。当模式子串首字符为 &lt;code&gt;[&#39;a&#39;,&#39;A&#39;,&#39;z&#39;,&#39;Z&#39;,&#39;0&#39;,&#39;1&#39;,&#39;9&#39;]&lt;/code&gt; 中的任何一个时，$S$ 将被赋值为 4，如果首字符不在上述列表中，但是首字符为其他数字，则 $S$ 将被赋值为 10，其他情况 $S$ 将被赋值为 26，当字符序列为倒序时，还要在 $S\cdot N\cdot \lvert d\lvert$ 的基础上乘以二(因为猜完正序还要再猜一次倒叙)，即 $2\cdot S\cdot N\cdot\lvert d\lvert$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;日期匹配&lt;/strong&gt;：日期匹配的猜测次数计算方法为：$365\cdot \lvert now.year-date.year \lvert$，可以看出这里的计算为估算&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;暴力破解匹配&lt;/strong&gt;：暴力破解的猜测次数计算方法为：$C^N$，$C$ 为常数被赋值为 10，即假设暴力破解时每个位置上的字符需要尝试 10 次，$N$ 为密码长度&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;正则匹配&lt;/strong&gt;：该模式在最终的&lt;a class=&#34;link&#34; href=&#34;https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/scoring.coffee#L288&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;代码实现&lt;/a&gt;中有但是论文中并未提及，猜测次数计算公式为：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对于最近年份的正则：$\lvert now.year-date.year \lvert$，即年份差值的绝对值&lt;/li&gt;
+&lt;li&gt;对于其他正则：$C^N$，$C$ 为常数，每一种正则表达式都有一个对应的常数，代表破解一位需要尝试的次数，$N$ 为密码长度。可以看出此类匹配模式其实与暴力破解匹配模式类似&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;整个密码的猜测次数计算&#34;&gt;整个密码的猜测次数计算
+&lt;/h3&gt;&lt;p&gt;整个猜测过程可由以下&lt;a class=&#34;link&#34; href=&#34;https://baike.baidu.com/item/%E5%90%AF%E5%8F%91%E5%BC%8F%E6%90%9C%E7%B4%A2/8944170&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;启发式搜索&lt;/a&gt;表示：&lt;/p&gt;
+$$
+\argmin\limits_{S\subseteq\mathcal{S}}(D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses)
+$$&lt;p&gt;公式含义：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;$\mathcal{S}$：密码字符串的所有模式子串的集合，如：&lt;code&gt;[levono(字典模式), eno(字典反转模式), no(单词模式), no(单词反转模式), 1111(重复模式), 1111(日期模式)]&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$S$：首尾相接能组成密码的非重叠模式子串序列，如：&lt;code&gt;[levono(字典模式), 1111(重复模式)]&lt;/code&gt;，可以看出 $S$ 是 $\mathcal{S}$ 的子集，即 $S\subseteq\mathcal{S}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$\lvert S\lvert$：首尾相接组成密码的模式子串序列 $S$ 的长度，即密码由几段模式子串组成，如上述子串序列的长度为 2&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$m$：$S$ 中的某个模式子串，可表示为：$m\in S$ ；$m.guesses$ 为该模式子串的所需猜测次数&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$\lvert S\lvert!\prod\limits_{m\in S}m.guesses$：假设攻击者知道密码由 $\lvert S\lvert$ 个模式子串组成，即假设攻击者知道密码中模式子串的数量，但是不知道这几个模式子串的排列顺序。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;比如一个密码由：字典模式子串 A、单词模式子串 B、日期模式子串 D 组成，那么这个密码可能为 ABC、ACB、BAC、BCA、CAB、CBA，共有 6 种。由排列公式 $P_{n}^{m}=\frac{n!}{(n-m)!}$ 可知从 $\lvert S\lvert$ 个元素中选 $\lvert S\lvert$ 个元素进行排列，共有 $P_{\lvert S\lvert}^{\lvert S\lvert}=\frac{\lvert S\lvert!}{(\lvert S\lvert-\lvert S\lvert)!}=\frac{\lvert S\lvert!}{0!}=\frac{\lvert S\lvert!}{1}={\lvert S\lvert!}$ 种可能；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;每个组成密码的模式子串 $m$ 的猜测次数为 $m.guesses$，那么不考虑模式子串顺序时整个密码的猜测次数为：组成密码的所有模式子串的猜测次数的累乘，即 $\prod\limits_{m\in S}m.guesses$ ；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;由上可知，当考虑模式子串之间的顺序时，整个密码的猜测次数为 $\lvert S\lvert!$ 乘以 $\prod\limits_{m\in S}m.guesses$ ，即 $\lvert S\lvert!\prod\limits_{m\in S}m.guesses$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$D$：一个常数，为经验值，即平均每个模式子串大概需要的猜测次数。根据 Dropbox 的经验，D 为 1000~10000 时公式表现较优&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$D^{\lvert S\lvert-1}$：为 $\sum_{l=1}^{\lvert S\lvert-1}D^l$的近似值。假设攻击者不知道密码由多少个模式子串组成，每个模式子串的猜测次数假定为 $D$ ，那么 $l$ 个模式子串的猜测次数即为 $D^l$ 。假设攻击者总是从较少的模式子串数量开始猜测，在猜到正确的模式子串个数 $\lvert S\lvert$ 前，总的猜测次数即为 $\sum_{l=1}^{|S|-1} D^l = \frac{D(D^{|S|-1} - 1)}{D - 1} \approx D^{|S|-1}$，即可近似简化为 $D^{\lvert S\lvert-1}$。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses$：现在从整体上来看，前半部分表示：在猜到正确的模式子串个数 $\lvert S\lvert$ 前的累计猜测次数；后半部分表示：在猜到正确的模式子串个数 $\lvert S\lvert$ 后，不知道这几个模式子串排列顺序的情况下需要的猜测次数；两部分相加即为总的猜测次数；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$\argmin\limits_{S\subseteq\mathcal{S}}(D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses)$：可能存在多种首尾相接能组成密码的模式子串的组合 $S$，猜测次数最少的 $S$ 即为最优的组合，此时的猜测次数即为最小猜测次数&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;从整个公式中可以看出，$D^{\lvert S\lvert-1}$ 和 $\lvert S\lvert!$ 以不同的方式惩罚过于复杂的模式子串组合。当两个不同长度的模式子串组合具有相近的 $\prod\limits_{m\in S}m.guesses$ 猜测次数时，$\lvert S\lvert!$ 会倾向于较短的模式子串组合。$D^{\lvert S\lvert-1}$ 倾向于反对较长的模式字串组合，即使其具有较小的 $\lvert S\lvert!\prod\limits_{m\in S}m.guesses$ 值。&lt;/p&gt;
+&lt;h2 id=&#34;搜索最佳模式组合&#34;&gt;搜索最佳模式组合
+&lt;/h2&gt;&lt;p&gt;给定一个密码字符串的所有模式子串(模式子串之间可能存在重叠)集合 $\mathcal{S}$，最后一步是从 $\mathcal{S}$ 中搜索出不存在重叠的模式子串的序列，使得整个序列能够刚好覆盖住整个密码，并使得猜测次数最小。下面将描述搜索使用的动态规划算法，可以很好的完成搜索任务。&lt;/p&gt;
+&lt;p&gt;💡 整体思想是搜索能够覆盖从&lt;code&gt;index=0&lt;/code&gt;到&lt;code&gt;index=K&lt;/code&gt;的密码子串且猜测次数最小的模式子串序列。&lt;code&gt;K&lt;/code&gt;从&lt;code&gt;0&lt;/code&gt;迭代到&lt;code&gt;password.length-1&lt;/code&gt;，进而逐渐的从局部最优迭代至整体最优。&lt;/p&gt;
+&lt;p&gt;下面使用伪代码阐述该算法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;简单介绍一下几个初始值：
+&lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/variables.png&#34;
+	width=&#34;748&#34;
+	height=&#34;206&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/variables_hu13538017015764558763.png 480w, https://heaciy.com/p/zxcvbn-explained/variables_hu3570412350496500749.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Variables&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;363&#34;
+		data-flex-basis=&#34;871px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;解释
+&lt;ol&gt;
+&lt;li&gt;$n$ 为密码字符串的长度，$k$为索引值，$k\in{0,1,2,…,password.length-1}$&lt;/li&gt;
+&lt;li&gt;$\mathcal B_{opt}$ 为反向指针列表，用于记录密码上每个字符的相关数据。$\mathcal B_{opt}[k][l]$ 是能覆盖密码子串 password[0~k] 且长度为 $l$ 的模式子串序列中的最后一个模式子串(该子串以 password[k] 结尾；该模式子串序列为尾字符是 password[k] 长度是 $l$ 的模式子串序列中猜测次数最少的子串序列，即 end=password[k] &amp;amp;&amp;amp; length=l 的局部最优解)&lt;/li&gt;
+&lt;li&gt;$\prod_{opt}[k][l]$ 为上述最佳模式子串序列中所有模式子串猜测次数的累乘。&lt;/li&gt;
+&lt;li&gt;$l_{opt}$ 是最佳模式子串序列的长度&lt;/li&gt;
+&lt;li&gt;$g_{opt}$ 上述模式子串序列的猜测次数&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;搜索函数：
+&lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/search.png&#34;
+	width=&#34;750&#34;
+	height=&#34;402&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/search_hu9221102406530178379.png 480w, https://heaciy.com/p/zxcvbn-explained/search_hu12499164837542933094.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Search&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;186&#34;
+		data-flex-basis=&#34;447px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;解释
+&lt;ol&gt;
+&lt;li&gt;K 值从 0 迭代到 n-1，即从头到尾遍历密码上的每一个字符
+&lt;ol&gt;
+&lt;li&gt;以 K 索引对应字符为结尾的密码前缀子串的最佳猜测次数，初始值赋值为无限大&lt;/li&gt;
+&lt;li&gt;遍历密码所有模式子串 $\mathcal S$ 中以 $k$ 结尾的模式子串 $m$
+&lt;ol&gt;
+&lt;li&gt;如果该模式子串 $m$ 的起始位置 $m.i$ 大于 0，即该模式子串不是从密码的起始位置开始，其前面还有其他模式子串
+&lt;ol&gt;
+&lt;li&gt;遍历 $\mathcal B_{opt}$ 中以 $m.i-1$ 结尾的所有最佳解模式子串序列的长度值(层级数) $l$&lt;/li&gt;
+&lt;li&gt;在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 $l+1$ 的最佳模式子串序列的信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;如果该模式子串 $m$ 的起始位置 $m.i$ 为 0
+&lt;ol&gt;
+&lt;li&gt;在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 1 的最佳模式子串序列的信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，暴力破解匹配的模式子串序列的信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;返回完整的 $\mathcal B_{opt}$ 中以 $n-1$ 结尾的最佳模式子串序列的猜测次数值&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;补充暴力破解匹配的函数：
+&lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/bf_update.png&#34;
+	width=&#34;740&#34;
+	height=&#34;380&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/bf_update_hu8779333227119501046.png 480w, https://heaciy.com/p/zxcvbn-explained/bf_update_hu9165794953146478655.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;bf_update&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;194&#34;
+		data-flex-basis=&#34;467px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;解释
+&lt;ol&gt;
+&lt;li&gt;构建一个从 0 到 $k$ 的暴力破解模式子串 $m$&lt;/li&gt;
+&lt;li&gt;在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 1 的最佳模式子串序列的信息&lt;/li&gt;
+&lt;li&gt;遍历 $\mathcal B_{opt}$ 中所有以 $k-1$ 结尾的模式子串序列，其长度为 $l$，结尾的模式子串为 $m$
+&lt;ol&gt;
+&lt;li&gt;如果该模式子串 $m$ 的匹配方式为暴力破解
+&lt;ol&gt;
+&lt;li&gt;构建一个从 $m.i$ 到 $k$ 的模式子串，赋值给新的 $m$&lt;/li&gt;
+&lt;li&gt;以 $m$ 更新在 $\mathcal B_{opt}$ 中以 $k$ 结尾，长度为 $l$ 的最佳模式子串序列的信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;如果该模式子串 $m$ 的匹配方式不是暴力破解
+&lt;ol&gt;
+&lt;li&gt;构建一个只有 $k$ 的模式子串，赋值给新的 $m$&lt;/li&gt;
+&lt;li&gt;以 $m$ 更新在 $\mathcal B_{opt}$ 中以 $k$ 结尾，长度为 $l+1$ 的最佳模式子串序列的信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;4&#34;&gt;
+&lt;li&gt;更新 $\mathcal B_{opt}$ 表的函数：
+更新 $\mathcal B_{opt}$ 中以模式子串 $m$ 结尾长度为 $l$ 的最佳模式子串序列
+&lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/update.png&#34;
+	width=&#34;741&#34;
+	height=&#34;392&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/update_hu709838798425529149.png 480w, https://heaciy.com/p/zxcvbn-explained/update_hu9960123281865649424.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;update&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;189&#34;
+		data-flex-basis=&#34;453px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;解释
+&lt;ol&gt;
+&lt;li&gt;将模式子串 $m$ 的猜测次数赋值给 $\prod$&lt;/li&gt;
+&lt;li&gt;如果模式子串序列的长度 $l$ 大于 1，即模式子串序列以 $m$ 结尾但是 $m$ 前面还有其他模式子串
+&lt;ol&gt;
+&lt;li&gt;$\prod$ 等于该模式字串序列中所有模式子串的猜测次数的累乘值&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;如果模式子串序列的长度 $l$ 等于 1，即该序列中只有 $m$ 一个模式子串
+&lt;ol&gt;
+&lt;li&gt;则模式子串序列的猜测值 $\prod$ 等于其中唯一的模式子串 $m$ 的猜测次数 $m.guesses$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;使用上面讲解的启发式计算整个模式子串序列的猜测次数 $g$&lt;/li&gt;
+&lt;li&gt;如果 $g$ 小于$g_{opt}=\mathcal B_{opt}[k][l]$
+&lt;ol&gt;
+&lt;li&gt;$g_{opt}$ 赋值为 $g$&lt;/li&gt;
+&lt;li&gt;$l_{opt}$ 赋值为 $l$&lt;/li&gt;
+&lt;li&gt;$\prod_{opt}[k][l]$ 赋值为 $\prod$&lt;/li&gt;
+&lt;li&gt;$\mathcal B_{opt}[k][l]$ 赋值为 $m$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;5&#34;&gt;
+&lt;li&gt;从完整的 $\mathcal B_{opt}$ 表中选出覆盖整个密码且猜测次数最小的模式子串序列：
+&lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/unwind.png&#34;
+	width=&#34;743&#34;
+	height=&#34;414&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/unwind_hu11624239122448744179.png 480w, https://heaciy.com/p/zxcvbn-explained/unwind_hu13254356460426326288.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;unwind&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;179&#34;
+		data-flex-basis=&#34;430px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;解释&lt;/p&gt;
+&lt;p&gt;由前一个步骤知最佳模式子串序列的长度为 $l_{opt}$，于是从 $\mathcal B_{opt}[k][l_{opt}]$ 不断向前倒推便能得到完整的最佳的模式子串序列（动态规划——从局部最优中搜索出整体最优）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;根据最终评估出的密码猜测次数，会将密码分为四个等级：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;guessesToScore&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;double&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;guesses&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DELTA&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;guesses&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1e3&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DELTA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;guesses&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1e6&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DELTA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;guesses&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1e8&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DELTA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;guesses&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1e10&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DELTA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;参考&#34;&gt;参考
+&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://medium.com/nulab/five-algorithms-to-measure-real-password-strength-bd30126e82cc&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Five Algorithms to Measure Real Password Strength&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://dropbox.tech/security/zxcvbn-realistic-password-strength-estimation&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;zxcvbn: realistic password strength estimation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.usenix.org/conference/usenixsecurity16/technical-sessions/presentation/wheeler&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;zxcvbn: Low-Budget Password Strength Estimation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/nulab/zxcvbn4j&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;github: zxcvbn4j&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/dropbox/zxcvbn&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;github: zxcvbn&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>Libpcap格式pcap包分析</title>
+        <link>https://heaciy.com/p/analyzing-libpcap-pcap-file/</link>
+        <pubDate>Sun, 05 Jan 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/p/analyzing-libpcap-pcap-file/</guid>
+        <description>&lt;img src="https://heaciy.com/p/analyzing-libpcap-pcap-file/cover.jpg" alt="Featured image of post Libpcap格式pcap包分析" /&gt;&lt;blockquote&gt;
+&lt;p&gt;前言：
+因为工作中经常要接触到 Pcap 这种文件格式，无论是利用其进行网络数据分析，还是测试时使用其进行流量回放。但是 Pcap 文件的底层数据结构是什么样子呢？里面装的又是什么东西呢？这是本文将要解答的两个核心问题&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;pcap-是什么&#34;&gt;Pcap 是什么
+&lt;/h2&gt;&lt;p&gt;Pcap 是 Packet Capture 的缩写，即网络数据包捕获。将捕获的数据包按照一定格式存入文件即 Pcap 文件。在 Linux 平台上使用 Tcpdump，在 Windows 上使用 Wireshark 抓包，可以保存为 .pcap 后缀的文件。&lt;/p&gt;
+&lt;p&gt;💡实际上 Pcap 文件存在多种格式，最常用的两种格式为 &lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/LibpcapFileFormat&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Libpcap&lt;/a&gt; 和 &lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/PcapNg&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;PcapNG(PCAP Next Generation)&lt;/a&gt; 格式，&lt;strong&gt;本文主要讲解 Libpcap 格式&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Libpcap 格式最新草案：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-pcap#section-4-5.4.1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-pcap&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/IETF-OPSAWG-WG/draft-ietf-opsawg-pcap&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/IETF-OPSAWG-WG/draft-ietf-opsawg-pcap&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Wireshark 说明：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/FileFormatReference&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://wiki.wireshark.org/FileFormatReference&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/PcapNg&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://wiki.wireshark.org/Development/PcapNg&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/LibpcapFileFormat&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://wiki.wireshark.org/Development/LibpcapFileFormat&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pcap-文件的数据结构&#34;&gt;Pcap 文件的数据结构
+&lt;/h2&gt;&lt;h3 id=&#34;文件整体格式&#34;&gt;文件整体格式
+&lt;/h3&gt;&lt;p&gt;Pcap 文件由一个全局的头部（Global Header）和零至多个数据包（Packet，与网络层的 Packet 不是一个概念）组成，全局头部主要用于存储字节顺序、文件版本、单个数据包最大长度等信息。每一个数据包又由 Header 和 Data 组成，Header 中主要用于存储时间戳和 Data 的长度信息。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image.png&#34;
+	width=&#34;363&#34;
+	height=&#34;312&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu7730285946295673250.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu16276706086500773294.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;116&#34;
+		data-flex-basis=&#34;279px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;全局头部格式global-header&#34;&gt;全局头部格式（Global Header）
+&lt;/h3&gt;&lt;p&gt;现在来分析 Pcap 文件的全局头部，构造信息如下，每行 4 个字节（Byte）即 32 比特（bit），全局头部共计 24 个字节：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                     0               1               2               3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    0 |                          Magic Number                         |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    4 |          Major Version        |         Minor Version         |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    8 |                           Thiszone                            |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   12 |                            Sigfigs                            |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   16 |                            SnapLen                            |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   20 |                            LinkType                           |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L204&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pcap_hdr_s&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;magic_number&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;   &lt;span class=&#34;cm&#34;&gt;/* magic number */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint16&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;version_major&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;  &lt;span class=&#34;cm&#34;&gt;/* major version number */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint16&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;version_minor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;  &lt;span class=&#34;cm&#34;&gt;/* minor version number */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;gint32&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;thiszone&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;       &lt;span class=&#34;cm&#34;&gt;/* GMT to local correction */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sigfigs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        &lt;span class=&#34;cm&#34;&gt;/* accuracy of timestamps */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;snaplen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        &lt;span class=&#34;cm&#34;&gt;/* max length of captured packets, in octets */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;network&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        &lt;span class=&#34;cm&#34;&gt;/* data link type */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;pcap_hdr_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;相关字段解释如下表：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;字段&lt;/th&gt;
+          &lt;th&gt;字节数&lt;/th&gt;
+          &lt;th&gt;含义&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Magic Number&lt;br /&gt;&lt;code&gt;magic_number&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;十六进制数字&lt;code&gt;0xA1 B2 C3 D4&lt;/code&gt;，标记文件开始，并用来识别文件的字节顺序。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Major Version&lt;br /&gt;&lt;code&gt;version_major&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;一个无符号值，给出 pcap 格式的当前主要版本的编号，一般为2。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Minor Version&lt;br /&gt;&lt;code&gt;version_minor&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;一个无符号值，给出 pcap 格式的当前次要版本的编号，一般为4。（与上面的 Major Version 一起组成版本号 2.4 ）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;ThisZone&lt;br /&gt;&lt;code&gt;thiszone&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;当地的标准时间，如果用的是UTC则全零，一般全零（在最新的标准中已弃用，因为现在都使用UTC时间，为向下兼容设置为全0）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SigFigs&lt;br /&gt;&lt;code&gt;sigfigs&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;时间戳的精度，一般全零（在最新的标准中已弃用，为向下兼容设置为全0）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SnapLen&lt;br /&gt;&lt;code&gt;snaplen&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;设置所抓获的单个数据包的最大长度，一般设置为65535（单个数据链路层帧大小一般为1518字节包括14字节首部和4字节尾部，但是巨帧可达9000字节甚至更多，设置为65535大于任何标准或巨型以太网帧的大小，它提供了足够的空间来捕获几乎所有类型的网络数据包，包括非标准或实验性协议）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;LinkType&lt;br /&gt;&lt;code&gt;network&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;数据链路层协议类型。解析数据包首先要判断它的LinkType，所以这个值很重要。常见的值如 1，代表着以太网。&lt;a class=&#34;link&#34; href=&#34;https://www.tcpdump.org/linktypes.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;相关定义和枚举值见参考链接&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;💡注意：对于 Magic Number，在其他地方或许会看到有人说除了&lt;code&gt;0x A1 B2 C3 D4&lt;/code&gt;还有&lt;code&gt;0x A1 B2 3C 4D&lt;/code&gt;，在&lt;a class=&#34;link&#34; href=&#34;https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-pcap#name-file-header&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;较新的版本中&lt;/a&gt;确实存在&lt;code&gt;A1 B2 3C 4D&lt;/code&gt;（大端模式）或者&lt;code&gt;4D 3C B2 A1&lt;/code&gt;（小端模式）的情况，用于标记 Packet Header 中时间戳的精度为纳秒。&lt;/p&gt;
+&lt;p&gt;故从 Pcap 文件的低位到高位度读取，存在以下四种情况：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;A1 B2 C3 D4&lt;/code&gt;：大端模式，Packet Header 中时间戳为毫秒精度&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;D4 C3 B2 A1&lt;/code&gt;：小端模式，Packet Header 中时间戳为毫秒精度&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;A1 B2 3C 4D&lt;/code&gt;：大端模式，Packet Header 中时间戳为纳秒精度&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;4D 3C B2 A1&lt;/code&gt;：小端模式，Packet Header 中时间戳为纳秒精度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;❗️ 网上的很多文档混淆了大小端和时间戳精度，注意甄别&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;在最新草案中，全局头部的最后四字节数据也有所变化，感兴趣的朋友可以自行查看&lt;/p&gt;
+&lt;h3 id=&#34;数据包头部格式packet-header&#34;&gt;数据包头部格式（Packet Header）
+&lt;/h3&gt;&lt;p&gt;数据包构造信息如下，每行 4 个字节（Byte）即 32 比特（bit），每个数据包头部共计 16 个字节：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                     0               1               2               3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    0 |                      Timestamp (Seconds)                      |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    4 |                   Timestamp (Microseconds)                    |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    8 |                    Captured Packet Length                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   12 |                    Original Packet Length                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   16 /                                                               /
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      /                          Packet Data                          /
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      /                        variable length                        /
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      /                                                               /
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +---------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pcaprec_hdr_s&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ts_sec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;         &lt;span class=&#34;cm&#34;&gt;/* timestamp seconds */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ts_usec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        &lt;span class=&#34;cm&#34;&gt;/* timestamp microseconds */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;incl_len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;       &lt;span class=&#34;cm&#34;&gt;/* number of octets of packet saved in file */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;guint32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;orig_len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;       &lt;span class=&#34;cm&#34;&gt;/* actual length of packet */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;pcaprec_hdr_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;相关字段解释如下表：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;字段&lt;/th&gt;
+          &lt;th&gt;字节数&lt;/th&gt;
+          &lt;th&gt;含义&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Timestamp(Seconds)&lt;br /&gt;&lt;code&gt;ts_sec&lt;/code&gt;&lt;br /&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;秒级时间戳，秒值是一个 32 位无符号整数，表示自 1970 年 1 月 1 日 00:00:00 UTC 以来经过的秒数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Timestamp(Microseconds)&lt;br /&gt;&lt;code&gt;ts_usec&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;微秒值表示自秒值之后经过的微秒(可以理解为秒数小数点后的数)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Captured Packet Length&lt;br /&gt;&lt;code&gt;incl_len&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;一个无符号值，表示从网络中实际中捕获的字节数（即 Packet Data 的长度）。它的值为原始数据包长度（Original Packet Length）和快照长度（上表中的 SnapLen）中的较小值。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Original Packet Length&lt;br /&gt;&lt;code&gt;orig_len&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;一个无符号值，表示数据包在网络上传输时的实际长度。如果数据包在捕获过程中被截断，则捕获的数据包长度与实际网络中传输的数据包长度不同。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Packet Data&lt;br /&gt;&lt;code&gt;data&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;由上述 Captured Packet Length 字段决定&lt;/td&gt;
+          &lt;td&gt;实际被捕获的数据链路层帧，包括链路层标头。该字段的实际长度为 Captured Packet Length。链路层头部的格式取决于文件全局头部中指定的 LinkType 字段。可以理解为：每一个 Packet 中都装着一个数据链层的帧。&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;使用-imhex-查看-pcap-包&#34;&gt;使用 ImHex 查看 Pcap 包
+&lt;/h2&gt;&lt;p&gt;经过上文的介绍我们知道了 Pcap 文件的全局头部格式和数据包头部格式，下面我们使用十六进制编辑器开始查看和分析一个实际的 Pcap 文件：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1.png&#34;
+	width=&#34;710&#34;
+	height=&#34;559&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu17963699471203842800.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu13097086422962269259.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.1：使用 ImHex 打开 Pcap 文件&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;127&#34;
+		data-flex-basis=&#34;304px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.1：使用 ImHex 打开 Pcap 文件&lt;/p&gt;
+&lt;h3 id=&#34;全局头部&#34;&gt;全局头部
+&lt;/h3&gt;&lt;p&gt;根据上述章节的分析可知全局头部占24个字节，于是让我们分析上述 Pcap 文件的前24个字节，如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2.png&#34;
+	width=&#34;722&#34;
+	height=&#34;85&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu13272216859675847751.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu9706177208364109511.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.1.1：Pcap 文件的全局头部&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;849&#34;
+		data-flex-basis=&#34;2038px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.1.1：Pcap 文件的全局头部&lt;/p&gt;
+&lt;p&gt;具体内容如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;D4 C3 B2 A1 02 00 04 00 00 00 00 00 00 00 00 00 FF FF 00 00 01 00 00 00
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;前四个字节为 Magic Number，从低地址到高地址依次为 D4 C3 B2 A1，由上述章节可知该 Pcap 文件的字节顺序为小端序，那么对于多字节数据需要倒排字节才能得到实际的数据，具体数据转换如下表：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;字段&lt;/th&gt;
+          &lt;th&gt;字节序号&lt;/th&gt;
+          &lt;th&gt;小端序数据&lt;/th&gt;
+          &lt;th&gt;大端序数据&lt;/th&gt;
+          &lt;th&gt;实际数据(由大端序计算)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Magic Number(4B)&lt;/td&gt;
+          &lt;td&gt;0-3&lt;/td&gt;
+          &lt;td&gt;0xD4 C3 B2 A1&lt;/td&gt;
+          &lt;td&gt;0xA1 B2 C3 D4&lt;/td&gt;
+          &lt;td&gt;LE 小端模式标记&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Major Version(2B)&lt;/td&gt;
+          &lt;td&gt;4-5&lt;/td&gt;
+          &lt;td&gt;0x02 00&lt;/td&gt;
+          &lt;td&gt;0x00 02&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Minor Version(2B)&lt;/td&gt;
+          &lt;td&gt;6-7&lt;/td&gt;
+          &lt;td&gt;0x04 00&lt;/td&gt;
+          &lt;td&gt;0x00 04&lt;/td&gt;
+          &lt;td&gt;4&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;ThisZone(4B)&lt;/td&gt;
+          &lt;td&gt;8-11&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 00&lt;/td&gt;
+          &lt;td&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SigFigs(4B)&lt;/td&gt;
+          &lt;td&gt;12-15&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 00&lt;/td&gt;
+          &lt;td&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SnapLen(4B)&lt;/td&gt;
+          &lt;td&gt;16-19&lt;/td&gt;
+          &lt;td&gt;0xFF FF 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 FF FF&lt;/td&gt;
+          &lt;td&gt;65535&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;LinkType(4B)&lt;/td&gt;
+          &lt;td&gt;20-23&lt;/td&gt;
+          &lt;td&gt;0x01 00 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 01&lt;/td&gt;
+          &lt;td&gt;LINKTYPE_ETHERNET 以太网&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;数据包头部&#34;&gt;数据包头部
+&lt;/h3&gt;&lt;p&gt;根据上述章节可知，数据包头部为 16 字节，那么全局头后面的16个字节即为 Pcap 文件中第一个数据包的头部，如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3.png&#34;
+	width=&#34;553&#34;
+	height=&#34;130&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu12365340012217743819.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu1099045577989019123.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.2.1：Pcpa 文件中第一个数据包的头部信息&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;425&#34;
+		data-flex-basis=&#34;1020px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.2.1：Pcpa 文件中第一个数据包的头部信息&lt;/p&gt;
+&lt;p&gt;具体信息如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;1F 90 D1 66 69 B3 07 00 36 00 00 00 36 00 00 00
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;依次分析，数据包头由四个字段组成，每个字段 4 个字节，具体数据转换如下表：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;字段&lt;/th&gt;
+          &lt;th&gt;字节序号&lt;/th&gt;
+          &lt;th&gt;小端序数据&lt;/th&gt;
+          &lt;th&gt;大端序数据&lt;/th&gt;
+          &lt;th&gt;实际数据(由大端序计算)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Timestamp(Seconds)(4B)&lt;/td&gt;
+          &lt;td&gt;24-27&lt;/td&gt;
+          &lt;td&gt;0x1F 90 D1 66&lt;/td&gt;
+          &lt;td&gt;0x66 D1 90 1F&lt;/td&gt;
+          &lt;td&gt;1725009951&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Timestamp(Microseconds)(4B)&lt;/td&gt;
+          &lt;td&gt;28-31&lt;/td&gt;
+          &lt;td&gt;0x69 B3 07 00&lt;/td&gt;
+          &lt;td&gt;0x00 07 B3 69&lt;/td&gt;
+          &lt;td&gt;504681&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Captured Packet Length(4B)&lt;/td&gt;
+          &lt;td&gt;32-35&lt;/td&gt;
+          &lt;td&gt;0x36 00 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 36&lt;/td&gt;
+          &lt;td&gt;54&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Original Packet Length(4B)&lt;/td&gt;
+          &lt;td&gt;36-39&lt;/td&gt;
+          &lt;td&gt;0x36 00 00 00&lt;/td&gt;
+          &lt;td&gt;0x00 00 00 36&lt;/td&gt;
+          &lt;td&gt;54&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;秒级时间戳为 1725009951，微妙精度值为 504681，因此完整的秒级时间戳为1725009951.504691，转换为UTC +8时间为：2024-08-30 17:25:51&lt;/p&gt;
+&lt;p&gt;数据包捕获长度（Captured Packet Length）和网络上该包实际长度（Original Packet Length）是相同的说明网络上的数据包被完整捕获。意味着此 Packet Header 对应的 Packet Data 的长度为 54 字节。&lt;/p&gt;
+&lt;h3 id=&#34;数据包负载&#34;&gt;数据包负载
+&lt;/h3&gt;&lt;p&gt;由上述信息可知第一个 Packet 数据包的数据体长度为 54 字节，因此从该数据包包头的最后一个字节后向后读取 54 字节即为第一个 Packet 数据包的数据体。&lt;/p&gt;
+&lt;p&gt;循环上述流式读取过程（先读取全局头部 24 字节，读取Packet 数据包头部 16 字节，读取 Packet 包头（Packet Header）中字段 Captured Packet Length 记录长度的数据作为数据体（Packet Data），读取第二个包头，读取第二个数据体……）&lt;/p&gt;
+&lt;p&gt;这里的一个个 Packet 数据包，便对应着 Wireshark 工具中的一条条记录，现在让我们使用 ImHex 和 Wireshark 查看该  Pcap 文件中的第一个数据包的数据体：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4.png&#34;
+	width=&#34;557&#34;
+	height=&#34;174&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu7908894584723621984.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu979229227615937548.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.3.1 使用 ImHex 查看第一个数据包的数据体&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;320&#34;
+		data-flex-basis=&#34;768px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.3.1 使用 ImHex 查看第一个数据包的数据体&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5.png&#34;
+	width=&#34;2048&#34;
+	height=&#34;936&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu542736087055598453.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu14191708277718117731.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.3.2 使用 Wireshark 查看第一个数据包&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;218&#34;
+		data-flex-basis=&#34;525px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.3.2 使用 Wireshark 查看第一个数据包&lt;/p&gt;
+&lt;p&gt;可以看出图 3.3.1 中选中的 54 字节数据，与图 3.3.2 中最下面显示的 54 字节数据一致。&lt;/p&gt;
+&lt;p&gt;那么这 54 字节数据是什么呢？以及为什么是 54 字节而不是其他数字呢？对网络比较熟悉的朋友可能已经知道答案了：54 = 14 + 20 + 20；下面让我们按照网络协议栈从上往下，来看看这里的 14 和 20 都是什么：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6.png&#34;
+	width=&#34;1468&#34;
+	height=&#34;526&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu1567654971176665495.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu13669668345237532164.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.3.3 网络模型和协议&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;279&#34;
+		data-flex-basis=&#34;669px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.3.3 网络模型和协议&lt;/p&gt;
+&lt;p&gt;由上述图 3.3.2 Wireshark 的截图我们可知，第一个数据包捕获的内容即为 HTTP 协议在建立 TCP 连接前（HTTP 1.* 协议是基于 TCP 协议的）由客户端发起的第一个 ACK 请求。于是我们从 TCP 协议所在的传输层往下分析：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7.png&#34;
+	width=&#34;1440&#34;
+	height=&#34;580&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu15319296693113249476.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu3042267210596890021.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;图 3.3.4 网络模型 数据发送流程中数据的传递过程&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;248&#34;
+		data-flex-basis=&#34;595px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;图 3.3.4 网络模型 数据发送流程中数据的传递过程&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;传输层&lt;/strong&gt;：第一个数据包捕获的是 TCP 建立连接前的第一个由客户端发起的 ACK 请求，由于此次只使用到了 TCP 协议的头部，故为传输层的报文段（segment）的长度即为 TCP 协议头部的长度，即 20 字节。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;网络层&lt;/strong&gt;：上述传输层的报文向下交由网络层处理，网络层会为其增加一个网络层头部（20字节），然后继续向下层数据链路层传递。故而网络层封装好后数据包（Packet，这里的Packet指网络层数据包，与 Pcap 文件中的数据包为不同概念）大小为：
+&lt;code&gt;网络层数据包头长度（20 字节）+ 网络层数据包的数据体长度（20 字节）= 40 字节&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据链路层&lt;/strong&gt;：上述网络层的数据包（40 字节）向下交由数据链路层处理，数据链路层会为其加上一个数据链路层头部（14 字节）和数据链路层尾部（FCS 即帧校验序列，4字节）进而组成一个数据链路层的帧。故而此帧的大小为：
+&lt;code&gt;帧头（14字节）+ 帧负载（40字节）+ 帧尾（4字节）= 54 + 4 = 58字节&lt;/code&gt;
+此时有朋友可能已经发现异常了，为什么我们上述 Pcap 文件中第一个数据包的数据体只有 54 字节，相比我们的计算值少了 4 个字节的数据，原因很简单因为数据链层的帧尾是由网卡负责处理的，网卡负责帧尾的计算和校验，在发送数据时网卡计算并添加帧尾后将数据发出，在收到数据时网卡校验并去除帧尾后再向上层传递，故而我们拿到的数据链路层帧其实是通过了帧尾校验并去除了帧尾之后的数据，所以就是 &lt;code&gt;58 - 4 = 54&lt;/code&gt; 字节。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由上述信息可知，Pcap 文件中第一个数据包的 54 字节数据体中，前 14 字节为数据链路层头部，往后中间的 20 字节为网络层头部，最后 20 字节即为传输层头部（为什么只有头部没有数据体？因为TCP建立连接前的第一次 ACK 请求用不上数据体）。&lt;/p&gt;
+&lt;p&gt;这里我们就不再按照字节去分析链路层、网络层或是传输层的头部信息了，因为 Wireshark 已经可以很好的帮我们分析。有一个细节是，虽然该 Pcap 文件的字节序是小端序，但是在计算链路层、网络层等层的头部信息时，对于多字节字段不需要倒排字节，因为网络传输使用的是大端序，又因为 Pcap 文件中每一个数据包的数据体都是一个”数据链路层帧”，并未做其他转换，故而数据体中的数据也是大端序，在计算跨字节数据时不需要逆转字节顺序。&lt;/p&gt;
+&lt;h2 id=&#34;总结&#34;&gt;总结
+&lt;/h2&gt;&lt;p&gt;至此我们完成了 Libpcap 格式的 Pcap 文件数据构造分析。并以一个实际的 Pcap 文件作为例子进行了对照学习。解答了前言中提出的问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Pcap 文件的数据构造？&lt;/p&gt;
+&lt;p&gt;Pcap 文件由一个 24 字节的全局头部（Global Header），和多个数据包（Packet）组成；每一个数据包又由 16 字节的头部（Packet Header）和数据体（Packet Data）组成，数据体的长度由头部字段 Captured Packet Length 记录；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pcap 文件的数据包中的数据体（Packet Data）保存的是什么内容？&lt;/p&gt;
+&lt;p&gt;Pcap 文件中的每一个数据包对应 WireShark 中的一条记录；每一个数据包中的数据体对应一个捕获到的“数据链路层的帧”（无 FCS 帧尾）；&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;本文并未提及 Pcap 包的捕获和回放方法，感兴趣的读者可以自行检索，具体实现方法包括但不限于：原始套接字、DPDK、XDP&lt;/p&gt;
+&lt;h2 id=&#34;参考链接&#34;&gt;参考链接
+&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/LibpcapFileFormat&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Libpcap File Format&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/FileFormatReference&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Capture File Format Reference&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.tcpdump.org/linktypes.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Pcap link types&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

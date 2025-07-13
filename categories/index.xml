@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Categories on Heaciy&#39;s Blog</title>
+        <link>https://heaciy.com/categories/</link>
+        <description>Recent content in Categories on Heaciy&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <copyright>Heaciy&#39;s Blog</copyright>
+        <lastBuildDate>Wed, 09 Jul 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://heaciy.com/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Life</title>
+        <link>https://heaciy.com/categories/life/</link>
+        <pubDate>Wed, 09 Jul 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/categories/life/</guid>
+        <description>&lt;img src="https://heaciy.com/categories/life/life.jpg" alt="Featured image of post Life" /&gt;</description>
+        </item>
+        <item>
+        <title>CS</title>
+        <link>https://heaciy.com/categories/cs/</link>
+        <pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://heaciy.com/categories/cs/</guid>
+        <description>&lt;img src="https://heaciy.com/categories/cs/cs.jpg" alt="Featured image of post CS" /&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

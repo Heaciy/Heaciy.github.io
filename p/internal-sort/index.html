@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="基于python的实现">
+<title>常用内部排序算法</title>
+
+<link rel='canonical' href='https://heaciy.com/p/internal-sort/'>
+
+<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="常用内部排序算法">
+<meta property='og:description' content="基于python的实现">
+<meta property='og:url' content='https://heaciy.com/p/internal-sort/'>
+<meta property='og:site_name' content='Heaciy&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='algorithm' /><meta property='article:tag' content='python' /><meta property='article:published_time' content='2021-06-17T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-06-17T00:00:00&#43;00:00'/><meta property='og:image' content='https://heaciy.com/p/internal-sort/internal-sort.jpg' />
+<meta name="twitter:title" content="常用内部排序算法">
+<meta name="twitter:description" content="基于python的实现"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://heaciy.com/p/internal-sort/internal-sort.jpg' />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Heaciy&#39;s Blog</a></h1>
+            <h2 class="site-description">Life is what happens to you while you&#39;re busy making other plans.</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/heaciy'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/heaciy'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+
+        
+            <div class="widget--toc">
+                <nav id="TableOfContents">
+  <ol>
+    <li><a href="#插入排序">插入排序</a>
+      <ol>
+        <li><a href="#直接插入排序">直接插入排序</a></li>
+        <li><a href="#折半插入排序">折半插入排序</a></li>
+        <li><a href="#希尔排序">希尔排序</a></li>
+      </ol>
+    </li>
+    <li><a href="#交换排序">交换排序</a>
+      <ol>
+        <li><a href="#冒泡排序">冒泡排序</a></li>
+        <li><a href="#快速排序">快速排序</a></li>
+      </ol>
+    </li>
+    <li><a href="#选择排序">选择排序</a>
+      <ol>
+        <li><a href="#简单选择排序">简单选择排序</a></li>
+        <li><a href="#堆排序">堆排序</a></li>
+      </ol>
+    </li>
+    <li><a href="#归并排序">归并排序</a></li>
+    <li><a href="#各种排序算法的比较">各种排序算法的比较</a></li>
+  </ol>
+</nav>
+            </div>
+        
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/internal-sort/">
+                <img src="/p/internal-sort/internal-sort_hu16285037844716886849.jpg"
+                        srcset="/p/internal-sort/internal-sort_hu16285037844716886849.jpg 800w, /p/internal-sort/internal-sort_hu4756839774761555043.jpg 1600w"
+                        width="800" 
+                        height="533" 
+                        loading="lazy"
+                        alt="Featured image of post 常用内部排序算法" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/cs/" >
+                CS
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/internal-sort/">常用内部排序算法</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            基于python的实现
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 17, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>本文基于王道的数据结构考研复习指导，仅作为本人的学习笔记，如有误欢迎指正</p>
+</blockquote>
+<h2 id="插入排序">插入排序
+</h2><h3 id="直接插入排序">直接插入排序
+</h3><p>整个例表<code>[0...i-1, i, i+1...n]</code>，i前面的部分维持有序，从i开始向后遍历无序的部分，不断往前面有序的部分插入，插入流程是</p>
+<ol>
+<li>i与i-1（i前面的元素，即有序列表中最后一个，即最大值）比较</li>
+<li>如果i大于i-1则说明i比0~i-1都大，故将i插入到有序部分的最后（即保持当前位置不变）</li>
+<li>如果i比i-1小，则从i-1开始向前寻找合适的位置，一边比较，一边挪动，直到找到合适的位置，再将i对应的值放到该位置</li>
+</ol>
+<p>不断地把i位置的元素插入到i前面的有序部分中，直到最后一个插入完成即有序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">insert_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34; 插入排序 稳定 O(n^2) &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tmp</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>  <span class="c1"># i从第二个位置开始</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># 与有序部分最大值比较判断是否需要挪动</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tmp</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 暂存当前值</span>
+</span></span><span class="line"><span class="cl">            <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="k">while</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tmp</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># 向后挪动，将插入位置挪出来</span>
+</span></span><span class="line"><span class="cl">                <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>  <span class="c1"># 将当前值放入插入位置</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>空间效率：仅使用了常数个辅助单元，因此空间复杂度为O(1)</p>
+<p>时间效率：在排序时向有序子表中插入当前元素共进行了n-1趟，每趟操作都在进行比较和移动，而比较次数和移动次数取决于待排表的初始状态</p>
+<ul>
+<li>最好情况：初始表基本有序，每趟都只需要比较一次而不用移动元素，时间复杂度为O(n)</li>
+<li>最坏的情况：初始表逆序，总比较次数$\sum_{i=2}^n{i}$，总移动次数$\sum_{i=2}^n{i+1}$</li>
+<li>平均情况：初始表状态随机，取最坏和最好的平均值，总比较和总移动次数均约为O($\frac{n_2}{4}$)</li>
+</ul>
+<p>稳定性：由于每次插入前总是先比较再移动，所以不会出现相同元素位置发生变化的情况，故直接插入排序是一种稳定的排序方法</p>
+<p>适用性：适用于顺序存储和链式存储的线性表。为链式时，可以从前往后的查找元素位置</p>
+<p><strong>注意</strong>：大部分排序算法都仅适用于顺序存储的线性表</p>
+<h3 id="折半插入排序">折半插入排序
+</h3><p>同样的道理，依次遍历后面无序的部分往前面有序的部分插入，只是将从有序部分中查找插入位置的过程改成二分查找，找到正确的插入位置后再依次挪动，把插入位置挪出来，将值放入</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">insert_sort_binary</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;折半插入排序 稳定 O(n^2)&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tmp</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 暂存当前值</span>
+</span></span><span class="line"><span class="cl">        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span><span class="p">(</span><span class="n">low</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">):</span>  <span class="c1"># 二分查找</span>
+</span></span><span class="line"><span class="cl">            <span class="n">mid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">low</span><span class="o">+</span><span class="n">high</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tmp</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">low</span> <span class="o">=</span> <span class="n">mid</span><span class="o">+</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">high</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span><span class="p">(</span><span class="n">j</span> <span class="o">&gt;</span> <span class="n">high</span><span class="p">):</span>  <span class="c1"># 向后挪值，将插入位置挪出来</span>
+</span></span><span class="line"><span class="cl">            <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="n">A</span><span class="p">[</span><span class="n">high</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>  <span class="c1"># 总是在high的下一个位置插入</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>时间效率：相比直接插入排序只是减少了比较次数，约为O($n\log_2{n}$)，且与表的初始状态无关，仅取决于表中元素数量n。而元素移动次数不变，依赖于待排表的初始状态。因此时间复杂度仍为O($n^2$)</p>
+<p>稳定性：折半插入排序是一种稳定的排序方法</p>
+<p>适用性：适用于线性表为顺序存储的情况，对于数据量不是很大的排序表，折半插入排序往往具有较好的性能</p>
+<h3 id="希尔排序">希尔排序
+</h3><p>希尔排序也称缩小增量排序</p>
+<p>设置一个步长，<strong>每次从第一个元素开始</strong>，每隔一个步长取一个元素，将这些间隔步长的一组元素使用插入排序进行排序，然后逐渐缩短步长，直至步长为1。</p>
+<p>一边缩短步长，一边对使用当前步长划分的小组进行插入排序。每一次根据步长的排序都会使当前列表逐渐有序。列表逐渐有序，也就逐渐减小了后面几趟排序时的工作量。最后一趟步长为1，也就意味着对当前整个列表进行插入排序，但是得益于前面几趟的排序使得整个列表基本有序，那么当前的排序工作量就被减少了很多。经过最后一趟排序，整个列表就有序了</p>
+<p>整个过程就体现了它的名字：缩小增量排序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">shell_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;希尔排序 不稳定 O(n^1.3)~O(n^2)&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 初始步长</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span><span class="p">(</span><span class="n">dk</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># 结束出口</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dk</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dk</span><span class="p">):</span>  <span class="c1"># 从当前小组的第二个开始</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">dk</span><span class="p">]:</span>  <span class="c1"># 与小组内前一个比较</span>
+</span></span><span class="line"><span class="cl">                <span class="n">tmp</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="n">dk</span>
+</span></span><span class="line"><span class="cl">                <span class="k">while</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tmp</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># 比较、挪动</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">dk</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">j</span> <span class="o">-=</span> <span class="n">dk</span>
+</span></span><span class="line"><span class="cl">                <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">dk</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dk</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 不断地减小步长</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>空间效率：仅使用了常数个辅助单元，空间复杂度为O(1)</p>
+<p>时间效率：依赖于增量序列的函数，涉及数学上尚未解决的难题，当n在某个特定范围时时间复杂度约为O($n^{1.3}$)。最坏情况为O($n^2$)</p>
+<p>稳定性：当相同关键字记录被划分到不同子表时，可能会改变原有相对次序，故希尔排序是一种不稳定的排序方法</p>
+<p>适用性：希尔排序仅适用于线性表为顺序存储的情况</p>
+<h2 id="交换排序">交换排序
+</h2><h3 id="冒泡排序">冒泡排序
+</h3><p>从前往后（或从后往前）两两比较相邻元素的值，若为逆序（A[i]&gt;A[i+1]）则交换他们，直到序列比较完。这一过程成为冒泡，第一次从A[0]到A[n-1]，最大值将被冒泡到最后一个位置即A[n-1]；第二次从A[0]到A[n-2]，次大值将被冒泡到A[n-2]……<u>每一趟冒泡都将一个元素放到其最终的位置</u>。最多n-1趟冒泡就能把所有元素排好序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">n</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;冒泡排序 稳定 O(n^2)&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tmp</span> <span class="o">=</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span>  <span class="c1"># 需要n-1趟冒泡,tmp也为最后一个元素的下标</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 表示本趟冒泡是否发生值交换的标志</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tmp</span><span class="p">):</span>  <span class="c1"># 一趟冒泡排序，从0到tmp-1</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># 若为逆序则交换</span>
+</span></span><span class="line"><span class="cl">                <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">flag</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>  <span class="c1"># 本趟没有发生交换，则说明序列已经有序，无需再调整</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tmp</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>空间效率：仅使用了常数个辅助单元，因而空间复杂度为O(1)</p>
+<p>时间效率：</p>
+<ul>
+<li>最好情况：原始序列初始有序，第一趟冒泡后flag为False，即结束排序，共比较了n-1次，移动次数为0，故时间复杂度为O(n)</li>
+<li>最坏情况：原始序列逆序，需要n-1趟排序，第i趟要进行i-1次比较，而每次比较后都必须移动元素3次来交换元素位置（针对原书中的C语言版本<code>tmp=a;a=b;b=tmp</code>）故共比较了$\sum_{i=1}^{n-1}{(n-1)}=\frac{n(n-1)}{2}$，移动次数$\sum_{i=1}^{n-1}3(n-i)=\frac{3n(n-1)}{2}$。从而最坏情况下时间复杂度为O($n^2$)</li>
+<li>平均时间复杂度：O($n^2$)</li>
+</ul>
+<p>稳定性：从前往后，先比较再移动，相邻两元素若相等则不会发生交换，故稳定。</p>
+<p>注：冒泡排序不同于插入排序，对于冒泡排序，每一趟排序后都有一个元素被放置到最终的位置上，也就是说全局有序。</p>
+<h3 id="快速排序">快速排序
+</h3><p>选定一个枢轴，将小于它的值都交换到它前面，将大于它的值都交换到它的后面，然后对前后两个部分继续递归划分。一般选列表中的第一个作为枢轴，对整个列表进行划分。设置两个标志low和high，low从第一个元素开始，high从最后一个元素开始。</p>
+<p>设有一个列表L</p>
+<ol>
+<li>首先将一个元素赋值给枢轴pivot</li>
+<li>开始划分
+<ol>
+<li>将high所指元素与pivot比较，如果L[high]&gt;=pivot，则将high前移指向前一个元素，从后往前直到找到第一个<strong>小于</strong>pivot的值，将这个值覆盖到L[low]</li>
+<li>low从第一个往后走，直到找到第一个<strong>大于</strong>pivot的值，将这个值覆盖到L[high]</li>
+<li>上述1、2两部交替执行，<strong>直到low=high</strong>，此时这个位置就是pivot的最终位置，将pivot放置到该位置</li>
+</ol>
+</li>
+<li>经过上面一趟<strong>划分</strong>之后，pivot前面的元素都小于它，后面的元素都大于它。pivot将列表L划分为前面小于它的子表，和后面大于它的子表。然后再基于<strong>分治</strong>的思想对前后两个子表进行划分</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">quick_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;快排 不稳定&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">partition</span><span class="p">(</span><span class="n">L</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;划分函数&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pivot</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">low</span><span class="p">]</span>  <span class="c1"># 将当前表中第一个元素作为枢轴,对表进行划分</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span><span class="p">(</span><span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span><span class="p">):</span>  <span class="c1"># 循环跳出条件low=high</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 操作1、2交替进行直到low=high，此位置即为pivot的最终位置</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 1.high从后往前，当high的值比枢轴值大时将其放到low对应的位置</span>
+</span></span><span class="line"><span class="cl">            <span class="k">while</span><span class="p">(</span><span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span> <span class="ow">and</span> <span class="n">L</span><span class="p">[</span><span class="n">high</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pivot</span><span class="p">):</span>  
+</span></span><span class="line"><span class="cl">                <span class="n">high</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">L</span><span class="p">[</span><span class="n">low</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">high</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 2.low从前往后前，当low对应的值大于大于枢轴值时将其放到high的位置</span>
+</span></span><span class="line"><span class="cl">            <span class="k">while</span><span class="p">(</span><span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span> <span class="ow">and</span> <span class="n">L</span><span class="p">[</span><span class="n">low</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">pivot</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">low</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">L</span><span class="p">[</span><span class="n">high</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">low</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">L</span><span class="p">[</span><span class="n">low</span><span class="p">]</span> <span class="o">=</span> <span class="n">pivot</span>  <span class="c1"># 此时low=high,将枢轴放置该位置</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">low</span>  <span class="c1"># 返回枢轴的最终位置</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span><span class="p">:</span>  <span class="c1"># 当传入的low=high时不再需要划分</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pivotpos</span> <span class="o">=</span> <span class="n">partition</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>  <span class="c1"># 根据上一趟枢轴的位置划分子表</span>
+</span></span><span class="line"><span class="cl">        <span class="n">quick_sort</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">pivotpos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 依次递归排序两个子表</span>
+</span></span><span class="line"><span class="cl">        <span class="n">quick_sort</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">pivotpos</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="选择排序">选择排序
+</h2><h3 id="简单选择排序">简单选择排序
+</h3><p>“设排序表为L[1&hellip;n]，第i趟排序即从L[i..n]中选择关键字最小的元素与L[i]交换，<u>每一趟排序可以确定一个元素的最终位置</u>，这样经过<strong>n-1</strong>趟排序就可以使得整个排序表有序”，通俗的说就是从前往后不断地把最小的值换到前面去。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">select_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">n</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;选择排序 不稳定&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># 一共进行n-1趟排序</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">min</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># 记录最小值位置</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>  <span class="c1"># 在A[i...n-1]中选择最小的元素</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="nb">min</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">min</span> <span class="o">=</span> <span class="n">j</span>  <span class="c1"># 更新最小元素位置</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">min</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="nb">min</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="nb">min</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 将最小值替换到前面的位置</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>空间效率：仅使用了常数个辅助单元，因而空间复杂度为O(1)</p>
+<p>时间效率：简单选择排序移动次数较少，最多不会超过3(n-1)次对应逆序，最少0次对应排序表初始有序。比较次数与初始状态无关，始终是$\frac{n(n-1)}{2}$次，因此时间复杂度始终是O($n^2$)</p>
+<p>稳定性：在第i趟找到最小元素后，和第i个元素交换，可能导致第i个元素与其含有相同关键字元素的相对位置发生改变。比如{2，<strong>2</strong>，1}经一趟排序后是{1，<strong>2</strong>，2}，显然2和<strong>2</strong>的相对位置发生了变化。因此，简单选择排序是一种不稳定的排序方法。</p>
+<p>比较直接插入、冒泡和简单选择排序</p>
+<p>直接插入排序：从后往前，从无序部分中取值往前面有序部分中插入，稳定</p>
+<p>冒泡排序：从后往前，一边比较一遍交换挪动位置，每趟都会确定一个元素的最终位置，稳定</p>
+<p>简单选择排序：从当前元素往后找出最小值的位置，然后将最小值和当前位置的元素交换，每趟都会确定一个元素的最终位置，但是不稳定，比如[2,<strong>2</strong>,1]交换排序后就是[1,<strong>2</strong>,2]，第一个2和第二个2相对顺序发生了变化</p>
+<h3 id="堆排序">堆排序
+</h3><p>堆的定义如下：</p>
+<ol>
+<li>
+<p>L[i]&gt;L[2i]且L[i]&gt;L[2i+1] 或</p>
+</li>
+<li>
+<p>L[i]&lt;L[2i]且L[i]&lt;L[2i+1] (<strong>1</strong>≤i&lt;≤⌊n/2⌋)</p>
+</li>
+</ol>
+<p>可以将一个一维数组视为一颗完全二叉树，满足上述条件一的为大根堆，注意：节点序号是从1开始的</p>
+<p>当前节点序号为n，其左孩子序号为2*n，其右孩子节点为2*n+1</p>
+<p>借助最大堆或最小堆进行排序（注意：最大堆、最小堆与二叉排序数不同！最大堆只是根节点比子节点大，但是左右子节点之间并没有固定的大小关系；二叉排序树中，左儿子最小，根节点居中，右儿子最大，所以二叉排序树的中序遍历得到的序列即是有序的）。构建出初始最大堆后，输出堆顶元素，然后“删除”，将最后一个叶节点移到堆顶位置，重新调堆，输出堆顶元素……重复上述过程</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">heap_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;堆排序 不稳定 O(nlog2n)&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">bulid_max_heap</span><span class="p">(</span><span class="n">L</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;构建最大堆&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 最后一个父节点，根据完全二叉树的性质</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># 从i= ⌊n/2⌋~1，反复调堆，注意节点下标是从1开始的</span>
+</span></span><span class="line"><span class="cl">            <span class="n">adjust_heap</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">adjust_heap</span><span class="p">(</span><span class="n">L</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 调整以元素K为根节点的子树</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 第一个节点要预留（即下标为0的节点）</span>
+</span></span><span class="line"><span class="cl">        <span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>  <span class="c1"># 使用L[0]暂存子树的根节点</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">k</span>  <span class="c1"># 第一个子节点</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">length</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="ow">and</span> <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># 沿key较大的子节点向下筛选</span>
+</span></span><span class="line"><span class="cl">                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 取key较大的子节点的下标</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>  <span class="c1"># 根节点大于最大的子节点，不需要再调整</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 将L[i]调整到双亲节点上</span>
+</span></span><span class="line"><span class="cl">                <span class="n">k</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># 修改K值，继续向下筛选，K值即为当前的双亲节点</span>
+</span></span><span class="line"><span class="cl">                <span class="n">i</span> <span class="o">*=</span> <span class="mi">2</span>  <span class="c1"># 继续</span>
+</span></span><span class="line"><span class="cl">        <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># 被筛选节点的值放入最终位置</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">bulid_max_heap</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>  <span class="c1"># 创建初始堆</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n</span> <span class="o">=</span> <span class="n">length</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 注意下标为0的节点“不存储数据”</span>
+</span></span><span class="line"><span class="cl">        <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>  <span class="c1"># 交换堆顶和堆低元素，相当于把最大值移到最后的位置</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>  <span class="c1"># &#34;缩短长度&#34;，调整堆的大小，把剩余n-1个元素整理成堆</span>
+</span></span><span class="line"><span class="cl">        <span class="n">adjust_heap</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="归并排序">归并排序
+</h2><p>“归并就是将前后两个有序表归并成一个有序表。设两段有序表A[low&hellip;mid], A[mid+1&hellip;high]存放在同一顺序表中的相邻位置，先将他们复制到数组B中。每次从对应B中的两个段中取出一个记录进行关键字比较，将较小者放入A中，当数组B中有一段的下标超出其对应的表长（即该段的所有值都已复制到A中）时，将另一段中剩余的部分直接复制到A中。”</p>
+<p>通俗的说：归并就是将两个有序表合成一个，将原表先拷贝一份，然后从中间分为左右两个子表，依次比较左右两个表中的值，并将较小值插入原表，若最后左右子表中还有一个有剩余的，则将剩余的元素直接复制到原表中</p>
+<p>递归形式的2路归并排序是基于分值的，先一直向下划分 mid = ( low + high ) / 2，直到low=high-1（递归出口），即low与high相邻，此实左右子表都只有一个元素，即左右子表此时都是有序的，然后就可以开始合并了，一直向上合并直到最上面一层合并完成</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">merge_sort</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;归并排序 二路归并 稳定 O(n*log2n)&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 合并左右两段有序的序列A[low..mid]和A[mid+1...high]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># 把A拷贝一份，然后直接在A上调整</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">=</span> <span class="n">low</span>
+</span></span><span class="line"><span class="cl">        <span class="n">j</span> <span class="o">=</span> <span class="n">mid</span><span class="o">+</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="n">k</span> <span class="o">=</span> <span class="n">i</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">mid</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">:</span>  <span class="c1"># 比较、挪动、将较小值放回A中</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>  <span class="c1"># 比较B中左右两段中的元素</span>
+</span></span><span class="line"><span class="cl">                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 将较小值放入A中</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 下面两个while只有一个会执行</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">mid</span><span class="p">:</span>  <span class="c1"># 左侧序列未检测完、复制</span>
+</span></span><span class="line"><span class="cl">            <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">:</span>  <span class="c1"># 右侧序列未检测完、复制</span>
+</span></span><span class="line"><span class="cl">            <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span><span class="p">:</span>  
+</span></span><span class="line"><span class="cl">    <span class="c1"># 递归条件，只有当low=high-1时，即low、high相邻时才停止递归</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 此时，左右两段各有一个值，即左右两段都有序，则开始执行merge合并有序段</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 然后向上回退，一边回退一边merge</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 递归形式的二路归并</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">low</span><span class="o">+</span><span class="n">high</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 从中间划分两个子序列</span>
+</span></span><span class="line"><span class="cl">        <span class="n">merge_sort</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">mid</span><span class="p">)</span>  <span class="c1"># 对左侧子序列进行递归排序</span>
+</span></span><span class="line"><span class="cl">        <span class="n">merge_sort</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">mid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>  <span class="c1"># 对右侧子序列进行递归排序</span>
+</span></span><span class="line"><span class="cl">        <span class="n">merge</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">mid</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>  <span class="c1"># 归并</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="各种排序算法的比较">各种排序算法的比较
+</h2><div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>算法</th>
+          <th>O(最好情况)</th>
+          <th>O(平均情况)</th>
+          <th>O(最坏情况)</th>
+          <th>空间复杂度</th>
+          <th>是否稳定</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>直接插入排序</td>
+          <td>O(n)</td>
+          <td>O($n^2$)</td>
+          <td>O($n^2$)</td>
+          <td>O(1)</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>冒泡排序</td>
+          <td>O(n)</td>
+          <td>O($n^2$)</td>
+          <td>O($n^2$)</td>
+          <td>O(1)</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>简单选择排序</td>
+          <td>O($n^2$)</td>
+          <td>O($n^2$)</td>
+          <td>O($n^2$)</td>
+          <td>O(1)</td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>希尔排序</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>快速排序</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($n^2$)</td>
+          <td>O($log_2n$)</td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>堆排序</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($nlog_2n$)</td>
+          <td>O(1)</td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>2路归并排序</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($nlog_2n$)</td>
+          <td>O($nlog_2n$)</td>
+          <td>O(n)</td>
+          <td>✅</td>
+      </tr>
+  </tbody>
+</table></div>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/algorithm/">Algorithm</a>
+        
+            <a href="/tags/python/">Python</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/django-signal-principle-analysis/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000" loading="lazy" data-key="django-signal-principle-analysis" data-hash="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Django Signal简析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/top-6-django-decorators/">
+        
+        
+            <div class="article-image">
+                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu7783161890850055115.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Top 6 Django Decorators"
+                        data-key="top-6-django-decorators" 
+                        data-hash="md5-PRnx8Jul2UCqDWD5pa/ytA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Top 6 Django Decorators</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/zxcvbn-explained/">
+        
+        
+            <div class="article-image">
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu3144410286309968048.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post zxcvbn 原理详解"
+                        data-key="zxcvbn explained" 
+                        data-hash="md5-IoPF12hBASHcqVXDUmE3ow==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">zxcvbn 原理详解</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/analyzing-libpcap-pcap-file/">
+        
+        
+            <div class="article-image">
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Libpcap格式pcap包分析"
+                        data-key="analyzing libpcap pcap file" 
+                        data-hash="md5-wJjNzR7Z5H9&#43;DJNoTHgiFA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Libpcap格式pcap包分析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/implementing-a-trie-in-python/">
+        
+        
+            <div class="article-image">
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Implementing a Trie in Python"
+                        data-key="implementing a trie in Python" 
+                        data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Implementing a Trie in Python</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "heaciy" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 Heaciy&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

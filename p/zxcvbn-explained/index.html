@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="从算法层面层面解析 zxcvbn">
+<title>zxcvbn 原理详解</title>
+
+<link rel='canonical' href='https://heaciy.com/p/zxcvbn-explained/'>
+
+<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="zxcvbn 原理详解">
+<meta property='og:description' content="从算法层面层面解析 zxcvbn">
+<meta property='og:url' content='https://heaciy.com/p/zxcvbn-explained/'>
+<meta property='og:site_name' content='Heaciy&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='network' /><meta property='article:published_time' content='2025-06-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-06-19T00:00:00&#43;00:00'/><meta property='og:image' content='https://heaciy.com/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.jpg' />
+<meta name="twitter:title" content="zxcvbn 原理详解">
+<meta name="twitter:description" content="从算法层面层面解析 zxcvbn"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://heaciy.com/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.jpg' />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Heaciy&#39;s Blog</a></h1>
+            <h2 class="site-description">Life is what happens to you while you&#39;re busy making other plans.</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/heaciy'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/heaciy'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+
+        
+            <div class="widget--toc">
+                <nav id="TableOfContents">
+  <ol>
+    <li><a href="#概述">概述</a></li>
+    <li><a href="#模式匹配">模式匹配</a>
+      <ol>
+        <li><a href="#zxcvbn-包含的匹配模式">zxcvbn 包含的匹配模式</a></li>
+        <li><a href="#模式匹配的实现原理">模式匹配的实现原理</a></li>
+      </ol>
+    </li>
+    <li><a href="#评估尝试次数">评估尝试次数</a>
+      <ol>
+        <li><a href="#每种模式的猜测次数计算">每种模式的猜测次数计算</a></li>
+        <li><a href="#整个密码的猜测次数计算">整个密码的猜测次数计算</a></li>
+      </ol>
+    </li>
+    <li><a href="#搜索最佳模式组合">搜索最佳模式组合</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+            </div>
+        
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/zxcvbn-explained/">
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash_hu15759454615185448055.jpg"
+                        srcset="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash_hu15759454615185448055.jpg 800w, /p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash_hu14331030568749199228.jpg 1600w"
+                        width="800" 
+                        height="533" 
+                        loading="lazy"
+                        alt="Featured image of post zxcvbn 原理详解" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/cs/" >
+                CS
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/zxcvbn-explained/">zxcvbn 原理详解</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            从算法层面层面解析 zxcvbn
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 19, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    20 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>前言：
+因为工作中的一个计算密码强度的需求，了解到 zxcvbn 这个库，花了段时间看了看它的 java 实现和相关论文，编写此文作为笔记存档。注意：本文侧重其算法实现和复杂度计算，不涉及其使用方法以及与其他库的对比。本文中的公式均摘自 Dropbox 相关博客和论文。</p>
+</blockquote>
+<h2 id="概述">概述
+</h2><p>zxcvbn 是一个由 Dropbox 开发的密码强度估算库，灵感来自于密码爆破工具，其全称是 &ldquo;zxcvbn: realistic password strength estimation&rdquo;，旨在提供一种更准确、用户友好的密码强度评估方法。zxcvbn 的强度估计是基于一个想法：</p>
+<p>猜测密码难度 ≈ 破解者使用最优策略所需尝试的次数（guesses）</p>
+<p>换句话说，zxcvbn 试图模拟一个最聪明的黑客（利用所有已知技术和词库）如何最有效地破解这个密码。然后根据所需的尝试次数来估算破解时间和给出打分。</p>
+<p>zxcvbn 将密码破解难度的计算大致分为了三步：</p>
+<ol>
+<li>匹配：模式匹配，zxcvbn 会尝试对输入密码进行子串划分，它尝试以多种方式将密码拆成子串，每个子串对应一种模式(match)，即该子串符合什么特征，如若密码字典(包含常用单词、姓名)、键盘路径，具体有哪几种模式将在下文具体介绍。</li>
+<li>评估：破解所需的尝试次数，对于每个识别出的模式子串，zxcvbn 会计算其可能的尝试次数。</li>
+<li>搜索：使用 <strong>动态规划</strong> 算法，zxcvbn 试图找出一组首尾相接子串组合，使得总猜测数最小。</li>
+</ol>
+<h2 id="模式匹配">模式匹配
+</h2><h3 id="zxcvbn-包含的匹配模式">zxcvbn 包含的匹配模式
+</h3><ul>
+<li><strong>字典匹配</strong>：维护一个带排名的弱密码字典，如：admin、admin123、logitech</li>
+<li><strong>反向字典匹配</strong>：基于字典匹配，弱密码字典中的词汇倒序，如：drowssap，nimda</li>
+<li><strong>leet 匹配</strong>：基于字典匹配，将一些字符做相似替换，如：p@ssw0rd</li>
+<li><strong>键位匹配</strong>：键盘上的连续字符，如：qwerty、qazwx</li>
+<li><strong>重复匹配</strong>：重复的字符或者序列，如：zzz、ababab</li>
+<li><strong>顺序匹配</strong>：有顺序的连续字符，如：abc、123、246</li>
+<li><strong>日期匹配</strong>：日期字符串，如：20000102、7/8/1947</li>
+<li><strong>暴力破解匹配</strong>：无法使用上述方法匹配的序列，如：x$JQhMzt</li>
+<li><strong>正则匹配</strong>：实际代码中比论文中还多了一种正则匹配，内置常见的数据格式正则比如最近的年份</li>
+</ul>
+<h3 id="模式匹配的实现原理">模式匹配的实现原理
+</h3><ul>
+<li><strong>字典匹配、反向字典匹配、leet 匹配</strong> ：首先将整个密码字符串小写，然后再获取该小写密码的所有子串，遍历子串看其是否在密码排名字典中；反向字典匹配在此基础上将子串反转判断其是否在排名字典中；leet 匹配则会根据替换规则，得到一个子串的所有 leet 替换值，再判断替换后的子串是否在排名字典中，如<code>@ba1one</code>，l33t 表会将<code>@</code>映射到<code>a</code>，将<code>1</code>映射到<code>i</code>或者<code>l</code>(即按照 leet 规则将字符串中的符号和数字替换为对应的字母)，因此它会通过替换 <code>[@-&gt;a, 1-&gt;i]</code> 和 <code>[@-&gt;a, 1-&gt;l]</code>分两次尝试去排名字典中匹配，第二次会匹配中单词<code>abalone</code>(单词：鲍鱼)；
+zxcvbn 的密码字典包括：英语词汇表、常用人名、常用密码、常用姓氏、美国电影和电视剧名</li>
+<li><strong>顺序匹配</strong>：通过计算相邻字符的 unicode 码的差值来找到顺序，一个”递增“或”递减“的子串其相邻字符的 unicode 码的差值是相同的；</li>
+<li><strong>重复匹配</strong>：通过使用贪婪正则<code>&quot;(.+)\1+&quot;</code>和懒惰正则<code>&quot;(.+?)\1+&quot;</code>来识别密码字符串中的重复块。对于字符串 &ldquo;aabaab&rdquo; 贪婪模式的结果(aab)较懒惰模式的结果(aa)会胜出，因为贪婪模式覆盖的长度为 6(&ldquo;aabaab&rdquo;)而贪婪模式覆盖的长度为 2(&ldquo;aa&rdquo;)；对于 &ldquo;aaaaa&rdquo; 懒惰模式覆盖长度为 5(&ldquo;aaaaa&rdquo;)，而贪婪模式覆盖长度为 4(&ldquo;aaaa&rdquo;)，故懒惰模式胜出。在得到整个密码的所有重复单元后，会再对每个重复单元再执行完整的匹配过程(即对子串再执行一遍搜索的模式匹配)，以此识别重复的单词或日期；</li>
+<li><strong>键位匹配</strong>：遍历密码字符串，对比多种键盘键位的邻接图，找到密码中键位相邻的模式子串，并记录每个模式子串的长度、转折次数、shift 键(如!@#$%QAZ)的数量以及键盘种类。如密码“zxcvfR$321”将会被记录为以下数据：键盘种类-qwerty、转折次数-3、shift键数量-2(R和$)、长度-10；</li>
+<li><strong>日期匹配</strong>：对于不带分隔符( <code>/ \ _ . - 空格</code>)的日期格式，遍历整个密码字符串，匹配长度为 4~8 的数字子串如<code>'1191'</code><em>、</em><code>'11111991'</code>，然后针对不同长度使用不同的分割策略分割为三部分组合、过滤出日期，再从这些日期中挑出离现在最近的日期作为最优解；对于带分隔符的日期格式，遍历整个密码字符串，匹配长度为 6~10 的数字子串如<code>'1/1/91'</code>、<code>'11/11/1991'</code>，使用正则匹配分割为三部分，然后重复上述的逻辑；</li>
+<li><strong>正则匹配</strong>：<a class="link" href="https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/matching.coffee#L37"  target="_blank" rel="noopener"
+    >实际代码实现中</a>只内置了一种常用正则即最近年份用于匹配 19** 或者 20** 这种年份，如 1999、2019；</li>
+</ul>
+<h2 id="评估尝试次数">评估尝试次数
+</h2><h3 id="每种模式的猜测次数计算">每种模式的猜测次数计算
+</h3><p>对于模式匹配阶段的结果，在评估阶段会计算其中每一个模式子串的猜测次数，对每种模式的子串的猜测计算方法根据模式匹配特点决定：</p>
+<ol>
+<li>
+<p><strong>字典和反向字典匹配</strong>：假设攻击者按照弱密码流行度顺序猜测</p>
+<ul>
+<li>对于字典匹配，模式子串的猜测次数即为弱密码字典排名值；</li>
+<li>对于反向字典匹配，由于需要尝试字典值的正反两种情况，因此还要在流行度排名值的基础上乘二；</li>
+<li>对于仅首字母、仅尾字母和全部字母为大写的三种情况，也需要在流行度排名值得基础上乘二；</li>
+<li>对于其他的大小写情况(如：对于密码<code>paSswOrd</code>，需要在猜出<code>password</code>的基础上，再猜出哪些位置的字母是大写)使用下面的公式计算：</li>
+</ul>
+$$
+   \frac{1}{2}\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}
+   $$<p>公式解读：</p>
+<ul>
+<li>$U$：大写字母数量</li>
+<li>$L$：小写字母数量</li>
+<li>$\min(U,L)$：取两值中的较小值，当大写字母数量大于小写字母数量时，改为猜测小写字母</li>
+<li>$\binom{U+L}{i}$：组合公式 $C^{i}_{U+L}$ ，即从 $U+L$ 个中选出 $i$ 个有多少种选法</li>
+<li>$\frac{1}{2}\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}$：攻击者不知道其中有多少个大写字母，假设攻击者从 1 个大写字母尝试到 $min(U,L)$，当尝试到大写字母数量为 $i$ 时，此轮共需要尝试 $C^i_{U+L}$ 次，记为 $\binom{U+L}{i}$，$i$ 需要从 1 尝试到 $min(U,L)$，总数为 $\binom{U+L}{i}+\binom{U+L}{i}+&hellip;+\binom{U+L}{min(U,L)}$ 记为 $\sum_{i=1}^{\min(U,L)}\binom{U+L}{i}$，最后添加一个 $\frac{1}{2}$ 来取平均猜测次数。</li>
+</ul>
+</li>
+<li>
+<p><strong>Leet 匹配</strong>：在字典匹配的基础上，与上述大小写替换的计算方式一致，只不过是将大写字符替换改为了 leet 字符替换。</p>
+</li>
+<li>
+<p><strong>键位匹配</strong>：对于键位匹配，假设攻击者总是从较短的键位匹配长度(最短为 2)和较少的方向(最少为 1)开始计算。以 <code>qwertyhnm</code> 为例，它从 <code>q</code> 开始，长度为 9，包含 3 个方向：最开始向右(<code>qwerty</code>)，然后向右下(<code>yhn</code>)，然后向右(<code>nm</code>)。</p>
+$$
+   \frac{1}{2}\sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}SD^j
+   $$<p>公式解读：</p>
+<ul>
+<li>$L$：密码的长度</li>
+<li>$T$：密码在键盘上方向段数</li>
+<li>$D$：键盘上每个键平均的相邻键数</li>
+<li>$S$：键盘上键的个数</li>
+<li>$i$：假设键位匹配模式子串的长度为 $i$，从 2 开始（1 长度没有“转向”的意义）</li>
+<li>$j$：假设长度为 $i$ 的键位匹配模式子串包含 $j$ 个方向段，即对应 $j-1$ 次转向，不能超过 $i-1$ 或最大方向段数 $T$</li>
+<li>$SD^j$：键盘上任意一个字符都有可能作为起始字符，每一个方向段都有 $D$ 种方向选择，共 $j$ 段。(<em>这里应该也是估算，因为第二个方向段的方向肯定与第一个方向段方向不同，那能选的方向应该是 $D-1$，对应 $S \cdot D \cdot D^{j-1}$，不过这里的数量级应该是一样的且 $D$ 本身不是精确值，所以直接简化为 $SD^j$ 也无妨</em>)</li>
+<li>$\binom{i-1}{j-1}$：在 $i$ 个键上包含 $j$ 个方向段，可以这样理解：$j$ 个方向段对应 $j-1$ 次转向，转向应该发生在“内部键”上，而 $i$ 个键位对应 $i-2$ 个内部键(即去除首尾键)，那位该问题转化为在 $i-2$ 个内部键中挑选出 $j-1$ 个作为转向键，对应的组合公式即为 $\binom{i-2}{j-1}$。<strong>⁉️ 离谱的来的，怎么跟论文里的公式对不上 😅</strong></li>
+<li>$\frac{1}{2}\sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}SD^j$：假设攻击者总是从较短的序列长度(最短为 2)和较少的方向段数(最少为 1)开始猜测，针对 $i$ 从 $2$ 到 $L$ 的每种序列长度的情况，方向段数从 1 最多尝试到 $min(T,i-1)$ 次；每种长度的模式子串的首字符有 $S$ 种选择，每个方向段有 $D$ 种方向选择，共有 $j$ 个方向段，故针对每种空间模式的模式子串都有 $SD^j$ 种可能；$\frac{1}{2}$ 用于计算平均情况；</li>
+</ul>
+<p><strong>⚠️ 注意 ⚠️：上述个人理解与论文中的公式对不上 😅，不必惊慌数量级应该是一样的那就先凑合用论文中的公式吧，当然我的理解可能也是错的欢迎指正。</strong></p>
+<p><strong>其实下面<a class="link" href="https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_wheeler.pdf"  target="_blank" rel="noopener"
+    >参考链接里的论文</a>中存在多处公式与代码实现不符且存在错误……经过查看 <a class="link" href="https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/scoring.coffee#L288"  target="_blank" rel="noopener"
+    >Dropbox 官方的代码库实现</a>和相关的 <a class="link" href="https://github.com/nulab/zxcvbn4j/blob/c08b8b8455623023ef040406afc0fb988b4e3c12/src/main/java/com/nulabinc/zxcvbn/guesses/SpatialGuess.java#L25"  target="_blank" rel="noopener"
+    >java 库实现</a>后发现，实际并没有使用论文中提到的 $\frac{1}{2}$ 来计算平均尝试情况，除了键位匹配，字典匹配的实现中也没有使用 $\frac{1}{2}$ 来计算平均值。代码实现中实际使用的公式如下：</strong></p>
+$$
+   \sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}\cdot S \cdot D^j \cdot \text{shift\_factor}
+   $$<p>公式解读：</p>
+<ul>
+<li>$\text{shift\_factor}$：大写因子，即按住 shift 键输入的值，比如大写的字母或是数字键对应的符号如 !@# 等。
+<ul>
+<li>当整个模式子串全部为&quot;小写&quot;时因子值为 1；</li>
+<li>当整个模式子串全部大写时，因为值为 2，因为假定攻击者先尝试全部小写再尝试全部大写，所以尝试了两次；</li>
+<li>其余情况使用公式 $\sum_{i=1}^{\min(\text{shifted},\text{unshifted})}\binom{\text{shifted}+\text{unshifted}}{i}$ 计算，$shifted$ 是按住 shift 键输入的个数，$unshifted$ 是不需要按住 shift 键输入的个数，这个公式就不展开介绍了，原理与上面的字典匹配中的大小写模式计算一致。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>重复匹配</strong>：整个重复的模式子串由 n 个重复的基础字串组成，如 <code>nownownow</code> 由基础子串 <code>now</code> 重复 3 次组成；重复匹配首先会递归的检测基础子串 <code>now</code> 的匹配模式，并计算其猜测次数 $g$；子串 <code>now</code> 的模式为字典模式，在字典表中排名第 42 位，子串重复了 3 次，整个重复模式子串的猜测次数为：$g\times n$，即 <code>nownownow</code> 的猜测次数为 $42\times 3$。</p>
+<p>如何理解这里的乘法呢：密码 <code>123abcabcabc</code> 中存在一段重复的子串 <code>abcabcabc</code>，只看基础单元 <code>abc</code> 攻击者需要尝试 $g$ 次才能猜对，在猜对基础单元后对于整个重复子串 <code>abcabcabc</code> 需要尝试将基础单元重复 3 次才能完整匹配中这段完整的重复子串：尝试重复 <code>abc</code>、尝试 <code>abcabc</code>、尝试 <code>abcabcabc</code>，即从重复 1 次 一直到重复 $n$ 次，所以要猜对这段完整的重复子串需要猜测 $g\times n$</p>
+</li>
+<li>
+<p><strong>顺序匹配</strong>：顺序匹配的猜测次数计算方法为：$S\cdot N\cdot \lvert d\lvert$，$S$ 为起始字符的可选个数，$N$ 为长度，$d$ 为相邻前后字符的 Unicode 编码差值（如 <code>9753</code> 的前后字符差值为 -2）。当模式子串首字符为 <code>['a','A','z','Z','0','1','9']</code> 中的任何一个时，$S$ 将被赋值为 4，如果首字符不在上述列表中，但是首字符为其他数字，则 $S$ 将被赋值为 10，其他情况 $S$ 将被赋值为 26，当字符序列为倒序时，还要在 $S\cdot N\cdot \lvert d\lvert$ 的基础上乘以二(因为猜完正序还要再猜一次倒叙)，即 $2\cdot S\cdot N\cdot\lvert d\lvert$</p>
+</li>
+<li>
+<p><strong>日期匹配</strong>：日期匹配的猜测次数计算方法为：$365\cdot \lvert now.year-date.year \lvert$，可以看出这里的计算为估算</p>
+</li>
+<li>
+<p><strong>暴力破解匹配</strong>：暴力破解的猜测次数计算方法为：$C^N$，$C$ 为常数被赋值为 10，即假设暴力破解时每个位置上的字符需要尝试 10 次，$N$ 为密码长度</p>
+</li>
+<li>
+<p><strong>正则匹配</strong>：该模式在最终的<a class="link" href="https://github.com/dropbox/zxcvbn/blob/67c4ece9efc40c9d0a1d7d995b2b22a91be500c2/src/scoring.coffee#L288"  target="_blank" rel="noopener"
+    >代码实现</a>中有但是论文中并未提及，猜测次数计算公式为：</p>
+<ul>
+<li>对于最近年份的正则：$\lvert now.year-date.year \lvert$，即年份差值的绝对值</li>
+<li>对于其他正则：$C^N$，$C$ 为常数，每一种正则表达式都有一个对应的常数，代表破解一位需要尝试的次数，$N$ 为密码长度。可以看出此类匹配模式其实与暴力破解匹配模式类似</li>
+</ul>
+</li>
+</ol>
+<h3 id="整个密码的猜测次数计算">整个密码的猜测次数计算
+</h3><p>整个猜测过程可由以下<a class="link" href="https://baike.baidu.com/item/%E5%90%AF%E5%8F%91%E5%BC%8F%E6%90%9C%E7%B4%A2/8944170"  target="_blank" rel="noopener"
+    >启发式搜索</a>表示：</p>
+$$
+\argmin\limits_{S\subseteq\mathcal{S}}(D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses)
+$$<p>公式含义：</p>
+<ul>
+<li>
+<p>$\mathcal{S}$：密码字符串的所有模式子串的集合，如：<code>[levono(字典模式), eno(字典反转模式), no(单词模式), no(单词反转模式), 1111(重复模式), 1111(日期模式)]</code></p>
+</li>
+<li>
+<p>$S$：首尾相接能组成密码的非重叠模式子串序列，如：<code>[levono(字典模式), 1111(重复模式)]</code>，可以看出 $S$ 是 $\mathcal{S}$ 的子集，即 $S\subseteq\mathcal{S}$</p>
+</li>
+<li>
+<p>$\lvert S\lvert$：首尾相接组成密码的模式子串序列 $S$ 的长度，即密码由几段模式子串组成，如上述子串序列的长度为 2</p>
+</li>
+<li>
+<p>$m$：$S$ 中的某个模式子串，可表示为：$m\in S$ ；$m.guesses$ 为该模式子串的所需猜测次数</p>
+</li>
+<li>
+<p>$\lvert S\lvert!\prod\limits_{m\in S}m.guesses$：假设攻击者知道密码由 $\lvert S\lvert$ 个模式子串组成，即假设攻击者知道密码中模式子串的数量，但是不知道这几个模式子串的排列顺序。</p>
+<ul>
+<li>
+<p>比如一个密码由：字典模式子串 A、单词模式子串 B、日期模式子串 D 组成，那么这个密码可能为 ABC、ACB、BAC、BCA、CAB、CBA，共有 6 种。由排列公式 $P_{n}^{m}=\frac{n!}{(n-m)!}$ 可知从 $\lvert S\lvert$ 个元素中选 $\lvert S\lvert$ 个元素进行排列，共有 $P_{\lvert S\lvert}^{\lvert S\lvert}=\frac{\lvert S\lvert!}{(\lvert S\lvert-\lvert S\lvert)!}=\frac{\lvert S\lvert!}{0!}=\frac{\lvert S\lvert!}{1}={\lvert S\lvert!}$ 种可能；</p>
+</li>
+<li>
+<p>每个组成密码的模式子串 $m$ 的猜测次数为 $m.guesses$，那么不考虑模式子串顺序时整个密码的猜测次数为：组成密码的所有模式子串的猜测次数的累乘，即 $\prod\limits_{m\in S}m.guesses$ ；</p>
+</li>
+<li>
+<p>由上可知，当考虑模式子串之间的顺序时，整个密码的猜测次数为 $\lvert S\lvert!$ 乘以 $\prod\limits_{m\in S}m.guesses$ ，即 $\lvert S\lvert!\prod\limits_{m\in S}m.guesses$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>$D$：一个常数，为经验值，即平均每个模式子串大概需要的猜测次数。根据 Dropbox 的经验，D 为 1000~10000 时公式表现较优</p>
+</li>
+<li>
+<p>$D^{\lvert S\lvert-1}$：为 $\sum_{l=1}^{\lvert S\lvert-1}D^l$的近似值。假设攻击者不知道密码由多少个模式子串组成，每个模式子串的猜测次数假定为 $D$ ，那么 $l$ 个模式子串的猜测次数即为 $D^l$ 。假设攻击者总是从较少的模式子串数量开始猜测，在猜到正确的模式子串个数 $\lvert S\lvert$ 前，总的猜测次数即为 $\sum_{l=1}^{|S|-1} D^l = \frac{D(D^{|S|-1} - 1)}{D - 1} \approx D^{|S|-1}$，即可近似简化为 $D^{\lvert S\lvert-1}$。</p>
+</li>
+<li>
+<p>$D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses$：现在从整体上来看，前半部分表示：在猜到正确的模式子串个数 $\lvert S\lvert$ 前的累计猜测次数；后半部分表示：在猜到正确的模式子串个数 $\lvert S\lvert$ 后，不知道这几个模式子串排列顺序的情况下需要的猜测次数；两部分相加即为总的猜测次数；</p>
+</li>
+<li>
+<p>$\argmin\limits_{S\subseteq\mathcal{S}}(D^{\lvert S\lvert-1}+\lvert S\lvert!\prod\limits_{m\in S}m.guesses)$：可能存在多种首尾相接能组成密码的模式子串的组合 $S$，猜测次数最少的 $S$ 即为最优的组合，此时的猜测次数即为最小猜测次数</p>
+</li>
+</ul>
+<p>从整个公式中可以看出，$D^{\lvert S\lvert-1}$ 和 $\lvert S\lvert!$ 以不同的方式惩罚过于复杂的模式子串组合。当两个不同长度的模式子串组合具有相近的 $\prod\limits_{m\in S}m.guesses$ 猜测次数时，$\lvert S\lvert!$ 会倾向于较短的模式子串组合。$D^{\lvert S\lvert-1}$ 倾向于反对较长的模式字串组合，即使其具有较小的 $\lvert S\lvert!\prod\limits_{m\in S}m.guesses$ 值。</p>
+<h2 id="搜索最佳模式组合">搜索最佳模式组合
+</h2><p>给定一个密码字符串的所有模式子串(模式子串之间可能存在重叠)集合 $\mathcal{S}$，最后一步是从 $\mathcal{S}$ 中搜索出不存在重叠的模式子串的序列，使得整个序列能够刚好覆盖住整个密码，并使得猜测次数最小。下面将描述搜索使用的动态规划算法，可以很好的完成搜索任务。</p>
+<p>💡 整体思想是搜索能够覆盖从<code>index=0</code>到<code>index=K</code>的密码子串且猜测次数最小的模式子串序列。<code>K</code>从<code>0</code>迭代到<code>password.length-1</code>，进而逐渐的从局部最优迭代至整体最优。</p>
+<p>下面使用伪代码阐述该算法：</p>
+<ol>
+<li>简单介绍一下几个初始值：
+<img src="/p/zxcvbn-explained/variables.png"
+	width="748"
+	height="206"
+	srcset="/p/zxcvbn-explained/variables_hu13538017015764558763.png 480w, /p/zxcvbn-explained/variables_hu3570412350496500749.png 1024w"
+	loading="lazy"
+	
+		alt="Variables"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="363"
+		data-flex-basis="871px"
+	
+></li>
+</ol>
+<ul>
+<li>解释
+<ol>
+<li>$n$ 为密码字符串的长度，$k$为索引值，$k\in{0,1,2,…,password.length-1}$</li>
+<li>$\mathcal B_{opt}$ 为反向指针列表，用于记录密码上每个字符的相关数据。$\mathcal B_{opt}[k][l]$ 是能覆盖密码子串 password[0~k] 且长度为 $l$ 的模式子串序列中的最后一个模式子串(该子串以 password[k] 结尾；该模式子串序列为尾字符是 password[k] 长度是 $l$ 的模式子串序列中猜测次数最少的子串序列，即 end=password[k] &amp;&amp; length=l 的局部最优解)</li>
+<li>$\prod_{opt}[k][l]$ 为上述最佳模式子串序列中所有模式子串猜测次数的累乘。</li>
+<li>$l_{opt}$ 是最佳模式子串序列的长度</li>
+<li>$g_{opt}$ 上述模式子串序列的猜测次数</li>
+</ol>
+</li>
+</ul>
+<ol start="2">
+<li>搜索函数：
+<img src="/p/zxcvbn-explained/search.png"
+	width="750"
+	height="402"
+	srcset="/p/zxcvbn-explained/search_hu9221102406530178379.png 480w, /p/zxcvbn-explained/search_hu12499164837542933094.png 1024w"
+	loading="lazy"
+	
+		alt="Search"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="186"
+		data-flex-basis="447px"
+	
+></li>
+</ol>
+<ul>
+<li>解释
+<ol>
+<li>K 值从 0 迭代到 n-1，即从头到尾遍历密码上的每一个字符
+<ol>
+<li>以 K 索引对应字符为结尾的密码前缀子串的最佳猜测次数，初始值赋值为无限大</li>
+<li>遍历密码所有模式子串 $\mathcal S$ 中以 $k$ 结尾的模式子串 $m$
+<ol>
+<li>如果该模式子串 $m$ 的起始位置 $m.i$ 大于 0，即该模式子串不是从密码的起始位置开始，其前面还有其他模式子串
+<ol>
+<li>遍历 $\mathcal B_{opt}$ 中以 $m.i-1$ 结尾的所有最佳解模式子串序列的长度值(层级数) $l$</li>
+<li>在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 $l+1$ 的最佳模式子串序列的信息</li>
+</ol>
+</li>
+<li>如果该模式子串 $m$ 的起始位置 $m.i$ 为 0
+<ol>
+<li>在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 1 的最佳模式子串序列的信息</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，暴力破解匹配的模式子串序列的信息</li>
+</ol>
+</li>
+<li>返回完整的 $\mathcal B_{opt}$ 中以 $n-1$ 结尾的最佳模式子串序列的猜测次数值</li>
+</ol>
+</li>
+</ul>
+<ol start="3">
+<li>补充暴力破解匹配的函数：
+<img src="/p/zxcvbn-explained/bf_update.png"
+	width="740"
+	height="380"
+	srcset="/p/zxcvbn-explained/bf_update_hu8779333227119501046.png 480w, /p/zxcvbn-explained/bf_update_hu9165794953146478655.png 1024w"
+	loading="lazy"
+	
+		alt="bf_update"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="194"
+		data-flex-basis="467px"
+	
+></li>
+</ol>
+<ul>
+<li>解释
+<ol>
+<li>构建一个从 0 到 $k$ 的暴力破解模式子串 $m$</li>
+<li>在 $\mathcal B_{opt}$ 中记录下以 $k$ 结尾，长度为 1 的最佳模式子串序列的信息</li>
+<li>遍历 $\mathcal B_{opt}$ 中所有以 $k-1$ 结尾的模式子串序列，其长度为 $l$，结尾的模式子串为 $m$
+<ol>
+<li>如果该模式子串 $m$ 的匹配方式为暴力破解
+<ol>
+<li>构建一个从 $m.i$ 到 $k$ 的模式子串，赋值给新的 $m$</li>
+<li>以 $m$ 更新在 $\mathcal B_{opt}$ 中以 $k$ 结尾，长度为 $l$ 的最佳模式子串序列的信息</li>
+</ol>
+</li>
+<li>如果该模式子串 $m$ 的匹配方式不是暴力破解
+<ol>
+<li>构建一个只有 $k$ 的模式子串，赋值给新的 $m$</li>
+<li>以 $m$ 更新在 $\mathcal B_{opt}$ 中以 $k$ 结尾，长度为 $l+1$ 的最佳模式子串序列的信息</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<ol start="4">
+<li>更新 $\mathcal B_{opt}$ 表的函数：
+更新 $\mathcal B_{opt}$ 中以模式子串 $m$ 结尾长度为 $l$ 的最佳模式子串序列
+<img src="/p/zxcvbn-explained/update.png"
+	width="741"
+	height="392"
+	srcset="/p/zxcvbn-explained/update_hu709838798425529149.png 480w, /p/zxcvbn-explained/update_hu9960123281865649424.png 1024w"
+	loading="lazy"
+	
+		alt="update"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="189"
+		data-flex-basis="453px"
+	
+></li>
+</ol>
+<ul>
+<li>解释
+<ol>
+<li>将模式子串 $m$ 的猜测次数赋值给 $\prod$</li>
+<li>如果模式子串序列的长度 $l$ 大于 1，即模式子串序列以 $m$ 结尾但是 $m$ 前面还有其他模式子串
+<ol>
+<li>$\prod$ 等于该模式字串序列中所有模式子串的猜测次数的累乘值</li>
+</ol>
+</li>
+<li>如果模式子串序列的长度 $l$ 等于 1，即该序列中只有 $m$ 一个模式子串
+<ol>
+<li>则模式子串序列的猜测值 $\prod$ 等于其中唯一的模式子串 $m$ 的猜测次数 $m.guesses$</li>
+</ol>
+</li>
+<li>使用上面讲解的启发式计算整个模式子串序列的猜测次数 $g$</li>
+<li>如果 $g$ 小于$g_{opt}=\mathcal B_{opt}[k][l]$
+<ol>
+<li>$g_{opt}$ 赋值为 $g$</li>
+<li>$l_{opt}$ 赋值为 $l$</li>
+<li>$\prod_{opt}[k][l]$ 赋值为 $\prod$</li>
+<li>$\mathcal B_{opt}[k][l]$ 赋值为 $m$</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<ol start="5">
+<li>从完整的 $\mathcal B_{opt}$ 表中选出覆盖整个密码且猜测次数最小的模式子串序列：
+<img src="/p/zxcvbn-explained/unwind.png"
+	width="743"
+	height="414"
+	srcset="/p/zxcvbn-explained/unwind_hu11624239122448744179.png 480w, /p/zxcvbn-explained/unwind_hu13254356460426326288.png 1024w"
+	loading="lazy"
+	
+		alt="unwind"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="179"
+		data-flex-basis="430px"
+	
+></li>
+</ol>
+<ul>
+<li>
+<p>解释</p>
+<p>由前一个步骤知最佳模式子串序列的长度为 $l_{opt}$，于是从 $\mathcal B_{opt}[k][l_{opt}]$ 不断向前倒推便能得到完整的最佳的模式子串序列（动态规划——从局部最优中搜索出整体最优）</p>
+</li>
+</ul>
+<p>根据最终评估出的密码猜测次数，会将密码分为四个等级：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">guessesToScore</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">guesses</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">DELTA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">5</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guesses</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">1e3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DELTA</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">0</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guesses</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">1e6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DELTA</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guesses</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">1e8</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DELTA</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">2</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guesses</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">1e10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DELTA</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">3</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">4</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考
+</h2><ol>
+<li><a class="link" href="https://medium.com/nulab/five-algorithms-to-measure-real-password-strength-bd30126e82cc"  target="_blank" rel="noopener"
+    >Five Algorithms to Measure Real Password Strength</a></li>
+<li><a class="link" href="https://dropbox.tech/security/zxcvbn-realistic-password-strength-estimation"  target="_blank" rel="noopener"
+    >zxcvbn: realistic password strength estimation</a></li>
+<li><a class="link" href="https://www.usenix.org/conference/usenixsecurity16/technical-sessions/presentation/wheeler"  target="_blank" rel="noopener"
+    >zxcvbn: Low-Budget Password Strength Estimation</a></li>
+<li><a class="link" href="https://github.com/nulab/zxcvbn4j"  target="_blank" rel="noopener"
+    >github: zxcvbn4j</a></li>
+<li><a class="link" href="https://github.com/dropbox/zxcvbn"  target="_blank" rel="noopener"
+    >github: zxcvbn</a></li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/network/">Network</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/analyzing-libpcap-pcap-file/">
+        
+        
+            <div class="article-image">
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Libpcap格式pcap包分析"
+                        data-key="analyzing libpcap pcap file" 
+                        data-hash="md5-wJjNzR7Z5H9&#43;DJNoTHgiFA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Libpcap格式pcap包分析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/internal-sort/">
+        
+        
+            <div class="article-image">
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 常用内部排序算法"
+                        data-key="internal sort" 
+                        data-hash="md5-3lXz&#43;sQLfNqSI4vWVm6ELQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">常用内部排序算法</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/django-signal-principle-analysis/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000" loading="lazy" data-key="django-signal-principle-analysis" data-hash="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Django Signal简析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/top-6-django-decorators/">
+        
+        
+            <div class="article-image">
+                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu7783161890850055115.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Top 6 Django Decorators"
+                        data-key="top-6-django-decorators" 
+                        data-hash="md5-PRnx8Jul2UCqDWD5pa/ytA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Top 6 Django Decorators</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/implementing-a-trie-in-python/">
+        
+        
+            <div class="article-image">
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Implementing a Trie in Python"
+                        data-key="implementing a trie in Python" 
+                        data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Implementing a Trie in Python</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "heaciy" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 Heaciy&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
