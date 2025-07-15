@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://heaciy.com/p/implementing-a-trie-in-python/'>
 
-<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Implementing a Trie in Python">
+<link rel="stylesheet" href="/scss/style.min.0524caaae6e19fb6759c6bc2fe121df8079a4251cbf2620c859d7d993eaeb1b6.css"><meta property='og:title' content="Implementing a Trie in Python">
 <meta property='og:description' content="In less than 100 lines of code">
 <meta property='og:url' content='https://heaciy.com/p/implementing-a-trie-in-python/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
@@ -59,7 +59,7 @@
                     
                     
                         
-                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                        <img src="/img/avatar_hu_4c3c1833b144ea9f.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -267,8 +267,8 @@
     <header class="article-header">
         <div class="article-image">
             <a href="/p/implementing-a-trie-in-python/">
-                <img src="/p/implementing-a-trie-in-python/trie_hu11085686793381333768.jpeg"
-                        srcset="/p/implementing-a-trie-in-python/trie_hu11085686793381333768.jpeg 800w, /p/implementing-a-trie-in-python/trie_hu7366100927227425456.jpeg 1600w"
+                <img src="/p/implementing-a-trie-in-python/trie_hu_bf72e01f95cacb14.jpeg"
+                        srcset="/p/implementing-a-trie-in-python/trie_hu_bf72e01f95cacb14.jpeg 800w, /p/implementing-a-trie-in-python/trie_hu_9035d23c717dad7c.jpeg 1600w"
                         width="800" 
                         height="533" 
                         loading="lazy"
@@ -590,8 +590,7 @@
 <p>摘自: <a class="link" href="https://towardsdatascience.com/implementing-a-trie-data-structure-in-python-in-less-than-100-lines-of-code-a877ea23c1a1"  target="_blank" rel="noopener"
     >Meidum: Implementing a Trie in Python</a></p>
 <p>原作者: <a class="link" href="https://medium.com/@rcshubha"  target="_blank" rel="noopener"
-    >Shubhadeep Roychowdhury</a></p>
-</blockquote>
+    >Shubhadeep Roychowdhury</a></p></blockquote>
 
 </section>
 
@@ -605,9 +604,7 @@
             <a href="/tags/data-structure/">Data Structure</a>
         
     </section>
-
-
-    
+ 
     <section class="article-copyright">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -617,9 +614,86 @@
 
 
 
-        <span>Licensed under CC BY-NC-SA 4.0</span>
+        <span
+            >Licensed under CC BY-NC-SA 4.0</span
+        >
     </section>
-    </footer>
+    <script>
+        const loadScript = (url, onloadFunction) => {
+            const newScript = document.createElement("script");
+            newScript.onerror = (oError) => {
+                throw new URIError(
+                    "The script " +
+                        oError.target.src +
+                        " didn't load correctly."
+                );
+            };
+            if (onloadFunction) {
+                newScript.onload = onloadFunction;
+            }
+            document.head.insertAdjacentElement("beforeend", newScript);
+            newScript.src = url;
+        };
+
+        const getMermaidTheme = (scheme) => {
+            return scheme === "dark" ? "dark" : "default";
+        };
+
+        let mermaidLoaded = false;
+
+        const initMermaid = (theme) => {
+            if (!mermaidLoaded) return;
+
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: "strict",
+                theme: theme,
+            });
+
+            const containers = document.querySelectorAll(".mermaid");
+
+            
+            containers.forEach((el) => {
+                const rawCode = el.getAttribute("data-mermaid");
+                if (rawCode) {
+                    el.innerHTML = rawCode; 
+                    el.removeAttribute("data-processed");
+                } else {
+                    el.setAttribute("data-mermaid", el.textContent); 
+                }
+            });
+
+            mermaid.run({
+                nodes: Array.from(containers),
+            });
+
+            console.log("mermaid rendered with theme:", theme);
+        };
+
+        const loadMermaidIfNeeded = () => {
+            if (document.querySelectorAll(".mermaid").length > 0) {
+                loadScript(
+                    "https://cdn.jsdelivr.net/npm/mermaid@11.8.1/dist/mermaid.min.js",
+                    () => {
+                        mermaidLoaded = true;
+                        const scheme =
+                            document.documentElement.dataset.scheme || "light";
+                        initMermaid(getMermaidTheme(scheme));
+                    }
+                );
+            }
+        };
+
+        
+        window.addEventListener("load", loadMermaidIfNeeded);
+
+        
+        window.addEventListener("onColorSchemeChange", (e) => {
+            const scheme = e.detail;
+            initMermaid(getMermaidTheme(scheme));
+        });
+    </script>
+</footer>
 
 
     
@@ -659,7 +733,7 @@
         
         
             <div class="article-image">
-                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu3144410286309968048.jpg" 
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu_aa9a308c73b1f0b9.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -683,7 +757,7 @@
         
         
             <div class="article-image">
-                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu_ae847a3a6d67e837.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -707,7 +781,7 @@
         
         
             <div class="article-image">
-                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu_b354f5dca97b0823.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"

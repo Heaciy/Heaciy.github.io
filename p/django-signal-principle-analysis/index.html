@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://heaciy.com/p/django-signal-principle-analysis/'>
 
-<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Django Signal简析">
+<link rel="stylesheet" href="/scss/style.min.0524caaae6e19fb6759c6bc2fe121df8079a4251cbf2620c859d7d993eaeb1b6.css"><meta property='og:title' content="Django Signal简析">
 <meta property='og:description' content="从Observer pattern到Django signal">
 <meta property='og:url' content='https://heaciy.com/p/django-signal-principle-analysis/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
@@ -59,7 +59,7 @@
                     
                     
                         
-                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                        <img src="/img/avatar_hu_4c3c1833b144ea9f.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -366,8 +366,7 @@
 <p>我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了……<br/>
 本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正<br/>
 题图来自 unsplash，<a class="link" href="https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;cs=tinysrgb&amp;amp;fit=max&amp;amp;fm=jpg&amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;ixlib=rb-1.2.1&amp;amp;q=80&amp;amp;w=2000"  target="_blank" rel="noopener"
-    >原图链接🔗</a></p>
-</blockquote>
+    >原图链接🔗</a></p></blockquote>
 <h2 id="观察者模式">观察者模式
 </h2><p>“观察者模式是一种对象行为模式。它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。<a class="link" href="https://baike.baidu.com/item/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/5881786"  target="_blank" rel="noopener"
     >[1]</a>”</p>
@@ -454,32 +453,24 @@
 </div>
 </div><h2 id="原理简析">原理简析
 </h2><p>django的整个信号模块都是依赖Signal这个类完成的</p>
-<p><img src="/p/django-signal-principle-analysis/signal.png"
-	width="373"
-	height="569"
-	srcset="/p/django-signal-principle-analysis/signal_hu8251001186732828751.png 480w, /p/django-signal-principle-analysis/signal_hu17536644674691067904.png 1024w"
+<p><img src="/%5csignal.png"
+	
+	
+	
 	loading="lazy"
 	
 		alt="Signal Class Diagram"
 	
 	
-		class="gallery-image" 
-		data-flex-grow="65"
-		data-flex-basis="157px"
-	
 >
-<img src="/p/django-signal-principle-analysis/signal_detail.png"
-	width="956"
-	height="538"
-	srcset="/p/django-signal-principle-analysis/signal_detail_hu3840407809679362127.png 480w, /p/django-signal-principle-analysis/signal_detail_hu9076136509210613243.png 1024w"
+<img src="/%5csignal_detail.png"
+	
+	
+	
 	loading="lazy"
 	
 		alt="Signal Class Diagram Detail"
 	
-	
-		class="gallery-image" 
-		data-flex-grow="177"
-		data-flex-basis="426px"
 	
 ></p>
 <h3 id="1-signal的属性和__init__方法">1. Signal的属性和__init__方法
@@ -1648,9 +1639,7 @@
             <a href="/tags/django/">Django</a>
         
     </section>
-
-
-    
+ 
     <section class="article-copyright">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -1660,9 +1649,86 @@
 
 
 
-        <span>Licensed under CC BY-NC-SA 4.0</span>
+        <span
+            >Licensed under CC BY-NC-SA 4.0</span
+        >
     </section>
-    </footer>
+    <script>
+        const loadScript = (url, onloadFunction) => {
+            const newScript = document.createElement("script");
+            newScript.onerror = (oError) => {
+                throw new URIError(
+                    "The script " +
+                        oError.target.src +
+                        " didn't load correctly."
+                );
+            };
+            if (onloadFunction) {
+                newScript.onload = onloadFunction;
+            }
+            document.head.insertAdjacentElement("beforeend", newScript);
+            newScript.src = url;
+        };
+
+        const getMermaidTheme = (scheme) => {
+            return scheme === "dark" ? "dark" : "default";
+        };
+
+        let mermaidLoaded = false;
+
+        const initMermaid = (theme) => {
+            if (!mermaidLoaded) return;
+
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: "strict",
+                theme: theme,
+            });
+
+            const containers = document.querySelectorAll(".mermaid");
+
+            
+            containers.forEach((el) => {
+                const rawCode = el.getAttribute("data-mermaid");
+                if (rawCode) {
+                    el.innerHTML = rawCode; 
+                    el.removeAttribute("data-processed");
+                } else {
+                    el.setAttribute("data-mermaid", el.textContent); 
+                }
+            });
+
+            mermaid.run({
+                nodes: Array.from(containers),
+            });
+
+            console.log("mermaid rendered with theme:", theme);
+        };
+
+        const loadMermaidIfNeeded = () => {
+            if (document.querySelectorAll(".mermaid").length > 0) {
+                loadScript(
+                    "https://cdn.jsdelivr.net/npm/mermaid@11.8.1/dist/mermaid.min.js",
+                    () => {
+                        mermaidLoaded = true;
+                        const scheme =
+                            document.documentElement.dataset.scheme || "light";
+                        initMermaid(getMermaidTheme(scheme));
+                    }
+                );
+            }
+        };
+
+        
+        window.addEventListener("load", loadMermaidIfNeeded);
+
+        
+        window.addEventListener("onColorSchemeChange", (e) => {
+            const scheme = e.detail;
+            initMermaid(getMermaidTheme(scheme));
+        });
+    </script>
+</footer>
 
 
     
@@ -1683,7 +1749,7 @@
         
         
             <div class="article-image">
-                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu7783161890850055115.jpg" 
+                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu_37bb98897223ebe7.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1707,7 +1773,7 @@
         
         
             <div class="article-image">
-                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu_b354f5dca97b0823.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1731,7 +1797,7 @@
         
         
             <div class="article-image">
-                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu3144410286309968048.jpg" 
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu_aa9a308c73b1f0b9.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1755,7 +1821,7 @@
         
         
             <div class="article-image">
-                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu_ae847a3a6d67e837.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1779,7 +1845,7 @@
         
         
             <div class="article-image">
-                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu_82925989bca35158.jpeg" 
                         width="250" 
                         height="150" 
                         loading="lazy"

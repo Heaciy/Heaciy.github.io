@@ -18,8 +18,7 @@
 时间🕐：2018/06/27&lt;br/&gt;
 原文链接🌐：&lt;a class=&#34;link&#34; href=&#34;https://www.bedjango.com/blog/top-6-django-decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://www.bedjango.com/blog/top-6-django-decorators/&lt;/a&gt;&lt;br/&gt;
-声明👉：本文为转载，仅作为个人学习记录&lt;br/&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+声明👉：本文为转载，仅作为个人学习记录&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;what-is-a-decorator&#34;&gt;What is a Decorator?
 &lt;/h2&gt;&lt;p&gt;A &lt;a class=&#34;link&#34; href=&#34;https://docs.djangoproject.com/en/2.0/topics/http/decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;decorator&lt;/a&gt; is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&amp;rsquo;s so special about this pattern? As we can read at  &lt;a class=&#34;link&#34; href=&#34;https://wiki.python.org/moin/DecoratorPattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;

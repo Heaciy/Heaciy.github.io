@@ -14,8 +14,7 @@
         
         <guid>https://heaciy.com/p/internal-sort/</guid>
         <description>&lt;img src="https://heaciy.com/p/internal-sort/internal-sort.jpg" alt="Featured image of post 常用内部排序算法" /&gt;&lt;blockquote&gt;
-&lt;p&gt;本文基于王道的数据结构考研复习指导，仅作为本人的学习笔记，如有误欢迎指正&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;本文基于王道的数据结构考研复习指导，仅作为本人的学习笔记，如有误欢迎指正&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;插入排序&#34;&gt;插入排序
 &lt;/h2&gt;&lt;h3 id=&#34;直接插入排序&#34;&gt;直接插入排序
 &lt;/h3&gt;&lt;p&gt;整个例表&lt;code&gt;[0...i-1, i, i+1...n]&lt;/code&gt;，i前面的部分维持有序，从i开始向后遍历无序的部分，不断往前面有序的部分插入，插入流程是&lt;/p&gt;

@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://heaciy.com/p/happy-new-year-2021/'>
 
-<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Happy New Year">
+<link rel="stylesheet" href="/scss/style.min.0524caaae6e19fb6759c6bc2fe121df8079a4251cbf2620c859d7d993eaeb1b6.css"><meta property='og:title' content="Happy New Year">
 <meta property='og:description' content="新年快乐？">
 <meta property='og:url' content='https://heaciy.com/p/happy-new-year-2021/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
@@ -59,7 +59,7 @@
                     
                     
                         
-                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                        <img src="/img/avatar_hu_4c3c1833b144ea9f.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -234,8 +234,8 @@
     <header class="article-header">
         <div class="article-image">
             <a href="/p/happy-new-year-2021/">
-                <img src="/p/happy-new-year-2021/happy-new-year-2021_hu7920988998393833643.jpg"
-                        srcset="/p/happy-new-year-2021/happy-new-year-2021_hu7920988998393833643.jpg 800w, /p/happy-new-year-2021/happy-new-year-2021_hu6647309144264943863.jpg 1600w"
+                <img src="/p/happy-new-year-2021/happy-new-year-2021_hu_70035585d40f0f48.jpg"
+                        srcset="/p/happy-new-year-2021/happy-new-year-2021_hu_70035585d40f0f48.jpg 800w, /p/happy-new-year-2021/happy-new-year-2021_hu_45b775456572d5ad.jpg 1600w"
                         width="800" 
                         height="534" 
                         loading="lazy"
@@ -331,9 +331,7 @@
 
 
     <footer class="article-footer">
-    
-
-    
+     
     <section class="article-copyright">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -343,9 +341,86 @@
 
 
 
-        <span>Licensed under CC BY-NC-SA 4.0</span>
+        <span
+            >Licensed under CC BY-NC-SA 4.0</span
+        >
     </section>
-    </footer>
+    <script>
+        const loadScript = (url, onloadFunction) => {
+            const newScript = document.createElement("script");
+            newScript.onerror = (oError) => {
+                throw new URIError(
+                    "The script " +
+                        oError.target.src +
+                        " didn't load correctly."
+                );
+            };
+            if (onloadFunction) {
+                newScript.onload = onloadFunction;
+            }
+            document.head.insertAdjacentElement("beforeend", newScript);
+            newScript.src = url;
+        };
+
+        const getMermaidTheme = (scheme) => {
+            return scheme === "dark" ? "dark" : "default";
+        };
+
+        let mermaidLoaded = false;
+
+        const initMermaid = (theme) => {
+            if (!mermaidLoaded) return;
+
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: "strict",
+                theme: theme,
+            });
+
+            const containers = document.querySelectorAll(".mermaid");
+
+            
+            containers.forEach((el) => {
+                const rawCode = el.getAttribute("data-mermaid");
+                if (rawCode) {
+                    el.innerHTML = rawCode; 
+                    el.removeAttribute("data-processed");
+                } else {
+                    el.setAttribute("data-mermaid", el.textContent); 
+                }
+            });
+
+            mermaid.run({
+                nodes: Array.from(containers),
+            });
+
+            console.log("mermaid rendered with theme:", theme);
+        };
+
+        const loadMermaidIfNeeded = () => {
+            if (document.querySelectorAll(".mermaid").length > 0) {
+                loadScript(
+                    "https://cdn.jsdelivr.net/npm/mermaid@11.8.1/dist/mermaid.min.js",
+                    () => {
+                        mermaidLoaded = true;
+                        const scheme =
+                            document.documentElement.dataset.scheme || "light";
+                        initMermaid(getMermaidTheme(scheme));
+                    }
+                );
+            }
+        };
+
+        
+        window.addEventListener("load", loadMermaidIfNeeded);
+
+        
+        window.addEventListener("onColorSchemeChange", (e) => {
+            const scheme = e.detail;
+            initMermaid(getMermaidTheme(scheme));
+        });
+    </script>
+</footer>
 
 
     
@@ -366,7 +441,7 @@
         
         
             <div class="article-image">
-                <img src="/p/some-poems/bookstore.64a8882f957a3d5fc7645ef3fe2dfd57_hu18109192638777341870.jpg" 
+                <img src="/p/some-poems/bookstore.64a8882f957a3d5fc7645ef3fe2dfd57_hu_4b529bd5aa3a8361.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -390,7 +465,7 @@
         
         
             <div class="article-image">
-                <img src="/p/the-apple-tree-table/the-apple-tree-able.fb0e31d051aaa9519971e5efd0bb3ecb_hu9675431640040396245.jpg" 
+                <img src="/p/the-apple-tree-table/the-apple-tree-able.fb0e31d051aaa9519971e5efd0bb3ecb_hu_84f3649b28f334e5.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"

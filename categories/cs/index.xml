@@ -15,8 +15,7 @@
         <guid>https://heaciy.com/p/zxcvbn-explained/</guid>
         <description>&lt;img src="https://heaciy.com/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.jpg" alt="Featured image of post zxcvbn 原理详解" /&gt;&lt;blockquote&gt;
 &lt;p&gt;前言：
-因为工作中的一个计算密码强度的需求，了解到 zxcvbn 这个库，花了段时间看了看它的 java 实现和相关论文，编写此文作为笔记存档。注意：本文侧重其算法实现和复杂度计算，不涉及其使用方法以及与其他库的对比。本文中的公式均摘自 Dropbox 相关博客和论文。&lt;/p&gt;
-&lt;/blockquote&gt;
+因为工作中的一个计算密码强度的需求，了解到 zxcvbn 这个库，花了段时间看了看它的 java 实现和相关论文，编写此文作为笔记存档。注意：本文侧重其算法实现和复杂度计算，不涉及其使用方法以及与其他库的对比。本文中的公式均摘自 Dropbox 相关博客和论文。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;概述&#34;&gt;概述
 &lt;/h2&gt;&lt;p&gt;zxcvbn 是一个由 Dropbox 开发的密码强度估算库，灵感来自于密码爆破工具，其全称是 &amp;ldquo;zxcvbn: realistic password strength estimation&amp;rdquo;，旨在提供一种更准确、用户友好的密码强度评估方法。zxcvbn 的强度估计是基于一个想法：&lt;/p&gt;
 &lt;p&gt;猜测密码难度 ≈ 破解者使用最优策略所需尝试的次数（guesses）&lt;/p&gt;
@@ -189,7 +188,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/variables.png&#34;
 	width=&#34;748&#34;
 	height=&#34;206&#34;
-	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/variables_hu13538017015764558763.png 480w, https://heaciy.com/p/zxcvbn-explained/variables_hu3570412350496500749.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/variables_hu_7f7f54a18cbea1e9.png 480w, https://heaciy.com/p/zxcvbn-explained/variables_hu_d4ba36ace9a5070.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Variables&#34;
@@ -217,7 +216,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/search.png&#34;
 	width=&#34;750&#34;
 	height=&#34;402&#34;
-	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/search_hu9221102406530178379.png 480w, https://heaciy.com/p/zxcvbn-explained/search_hu12499164837542933094.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/search_hu_b5e6edbf455a53a2.png 480w, https://heaciy.com/p/zxcvbn-explained/search_hu_4950c4bda6afe09f.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Search&#34;
@@ -262,7 +261,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/bf_update.png&#34;
 	width=&#34;740&#34;
 	height=&#34;380&#34;
-	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/bf_update_hu8779333227119501046.png 480w, https://heaciy.com/p/zxcvbn-explained/bf_update_hu9165794953146478655.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/bf_update_hu_5e38730affc1e00e.png 480w, https://heaciy.com/p/zxcvbn-explained/bf_update_hu_e042c209b057ae2.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;bf_update&#34;
@@ -304,7 +303,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/update.png&#34;
 	width=&#34;741&#34;
 	height=&#34;392&#34;
-	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/update_hu709838798425529149.png 480w, https://heaciy.com/p/zxcvbn-explained/update_hu9960123281865649424.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/update_hu_e29905b910ed9022.png 480w, https://heaciy.com/p/zxcvbn-explained/update_hu_aadefb27cd5c0502.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;update&#34;
@@ -347,7 +346,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;img src=&#34;https://heaciy.com/p/zxcvbn-explained/unwind.png&#34;
 	width=&#34;743&#34;
 	height=&#34;414&#34;
-	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/unwind_hu11624239122448744179.png 480w, https://heaciy.com/p/zxcvbn-explained/unwind_hu13254356460426326288.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/zxcvbn-explained/unwind_hu_367a36204d921618.png 480w, https://heaciy.com/p/zxcvbn-explained/unwind_hu_d68ed00dd6ca8974.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;unwind&#34;
@@ -411,8 +410,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
         <guid>https://heaciy.com/p/analyzing-libpcap-pcap-file/</guid>
         <description>&lt;img src="https://heaciy.com/p/analyzing-libpcap-pcap-file/cover.jpg" alt="Featured image of post Libpcap格式pcap包分析" /&gt;&lt;blockquote&gt;
 &lt;p&gt;前言：
-因为工作中经常要接触到 Pcap 这种文件格式，无论是利用其进行网络数据分析，还是测试时使用其进行流量回放。但是 Pcap 文件的底层数据结构是什么样子呢？里面装的又是什么东西呢？这是本文将要解答的两个核心问题&lt;/p&gt;
-&lt;/blockquote&gt;
+因为工作中经常要接触到 Pcap 这种文件格式，无论是利用其进行网络数据分析，还是测试时使用其进行流量回放。但是 Pcap 文件的底层数据结构是什么样子呢？里面装的又是什么东西呢？这是本文将要解答的两个核心问题&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;pcap-是什么&#34;&gt;Pcap 是什么
 &lt;/h2&gt;&lt;p&gt;Pcap 是 Packet Capture 的缩写，即网络数据包捕获。将捕获的数据包按照一定格式存入文件即 Pcap 文件。在 Linux 平台上使用 Tcpdump，在 Windows 上使用 Wireshark 抓包，可以保存为 .pcap 后缀的文件。&lt;/p&gt;
 &lt;p&gt;💡实际上 Pcap 文件存在多种格式，最常用的两种格式为 &lt;a class=&#34;link&#34; href=&#34;https://wiki.wireshark.org/Development/LibpcapFileFormat&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -440,7 +438,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image.png&#34;
 	width=&#34;363&#34;
 	height=&#34;312&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu7730285946295673250.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu16276706086500773294.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu_955b53d44f76d58c.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_hu_33cacc514b224a40.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;image.png&#34;
@@ -489,7 +487,22 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L204&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;
+&lt;div class=&#34;mermaid&#34; align=&#34;center&#34;&gt;
+---
+title: &amp;#34;PCAP Global Header&amp;#34;
+---
+packet-beta
+0-31: &amp;#34;Magic Number&amp;#34;
+32-47: &amp;#34;Major Version&amp;#34;
+48-63: &amp;#34;Minor Version&amp;#34;
+64-95: &amp;#34;Thiszone&amp;#34;
+96-127: &amp;#34;Sigfigs&amp;#34;
+128-159: &amp;#34;SnapLen&amp;#34;
+160-191: &amp;#34;LinkType&amp;#34;
+&lt;/div&gt;
+
+&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L204&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接&lt;/a&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -614,7 +627,21 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      +---------------------------------------------------------------+
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;
+&lt;div class=&#34;mermaid&#34; align=&#34;center&#34;&gt;
+---
+title: &amp;#34;PCAP Packet Record&amp;#34;
+---
+
+packet-beta
+0-31: &amp;#34;Timestamp (Seconds)&amp;#34;
+32-63: &amp;#34;Timestamp (Microseconds)&amp;#34;
+64-95: &amp;#34;Captured Packet Length&amp;#34;
+96-127: &amp;#34;Original Packet Length&amp;#34;
+128-191: &amp;#34;Packet Data (variable length)&amp;#34; 
+&lt;/div&gt;
+
+&lt;p&gt;C 语言实现（来自Wireshark 文档），&lt;a class=&#34;link&#34; href=&#34;https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接&lt;/a&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -676,7 +703,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1.png&#34;
 	width=&#34;710&#34;
 	height=&#34;559&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu17963699471203842800.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu13097086422962269259.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu_4260d2d8934faeef.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_1_hu_5b2fcac9947f68e.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.1：使用 ImHex 打开 Pcap 文件&#34;
@@ -693,7 +720,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2.png&#34;
 	width=&#34;722&#34;
 	height=&#34;85&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu13272216859675847751.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu9706177208364109511.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu_c909d844df1188b3.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_2_hu_58ecfd60deaea0a8.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.1.1：Pcap 文件的全局头部&#34;
@@ -784,7 +811,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3.png&#34;
 	width=&#34;553&#34;
 	height=&#34;130&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu12365340012217743819.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu1099045577989019123.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu_571ee2c11587a32d.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_3_hu_ddd093c01529a9d3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.2.1：Pcpa 文件中第一个数据包的头部信息&#34;
@@ -858,7 +885,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4.png&#34;
 	width=&#34;557&#34;
 	height=&#34;174&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu7908894584723621984.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu979229227615937548.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu_4654566fc4115971.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_4_hu_83d9f089712059a3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.3.1 使用 ImHex 查看第一个数据包的数据体&#34;
@@ -873,7 +900,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5.png&#34;
 	width=&#34;2048&#34;
 	height=&#34;936&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu542736087055598453.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu14191708277718117731.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu_feb69f355e37cb6a.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_5_hu_71b985ab1891ef92.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.3.2 使用 Wireshark 查看第一个数据包&#34;
@@ -890,7 +917,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6.png&#34;
 	width=&#34;1468&#34;
 	height=&#34;526&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu1567654971176665495.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu13669668345237532164.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu_df1dfcff67c2b02e.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_6_hu_ee11b00d67cc8e12.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.3.3 网络模型和协议&#34;
@@ -906,7 +933,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7.png&#34;
 	width=&#34;1440&#34;
 	height=&#34;580&#34;
-	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu15319296693113249476.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu3042267210596890021.png 1024w&#34;
+	srcset=&#34;https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu_837d836a9f271d2f.png 480w, https://heaciy.com/p/analyzing-libpcap-pcap-file/image_7_hu_2bc36e96d13bf2b4.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;图 3.3.4 网络模型 数据发送流程中数据的传递过程&#34;
@@ -959,8 +986,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
         
         <guid>https://heaciy.com/p/internal-sort/</guid>
         <description>&lt;img src="https://heaciy.com/p/internal-sort/internal-sort.jpg" alt="Featured image of post 常用内部排序算法" /&gt;&lt;blockquote&gt;
-&lt;p&gt;本文基于王道的数据结构考研复习指导，仅作为本人的学习笔记，如有误欢迎指正&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;本文基于王道的数据结构考研复习指导，仅作为本人的学习笔记，如有误欢迎指正&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;插入排序&#34;&gt;插入排序
 &lt;/h2&gt;&lt;h3 id=&#34;直接插入排序&#34;&gt;直接插入排序
 &lt;/h3&gt;&lt;p&gt;整个例表&lt;code&gt;[0...i-1, i, i+1...n]&lt;/code&gt;，i前面的部分维持有序，从i开始向后遍历无序的部分，不断往前面有序的部分插入，插入流程是&lt;/p&gt;
@@ -1478,8 +1504,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;p&gt;我承认，是标题党！哈哈哈哈哈哈哈，本来是准备写一篇“Django Signal源码解析——从Observer Pattern到Django Signal”的，但是我又不能一两句话把观察者模式讲清楚的，干脆就直接贴了一些相关的链接……后面越写越多、越拖越长就干脆改成简析算了……&lt;br/&gt;
 本文只作为个人学习记录，仅供参考，如有误欢迎讨论指正&lt;br/&gt;
 题图来自 unsplash，&lt;a class=&#34;link&#34; href=&#34;https://images.unsplash.com/photo-1494129935429-873eafa78178?crop=entropy&amp;amp;amp;cs=tinysrgb&amp;amp;amp;fit=max&amp;amp;amp;fm=jpg&amp;amp;amp;ixid=MXwxMTc3M3wwfDF8c2VhcmNofDF8fHNpZ25hbHN8ZW58MHx8fA&amp;amp;amp;ixlib=rb-1.2.1&amp;amp;amp;q=80&amp;amp;amp;w=2000&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;原图链接🔗&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+    &gt;原图链接🔗&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;观察者模式&#34;&gt;观察者模式
 &lt;/h2&gt;&lt;p&gt;“观察者模式是一种对象行为模式。它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。&lt;a class=&#34;link&#34; href=&#34;https://baike.baidu.com/item/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/5881786&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;[1]&lt;/a&gt;”&lt;/p&gt;
@@ -1566,32 +1591,24 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;原理简析&#34;&gt;原理简析
 &lt;/h2&gt;&lt;p&gt;django的整个信号模块都是依赖Signal这个类完成的&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://heaciy.com/p/django-signal-principle-analysis/signal.png&#34;
-	width=&#34;373&#34;
-	height=&#34;569&#34;
-	srcset=&#34;https://heaciy.com/p/django-signal-principle-analysis/signal_hu8251001186732828751.png 480w, https://heaciy.com/p/django-signal-principle-analysis/signal_hu17536644674691067904.png 1024w&#34;
+&lt;p&gt;&lt;img src=&#34;https://heaciy.com/%5csignal.png&#34;
+	
+	
+	
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Signal Class Diagram&#34;
 	
 	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;65&#34;
-		data-flex-basis=&#34;157px&#34;
-	
 &gt;
-&lt;img src=&#34;https://heaciy.com/p/django-signal-principle-analysis/signal_detail.png&#34;
-	width=&#34;956&#34;
-	height=&#34;538&#34;
-	srcset=&#34;https://heaciy.com/p/django-signal-principle-analysis/signal_detail_hu3840407809679362127.png 480w, https://heaciy.com/p/django-signal-principle-analysis/signal_detail_hu9076136509210613243.png 1024w&#34;
+&lt;img src=&#34;https://heaciy.com/%5csignal_detail.png&#34;
+	
+	
+	
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Signal Class Diagram Detail&#34;
 	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;177&#34;
-		data-flex-basis=&#34;426px&#34;
 	
 &gt;&lt;/p&gt;
 &lt;h3 id=&#34;1-signal的属性和__init__方法&#34;&gt;1. Signal的属性和__init__方法
@@ -2760,8 +2777,7 @@ $$&lt;p&gt;公式含义：&lt;/p&gt;
 时间🕐：2018/06/27&lt;br/&gt;
 原文链接🌐：&lt;a class=&#34;link&#34; href=&#34;https://www.bedjango.com/blog/top-6-django-decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://www.bedjango.com/blog/top-6-django-decorators/&lt;/a&gt;&lt;br/&gt;
-声明👉：本文为转载，仅作为个人学习记录&lt;br/&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+声明👉：本文为转载，仅作为个人学习记录&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;what-is-a-decorator&#34;&gt;What is a Decorator?
 &lt;/h2&gt;&lt;p&gt;A &lt;a class=&#34;link&#34; href=&#34;https://docs.djangoproject.com/en/2.0/topics/http/decorators/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;decorator&lt;/a&gt; is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&amp;rsquo;s so special about this pattern? As we can read at  &lt;a class=&#34;link&#34; href=&#34;https://wiki.python.org/moin/DecoratorPattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -3342,8 +3358,7 @@ A good example of the importance and easy of use of these decorators can be seen
 &lt;p&gt;摘自: &lt;a class=&#34;link&#34; href=&#34;https://towardsdatascience.com/implementing-a-trie-data-structure-in-python-in-less-than-100-lines-of-code-a877ea23c1a1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Meidum: Implementing a Trie in Python&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;原作者: &lt;a class=&#34;link&#34; href=&#34;https://medium.com/@rcshubha&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;Shubhadeep Roychowdhury&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+    &gt;Shubhadeep Roychowdhury&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
 </description>
         </item>
         <item>

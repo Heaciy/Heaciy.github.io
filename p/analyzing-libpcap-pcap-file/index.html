@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://heaciy.com/p/analyzing-libpcap-pcap-file/'>
 
-<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Libpcap格式pcap包分析">
+<link rel="stylesheet" href="/scss/style.min.0524caaae6e19fb6759c6bc2fe121df8079a4251cbf2620c859d7d993eaeb1b6.css"><meta property='og:title' content="Libpcap格式pcap包分析">
 <meta property='og:description' content="从字节分析pcap文件的构造">
 <meta property='og:url' content='https://heaciy.com/p/analyzing-libpcap-pcap-file/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
@@ -59,7 +59,7 @@
                     
                     
                         
-                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                        <img src="/img/avatar_hu_4c3c1833b144ea9f.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -283,8 +283,8 @@
     <header class="article-header">
         <div class="article-image">
             <a href="/p/analyzing-libpcap-pcap-file/">
-                <img src="/p/analyzing-libpcap-pcap-file/cover_hu1824578841710751023.jpg"
-                        srcset="/p/analyzing-libpcap-pcap-file/cover_hu1824578841710751023.jpg 800w, /p/analyzing-libpcap-pcap-file/cover_hu5374355360247924925.jpg 1600w"
+                <img src="/p/analyzing-libpcap-pcap-file/cover_hu_c8478139adb5324e.jpg"
+                        srcset="/p/analyzing-libpcap-pcap-file/cover_hu_c8478139adb5324e.jpg 800w, /p/analyzing-libpcap-pcap-file/cover_hu_721264715170839.jpg 1600w"
                         width="800" 
                         height="1200" 
                         loading="lazy"
@@ -366,8 +366,7 @@
     
     <blockquote>
 <p>前言：
-因为工作中经常要接触到 Pcap 这种文件格式，无论是利用其进行网络数据分析，还是测试时使用其进行流量回放。但是 Pcap 文件的底层数据结构是什么样子呢？里面装的又是什么东西呢？这是本文将要解答的两个核心问题</p>
-</blockquote>
+因为工作中经常要接触到 Pcap 这种文件格式，无论是利用其进行网络数据分析，还是测试时使用其进行流量回放。但是 Pcap 文件的底层数据结构是什么样子呢？里面装的又是什么东西呢？这是本文将要解答的两个核心问题</p></blockquote>
 <h2 id="pcap-是什么">Pcap 是什么
 </h2><p>Pcap 是 Packet Capture 的缩写，即网络数据包捕获。将捕获的数据包按照一定格式存入文件即 Pcap 文件。在 Linux 平台上使用 Tcpdump，在 Windows 上使用 Wireshark 抓包，可以保存为 .pcap 后缀的文件。</p>
 <p>💡实际上 Pcap 文件存在多种格式，最常用的两种格式为 <a class="link" href="https://wiki.wireshark.org/Development/LibpcapFileFormat"  target="_blank" rel="noopener"
@@ -395,7 +394,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image.png"
 	width="363"
 	height="312"
-	srcset="/p/analyzing-libpcap-pcap-file/image_hu7730285946295673250.png 480w, /p/analyzing-libpcap-pcap-file/image_hu16276706086500773294.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_hu_955b53d44f76d58c.png 480w, /p/analyzing-libpcap-pcap-file/image_hu_33cacc514b224a40.png 1024w"
 	loading="lazy"
 	
 		alt="image.png"
@@ -444,7 +443,22 @@
 </span></span><span class="line"><span class="cl">      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>C 语言实现（来自Wireshark 文档），<a class="link" href="https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L204"  target="_blank" rel="noopener"
+</div>
+<div class="mermaid" align="center">
+---
+title: &#34;PCAP Global Header&#34;
+---
+packet-beta
+0-31: &#34;Magic Number&#34;
+32-47: &#34;Major Version&#34;
+48-63: &#34;Minor Version&#34;
+64-95: &#34;Thiszone&#34;
+96-127: &#34;Sigfigs&#34;
+128-159: &#34;SnapLen&#34;
+160-191: &#34;LinkType&#34;
+</div>
+
+<p>C 语言实现（来自Wireshark 文档），<a class="link" href="https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L204"  target="_blank" rel="noopener"
     >Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -569,7 +583,21 @@
 </span></span><span class="line"><span class="cl">      +---------------------------------------------------------------+
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>C 语言实现（来自Wireshark 文档），<a class="link" href="https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L299"  target="_blank" rel="noopener"
+</div>
+<div class="mermaid" align="center">
+---
+title: &#34;PCAP Packet Record&#34;
+---
+
+packet-beta
+0-31: &#34;Timestamp (Seconds)&#34;
+32-63: &#34;Timestamp (Microseconds)&#34;
+64-95: &#34;Captured Packet Length&#34;
+96-127: &#34;Original Packet Length&#34;
+128-191: &#34;Packet Data (variable length)&#34; 
+</div>
+
+<p>C 语言实现（来自Wireshark 文档），<a class="link" href="https://github.com/the-tcpdump-group/libpcap/blob/15021c447e82edb2442c46eb72027d905a534c81/pcap/pcap.h#L299"  target="_blank" rel="noopener"
     >Github 上 Libpcap 的最新实现略有不同，不过无实质差别，具体见链接</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -631,7 +659,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_1.png"
 	width="710"
 	height="559"
-	srcset="/p/analyzing-libpcap-pcap-file/image_1_hu17963699471203842800.png 480w, /p/analyzing-libpcap-pcap-file/image_1_hu13097086422962269259.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_1_hu_4260d2d8934faeef.png 480w, /p/analyzing-libpcap-pcap-file/image_1_hu_5b2fcac9947f68e.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.1：使用 ImHex 打开 Pcap 文件"
@@ -648,7 +676,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_2.png"
 	width="722"
 	height="85"
-	srcset="/p/analyzing-libpcap-pcap-file/image_2_hu13272216859675847751.png 480w, /p/analyzing-libpcap-pcap-file/image_2_hu9706177208364109511.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_2_hu_c909d844df1188b3.png 480w, /p/analyzing-libpcap-pcap-file/image_2_hu_58ecfd60deaea0a8.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.1.1：Pcap 文件的全局头部"
@@ -739,7 +767,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_3.png"
 	width="553"
 	height="130"
-	srcset="/p/analyzing-libpcap-pcap-file/image_3_hu12365340012217743819.png 480w, /p/analyzing-libpcap-pcap-file/image_3_hu1099045577989019123.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_3_hu_571ee2c11587a32d.png 480w, /p/analyzing-libpcap-pcap-file/image_3_hu_ddd093c01529a9d3.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.2.1：Pcpa 文件中第一个数据包的头部信息"
@@ -813,7 +841,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_4.png"
 	width="557"
 	height="174"
-	srcset="/p/analyzing-libpcap-pcap-file/image_4_hu7908894584723621984.png 480w, /p/analyzing-libpcap-pcap-file/image_4_hu979229227615937548.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_4_hu_4654566fc4115971.png 480w, /p/analyzing-libpcap-pcap-file/image_4_hu_83d9f089712059a3.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.3.1 使用 ImHex 查看第一个数据包的数据体"
@@ -828,7 +856,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_5.png"
 	width="2048"
 	height="936"
-	srcset="/p/analyzing-libpcap-pcap-file/image_5_hu542736087055598453.png 480w, /p/analyzing-libpcap-pcap-file/image_5_hu14191708277718117731.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_5_hu_feb69f355e37cb6a.png 480w, /p/analyzing-libpcap-pcap-file/image_5_hu_71b985ab1891ef92.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.3.2 使用 Wireshark 查看第一个数据包"
@@ -845,7 +873,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_6.png"
 	width="1468"
 	height="526"
-	srcset="/p/analyzing-libpcap-pcap-file/image_6_hu1567654971176665495.png 480w, /p/analyzing-libpcap-pcap-file/image_6_hu13669668345237532164.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_6_hu_df1dfcff67c2b02e.png 480w, /p/analyzing-libpcap-pcap-file/image_6_hu_ee11b00d67cc8e12.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.3.3 网络模型和协议"
@@ -861,7 +889,7 @@
 <p><img src="/p/analyzing-libpcap-pcap-file/image_7.png"
 	width="1440"
 	height="580"
-	srcset="/p/analyzing-libpcap-pcap-file/image_7_hu15319296693113249476.png 480w, /p/analyzing-libpcap-pcap-file/image_7_hu3042267210596890021.png 1024w"
+	srcset="/p/analyzing-libpcap-pcap-file/image_7_hu_837d836a9f271d2f.png 480w, /p/analyzing-libpcap-pcap-file/image_7_hu_2bc36e96d13bf2b4.png 1024w"
 	loading="lazy"
 	
 		alt="图 3.3.4 网络模型 数据发送流程中数据的传递过程"
@@ -916,9 +944,7 @@
             <a href="/tags/network/">Network</a>
         
     </section>
-
-
-    
+ 
     <section class="article-copyright">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -928,9 +954,86 @@
 
 
 
-        <span>Licensed under CC BY-NC-SA 4.0</span>
+        <span
+            >Licensed under CC BY-NC-SA 4.0</span
+        >
     </section>
-    </footer>
+    <script>
+        const loadScript = (url, onloadFunction) => {
+            const newScript = document.createElement("script");
+            newScript.onerror = (oError) => {
+                throw new URIError(
+                    "The script " +
+                        oError.target.src +
+                        " didn't load correctly."
+                );
+            };
+            if (onloadFunction) {
+                newScript.onload = onloadFunction;
+            }
+            document.head.insertAdjacentElement("beforeend", newScript);
+            newScript.src = url;
+        };
+
+        const getMermaidTheme = (scheme) => {
+            return scheme === "dark" ? "dark" : "default";
+        };
+
+        let mermaidLoaded = false;
+
+        const initMermaid = (theme) => {
+            if (!mermaidLoaded) return;
+
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: "strict",
+                theme: theme,
+            });
+
+            const containers = document.querySelectorAll(".mermaid");
+
+            
+            containers.forEach((el) => {
+                const rawCode = el.getAttribute("data-mermaid");
+                if (rawCode) {
+                    el.innerHTML = rawCode; 
+                    el.removeAttribute("data-processed");
+                } else {
+                    el.setAttribute("data-mermaid", el.textContent); 
+                }
+            });
+
+            mermaid.run({
+                nodes: Array.from(containers),
+            });
+
+            console.log("mermaid rendered with theme:", theme);
+        };
+
+        const loadMermaidIfNeeded = () => {
+            if (document.querySelectorAll(".mermaid").length > 0) {
+                loadScript(
+                    "https://cdn.jsdelivr.net/npm/mermaid@11.8.1/dist/mermaid.min.js",
+                    () => {
+                        mermaidLoaded = true;
+                        const scheme =
+                            document.documentElement.dataset.scheme || "light";
+                        initMermaid(getMermaidTheme(scheme));
+                    }
+                );
+            }
+        };
+
+        
+        window.addEventListener("load", loadMermaidIfNeeded);
+
+        
+        window.addEventListener("onColorSchemeChange", (e) => {
+            const scheme = e.detail;
+            initMermaid(getMermaidTheme(scheme));
+        });
+    </script>
+</footer>
 
 
     
@@ -951,7 +1054,7 @@
         
         
             <div class="article-image">
-                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu3144410286309968048.jpg" 
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu_aa9a308c73b1f0b9.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -975,7 +1078,7 @@
         
         
             <div class="article-image">
-                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu_b354f5dca97b0823.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1018,7 +1121,7 @@
         
         
             <div class="article-image">
-                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu7783161890850055115.jpg" 
+                <img src="/p/top-6-django-decorators/top-6-django-decorators.3d19f1f09ba5d940aa0d60f9a5aff2b4_hu_37bb98897223ebe7.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -1042,7 +1145,7 @@
         
         
             <div class="article-image">
-                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu_82925989bca35158.jpeg" 
                         width="250" 
                         height="150" 
                         loading="lazy"

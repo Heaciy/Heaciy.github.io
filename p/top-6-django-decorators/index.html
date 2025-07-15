@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://heaciy.com/p/top-6-django-decorators/'>
 
-<link rel="stylesheet" href="/scss/style.min.7f5ba5a3e5ae89e65fac327867461cc61100abc64c8e215bbfd2701fceb40575.css"><meta property='og:title' content="Top 6 Django Decorators">
+<link rel="stylesheet" href="/scss/style.min.0524caaae6e19fb6759c6bc2fe121df8079a4251cbf2620c859d7d993eaeb1b6.css"><meta property='og:title' content="Top 6 Django Decorators">
 <meta property='og:description' content="django常用装饰器">
 <meta property='og:url' content='https://heaciy.com/p/top-6-django-decorators/'>
 <meta property='og:site_name' content='Heaciy&#39;s Blog'>
@@ -59,7 +59,7 @@
                     
                     
                         
-                        <img src="/img/avatar_hu6707014650456449175.png" width="300"
+                        <img src="/img/avatar_hu_4c3c1833b144ea9f.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -279,8 +279,8 @@
     <header class="article-header">
         <div class="article-image">
             <a href="/p/top-6-django-decorators/">
-                <img src="/p/top-6-django-decorators/top-6-django-decorators_hu12653156601560546852.jpg"
-                        srcset="/p/top-6-django-decorators/top-6-django-decorators_hu12653156601560546852.jpg 800w, /p/top-6-django-decorators/top-6-django-decorators_hu12869027416298270256.jpg 1600w"
+                <img src="/p/top-6-django-decorators/top-6-django-decorators_hu_7090b7cb8de875a5.jpg"
+                        srcset="/p/top-6-django-decorators/top-6-django-decorators_hu_7090b7cb8de875a5.jpg 800w, /p/top-6-django-decorators/top-6-django-decorators_hu_43b44781c562a603.jpg 1600w"
                         width="800" 
                         height="605" 
                         loading="lazy"
@@ -365,8 +365,7 @@
 时间🕐：2018/06/27<br/>
 原文链接🌐：<a class="link" href="https://www.bedjango.com/blog/top-6-django-decorators/"  target="_blank" rel="noopener"
     >https://www.bedjango.com/blog/top-6-django-decorators/</a><br/>
-声明👉：本文为转载，仅作为个人学习记录<br/></p>
-</blockquote>
+声明👉：本文为转载，仅作为个人学习记录<br/></p></blockquote>
 <h2 id="what-is-a-decorator">What is a Decorator?
 </h2><p>A <a class="link" href="https://docs.djangoproject.com/en/2.0/topics/http/decorators/"  target="_blank" rel="noopener"
     >decorator</a> is the name of one of the most popular design patterns used nowadays, many times we use it without knowing that we are using a design pattern. And what&rsquo;s so special about this pattern? As we can read at  <a class="link" href="https://wiki.python.org/moin/DecoratorPattern"  target="_blank" rel="noopener"
@@ -712,9 +711,7 @@ A good example of the importance and easy of use of these decorators can be seen
             <a href="/tags/django/">Django</a>
         
     </section>
-
-
-    
+ 
     <section class="article-copyright">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -724,9 +721,86 @@ A good example of the importance and easy of use of these decorators can be seen
 
 
 
-        <span>Licensed under CC BY-NC-SA 4.0</span>
+        <span
+            >Licensed under CC BY-NC-SA 4.0</span
+        >
     </section>
-    </footer>
+    <script>
+        const loadScript = (url, onloadFunction) => {
+            const newScript = document.createElement("script");
+            newScript.onerror = (oError) => {
+                throw new URIError(
+                    "The script " +
+                        oError.target.src +
+                        " didn't load correctly."
+                );
+            };
+            if (onloadFunction) {
+                newScript.onload = onloadFunction;
+            }
+            document.head.insertAdjacentElement("beforeend", newScript);
+            newScript.src = url;
+        };
+
+        const getMermaidTheme = (scheme) => {
+            return scheme === "dark" ? "dark" : "default";
+        };
+
+        let mermaidLoaded = false;
+
+        const initMermaid = (theme) => {
+            if (!mermaidLoaded) return;
+
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: "strict",
+                theme: theme,
+            });
+
+            const containers = document.querySelectorAll(".mermaid");
+
+            
+            containers.forEach((el) => {
+                const rawCode = el.getAttribute("data-mermaid");
+                if (rawCode) {
+                    el.innerHTML = rawCode; 
+                    el.removeAttribute("data-processed");
+                } else {
+                    el.setAttribute("data-mermaid", el.textContent); 
+                }
+            });
+
+            mermaid.run({
+                nodes: Array.from(containers),
+            });
+
+            console.log("mermaid rendered with theme:", theme);
+        };
+
+        const loadMermaidIfNeeded = () => {
+            if (document.querySelectorAll(".mermaid").length > 0) {
+                loadScript(
+                    "https://cdn.jsdelivr.net/npm/mermaid@11.8.1/dist/mermaid.min.js",
+                    () => {
+                        mermaidLoaded = true;
+                        const scheme =
+                            document.documentElement.dataset.scheme || "light";
+                        initMermaid(getMermaidTheme(scheme));
+                    }
+                );
+            }
+        };
+
+        
+        window.addEventListener("load", loadMermaidIfNeeded);
+
+        
+        window.addEventListener("onColorSchemeChange", (e) => {
+            const scheme = e.detail;
+            initMermaid(getMermaidTheme(scheme));
+        });
+    </script>
+</footer>
 
 
     
@@ -766,7 +840,7 @@ A good example of the importance and easy of use of these decorators can be seen
         
         
             <div class="article-image">
-                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu829372757959253208.jpg" 
+                <img src="/p/internal-sort/internal-sort.de55f3fac40b7cda92238bd6566e842d_hu_b354f5dca97b0823.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -790,7 +864,7 @@ A good example of the importance and easy of use of these decorators can be seen
         
         
             <div class="article-image">
-                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu3144410286309968048.jpg" 
+                <img src="/p/zxcvbn-explained/artiom-vallat-y7nZ4ENg7ic-unsplash.2283c5d768410121dca955c3526137a3_hu_aa9a308c73b1f0b9.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -814,7 +888,7 @@ A good example of the importance and easy of use of these decorators can be seen
         
         
             <div class="article-image">
-                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu2080152033521557187.jpg" 
+                <img src="/p/analyzing-libpcap-pcap-file/cover.c098cdcd1ed9e47f7e0c93684c782214_hu_ae847a3a6d67e837.jpg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
@@ -838,7 +912,7 @@ A good example of the importance and easy of use of these decorators can be seen
         
         
             <div class="article-image">
-                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu7520324502837500842.jpeg" 
+                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu_82925989bca35158.jpeg" 
                         width="250" 
                         height="150" 
                         loading="lazy"
