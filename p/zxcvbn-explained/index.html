@@ -437,7 +437,7 @@ $$
 <li>$S$：键盘上键的个数</li>
 <li>$i$：假设键位匹配模式子串的长度为 $i$，从 2 开始（1 长度没有“转向”的意义）</li>
 <li>$j$：假设长度为 $i$ 的键位匹配模式子串包含 $j$ 个方向段，即对应 $j-1$ 次转向，不能超过 $i-1$ 或最大方向段数 $T$</li>
-<li>$SD^j$：键盘上任意一个字符都有可能作为起始字符，每一个方向段都有 $D$ 种方向选择，共 $j$ 段。(<em>这里应该也是估算，因为第二个方向段的方向肯定与第一个方向段方向不同，那能选的方向应该是 $D-1$，对应 $S \cdot D \cdot D^{j-1}$，不过这里的数量级应该是一样的且 $D$ 本身不是精确值，所以直接简化为 $SD^j$ 也无妨</em>)</li>
+<li>$SD^j$：键盘上任意一个字符都有可能作为起始字符，每一个方向段都有 $D$ 种方向选择，共 $j$ 段。(<em>这里应该也是估算，因为第二个方向段的方向肯定与第一个方向段方向不同，那能选的方向应该是 $D-1$，对应 $S \cdot D \cdot (D-1)^{j-1}$，不过这里的数量级应该是一样的且 $D$ 本身不是精确值，所以直接简化为 $SD^j$ 也无妨</em>)</li>
 <li>$\binom{i-1}{j-1}$：在 $i$ 个键上包含 $j$ 个方向段，可以这样理解：$j$ 个方向段对应 $j-1$ 次转向，转向应该发生在“内部键”上，而 $i$ 个键位对应 $i-2$ 个内部键(即去除首尾键)，那位该问题转化为在 $i-2$ 个内部键中挑选出 $j-1$ 个作为转向键，对应的组合公式即为 $\binom{i-2}{j-1}$。<strong>⁉️ 离谱的来的，怎么跟论文里的公式对不上 😅</strong></li>
 <li>$\frac{1}{2}\sum_{i=2}^{L}\sum_{j=1}^{\min(T,i-1)}\binom{i-1}{j-1}SD^j$：假设攻击者总是从较短的序列长度(最短为 2)和较少的方向段数(最少为 1)开始猜测，针对 $i$ 从 $2$ 到 $L$ 的每种序列长度的情况，方向段数从 1 最多尝试到 $min(T,i-1)$ 次；每种长度的模式子串的首字符有 $S$ 种选择，每个方向段有 $D$ 种方向选择，共有 $j$ 个方向段，故针对每种空间模式的模式子串都有 $SD^j$ 种可能；$\frac{1}{2}$ 用于计算平均情况；</li>
 </ul>
@@ -892,6 +892,30 @@ $$<p>公式含义：</p>
             
                 
 <article class="has-image">
+    <a href="/p/gen-http-pcap/">
+        
+        
+            <div class="article-image">
+                <img src="/p/gen-http-pcap/dennis-cortes-4VC8YdQsjko-unsplash.8da390b04a52552a28945f26dbfcc81f_hu_72dc7f79ec4b9a47.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post HTTP 1.* Pcap 生成方法"
+                        data-key="gen http pcap" 
+                        data-hash="md5-jaOQsEpSVSoolF8m2/zIHw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">HTTP 1.* Pcap 生成方法</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
     <a href="/p/analyzing-libpcap-pcap-file/">
         
         
@@ -976,30 +1000,6 @@ $$<p>公式含义：</p>
 
         <div class="article-details">
             <h2 class="article-title">Top 6 Django Decorators</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="has-image">
-    <a href="/p/implementing-a-trie-in-python/">
-        
-        
-            <div class="article-image">
-                <img src="/p/implementing-a-trie-in-python/trie.02fdb0bd3268abc47c744733f52d5d50_hu_82925989bca35158.jpeg" 
-                        width="250" 
-                        height="150" 
-                        loading="lazy"
-                        alt="Featured image of post Implementing a Trie in Python"
-                        data-key="implementing a trie in Python" 
-                        data-hash="md5-Av2wvTJoq8R8dEcz9S1dUA==">
-                
-            </div>
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Implementing a Trie in Python</h2>
         </div>
     </a>
 </article>
