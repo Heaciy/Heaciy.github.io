@@ -40,7 +40,7 @@
     &gt;Scapy 官方文档&lt;/a&gt;。Pcap 的底层数据构造分析见往期博客《&lt;a class=&#34;link&#34; href=&#34;https://blog.heaciy.com/p/analyzing-libpcap-pcap-file/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Libpcap格式 pcap包分析&lt;/a&gt;》。&lt;/p&gt;
 &lt;h2 id=&#34;四http-1-与-tcp-的关系&#34;&gt;四、HTTP 1.* 与 TCP 的关系
-&lt;/h2&gt;&lt;p&gt;HTTP 协议为应用层协议，属于 OSI 七层模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。我们知道 HTTP 1.* 是基于 TCP 协议的，那么下面使用一个时序图绘制一次 HTTP 请求响应对应的 TCP 层活动（注意 seq/ack 号的变化）：&lt;/p&gt;
+&lt;/h2&gt;&lt;p&gt;HTTP 协议为应用层协议，属于 OSI 七层模型的第七层或 TCP/IP 模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。我们知道 HTTP 1.* 是基于 TCP 协议的，那么下面使用一个时序图绘制一次 HTTP 请求响应对应的 TCP 层活动（注意 seq/ack 号的变化）：&lt;/p&gt;
 
 &lt;div class=&#34;mermaid&#34; align=&#34;center&#34;&gt;
 sequenceDiagram
@@ -75,7 +75,7 @@ sequenceDiagram
 &lt;li&gt;纯 ACK 和 FIN 不占用序号，即 &lt;code&gt;ACK&lt;/code&gt; 数据包和 &lt;code&gt;FIN-ACK&lt;/code&gt; 数据包不占用序号；&lt;/li&gt;
 &lt;li&gt;推送数据使用 &lt;code&gt;PUSH-ACK&lt;/code&gt; 数据包，对端在收到一个或多个此类的数据包后通常会回一个 &lt;code&gt;ACK&lt;/code&gt; 包进行确认；&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h2 id=&#34;五使用-scapy-构造-http1的-pcap-包&#34;&gt;五、使用 Scapy 构造 HTTP1.*的 Pcap 包
+&lt;h2 id=&#34;五使用-scapy-构造-http1-的-pcap-包&#34;&gt;五、使用 Scapy 构造 HTTP1.* 的 Pcap 包
 &lt;/h2&gt;&lt;p&gt;本文主要讲解构造 HTTP1.* 的 Pcap 包，前面章节提到使用 Scapy 我们可以手动构造网络中每一层的协议，&lt;strong&gt;要构造 HTTP 这一应用层协议，我们就要手动处理应用层及往下的每一层协议&lt;/strong&gt;：应用层(HTTP) / 传输层(TCP) / 网络层(IP) / 数据链路层(以太网)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;HTTP (应用层)：自定义 HTTP 协议相关内容，如请求头、请求体、响应头、响应体。&lt;/li&gt;
@@ -477,7 +477,8 @@ sequenceDiagram
 &lt;p&gt;我想，读点文学，可以有助于我们找回已经丢失或正在丢失的激情、温情和诗情。在我们的生活中，遭遇到压力或艰辛是难免的，但如果我们拥有着一份生活的激情，我们就有了挑战压力和种种艰辛的勇气，我们的生命也会在一次又一次的抗争与搏击中走向辉煌和灿烂；我们也常常遭遇人生到的苦痛，经受种种的打击，我们需要心灵的抚慰，因为有了温情并且感受到了这份温情，我们受伤的心才会趋于宁帖、安逸，让我们对生活有一份发自心底的眷恋；忧郁或苦涩，同样地难以尽免，然而，浸融着诗情的忧郁，往往会净化人的灵魂，而诗意的悲怆，更可以使人趋于崇高。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;作者：潘水根&lt;br&gt;
-链接：https://www.zhihu.com/question/24820932/answer/82635714&lt;/p&gt;&lt;/blockquote&gt;
+链接：&lt;a class=&#34;link&#34; href=&#34;https://www.zhihu.com/question/24820932/answer/82635714&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.zhihu.com/question/24820932/answer/82635714&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
 </description>
         </item>
         <item>

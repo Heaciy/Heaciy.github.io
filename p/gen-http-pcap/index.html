@@ -254,7 +254,7 @@
     <li><a href="#二为什么要自己构造-pcap">二、为什么要自己构造 Pcap</a></li>
     <li><a href="#三构造-pcap-包的工具-scapy">三、构造 Pcap 包的工具 Scapy</a></li>
     <li><a href="#四http-1-与-tcp-的关系">四、HTTP 1.* 与 TCP 的关系</a></li>
-    <li><a href="#五使用-scapy-构造-http1的-pcap-包">五、使用 Scapy 构造 HTTP1.*的 Pcap 包</a></li>
+    <li><a href="#五使用-scapy-构造-http1-的-pcap-包">五、使用 Scapy 构造 HTTP1.* 的 Pcap 包</a></li>
     <li><a href="#六工具的封装和使用">六、工具的封装和使用</a></li>
     <li><a href="#七更多">七、更多</a></li>
   </ol>
@@ -381,7 +381,7 @@
     >Scapy 官方文档</a>。Pcap 的底层数据构造分析见往期博客《<a class="link" href="https://blog.heaciy.com/p/analyzing-libpcap-pcap-file/"  target="_blank" rel="noopener"
     >Libpcap格式 pcap包分析</a>》。</p>
 <h2 id="四http-1-与-tcp-的关系">四、HTTP 1.* 与 TCP 的关系
-</h2><p>HTTP 协议为应用层协议，属于 OSI 七层模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。我们知道 HTTP 1.* 是基于 TCP 协议的，那么下面使用一个时序图绘制一次 HTTP 请求响应对应的 TCP 层活动（注意 seq/ack 号的变化）：</p>
+</h2><p>HTTP 协议为应用层协议，属于 OSI 七层模型的第七层或 TCP/IP 模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。我们知道 HTTP 1.* 是基于 TCP 协议的，那么下面使用一个时序图绘制一次 HTTP 请求响应对应的 TCP 层活动（注意 seq/ack 号的变化）：</p>
 
 <div class="mermaid" align="center">
 sequenceDiagram
@@ -416,7 +416,7 @@ sequenceDiagram
 <li>纯 ACK 和 FIN 不占用序号，即 <code>ACK</code> 数据包和 <code>FIN-ACK</code> 数据包不占用序号；</li>
 <li>推送数据使用 <code>PUSH-ACK</code> 数据包，对端在收到一个或多个此类的数据包后通常会回一个 <code>ACK</code> 包进行确认；</li>
 </ol>
-<h2 id="五使用-scapy-构造-http1的-pcap-包">五、使用 Scapy 构造 HTTP1.*的 Pcap 包
+<h2 id="五使用-scapy-构造-http1-的-pcap-包">五、使用 Scapy 构造 HTTP1.* 的 Pcap 包
 </h2><p>本文主要讲解构造 HTTP1.* 的 Pcap 包，前面章节提到使用 Scapy 我们可以手动构造网络中每一层的协议，<strong>要构造 HTTP 这一应用层协议，我们就要手动处理应用层及往下的每一层协议</strong>：应用层(HTTP) / 传输层(TCP) / 网络层(IP) / 数据链路层(以太网)</p>
 <ul>
 <li>HTTP (应用层)：自定义 HTTP 协议相关内容，如请求头、请求体、响应头、响应体。</li>
