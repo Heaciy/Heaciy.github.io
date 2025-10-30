@@ -14,33 +14,15 @@
         
         <guid>https://heaciy.com/p/gen-http-pcap/</guid>
         <description>&lt;img src="https://heaciy.com/p/gen-http-pcap/dennis-cortes-4VC8YdQsjko-unsplash.jpg" alt="Featured image of post HTTP 1.* Pcap 生成方法" /&gt;&lt;h2 id=&#34;一概述&#34;&gt;一、概述
-&lt;/h2&gt;&lt;p&gt;本文将介绍一种使用 Python 脚本构造 HTTP1.* Pcap 包的方法，支持自定义 HTTP 所有参数。本文假设读者具有一定的网络协议基础，对 OSI 七层模型或 TCP/IP 模型有一定的了解。&lt;/p&gt;
+&lt;/h2&gt;&lt;p&gt;本文将介绍一种使用 Python 和 Scapy 库构造 HTTP/1.* Pcap 文件的方法，该方法可自定义 HTTP 请求与响应的所有参数。本文假设读者具备一定的网络协议基础，对 OSI 七层模型或 TCP/IP 模型有基本了解。&lt;/p&gt;
 &lt;h2 id=&#34;二为什么要自己构造-pcap&#34;&gt;二、为什么要自己构造 Pcap
-&lt;/h2&gt;&lt;p&gt;工作中经常需要用到各种 Pcap 包用于测试安全产品，比如测试各种安全规则、构造各种测试资产、测试产品的全流程数据处理是否正常等等。但是传统的 Pcap 包的获取方法较为耗时，如自己搭建各种靶场然后抓包，且抓包获取的数据也不一定 100% 贴合需求，定制五元组信息也不是很方便。&lt;/p&gt;
-&lt;p&gt;但是如果我们能自己构造 Pcap 包，那我们就能自定义数据包中的内容，相较于抓包将更加灵活高效，测试时我们也不再需要到处找 Pcap 包。&lt;/p&gt;
-&lt;p&gt;同时如果我们封装一套工具，每次都能通过配置一键生成我们所需 Pcap 那将更加方便，相当于我们根据需求准备了一套 Pcap 库。&lt;/p&gt;
-&lt;h2 id=&#34;三构造-pcap-包的工具-scapy&#34;&gt;三、构造 Pcap 包的工具 Scapy
-&lt;/h2&gt;&lt;p&gt;Scapy 是一个&lt;strong&gt;由 Python 编写的强大交互式数据包处理程序&lt;/strong&gt;。它能够伪造、发送、捕获、分析和操作网络数据包。它最大的特点是&lt;strong&gt;赋予了用户极低的层级和极高的自由度来定制和构建网络数据包&lt;/strong&gt;，因此被广泛用于网络测试、扫描、攻击、探测以及教学等领域。&lt;/p&gt;
-&lt;p&gt;我们知道 Pcap 中的数据其实就是数据链路层上的一个个帧，而这里的帧又是从 OSI 七层模型(或TCP/IP模型) 一层层的从上往下封包形成，要自己构造 Pcap 就得手动模拟这一层层的封包行为来模拟一层层的协议，所以构造 Pcap 包无非就是模拟还原相关协议。&lt;/p&gt;
-&lt;p&gt;Scapy 有趣的是通过 &lt;strong&gt;重载 &lt;code&gt;/&lt;/code&gt; 运算符&lt;/strong&gt;，把不同层次的协议“叠加”起来，清晰地表达了数据包的层级结构，大大简化了包构造的复杂度。&lt;/p&gt;
-&lt;p&gt;例如，一个 TCP SYN 包可以这样写：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
-&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;scapy.all&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;packet&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Ether&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dst&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.1&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TCP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dport&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;80&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;S&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;更多相关的用法可以参考 &lt;a class=&#34;link&#34; href=&#34;https://scapy.readthedocs.io/en/latest/usage.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;Scapy 官方文档&lt;/a&gt;。Pcap 的底层数据构造分析见往期博客《&lt;a class=&#34;link&#34; href=&#34;https://blog.heaciy.com/p/analyzing-libpcap-pcap-file/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;Libpcap格式 pcap包分析&lt;/a&gt;》。&lt;/p&gt;
-&lt;h2 id=&#34;四http-1-与-tcp-的关系&#34;&gt;四、HTTP 1.* 与 TCP 的关系
-&lt;/h2&gt;&lt;p&gt;HTTP 协议为应用层协议，属于 OSI 七层模型的第七层或 TCP/IP 模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。我们知道 HTTP 1.* 是基于 TCP 协议的，那么下面使用一个时序图绘制一次 HTTP 请求响应对应的 TCP 层活动（注意 seq/ack 号的变化）：&lt;/p&gt;
+&lt;/h2&gt;&lt;p&gt;在网络安全产品的测试工作中，我们经常需要各类 Pcap 包来验证功能，例如：测试安全规则的有效性、构造特定的测试资产，或检验产品对数据处理的全流程是否正常。传统的 Pcap 获取方法，如搭建靶场环境并进行抓包，往往较为耗时，且捕获的数据不一定能 100% 贴合测试需求，定制化修改也相对繁琐。&lt;/p&gt;
+&lt;p&gt;如果能通过代码直接构造 Pcap，我们便可以精准地自定义数据包中的任何内容。与传统抓包相比，这种方法更加灵活高效。&lt;/p&gt;
+&lt;p&gt;更进一步，我们可以将这些构造逻辑封装成一套工具，通过简单的配置就能一键生成所需流量，相当于为我们的测试需求量身打造了一个 Pcap 生成库。&lt;/p&gt;
+&lt;h2 id=&#34;三http1-与-tcp-的关系&#34;&gt;三、HTTP/1.* 与 TCP 的关系
+&lt;/h2&gt;&lt;p&gt;HTTP 协议为应用层协议，属于 OSI 七层模型的第七层或 TCP/IP 模型的第五层。TCP 为传输层协议，属于 OSI 七层模型的第四层。&lt;/p&gt;
+&lt;p&gt;我们知道 HTTP 1.* 是基于 TCP 协议的，因此在一次完整的 HTTP 请求过程中，底层会经历完整的 TCP 连接建立与关闭流程。&lt;/p&gt;
+&lt;p&gt;下面使用一个时序图展示一次 HTTP 请求-响应对应的 TCP 层活动（注意 seq/ack 号的变化）：&lt;/p&gt;
 
 &lt;div class=&#34;mermaid&#34; align=&#34;center&#34;&gt;
 sequenceDiagram
@@ -65,34 +47,55 @@ sequenceDiagram
 
 &lt;p&gt;整体过程可以总结为：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;三次握手建立 TCP 连接；&lt;/li&gt;
-&lt;li&gt;连接建立后开始传输 HTTP 数据，受限于 MTU 和 MSS，如果 HTTP 传输的数据比较多可能需要通过多个 TCP 数据包进行传输，即分包；&lt;/li&gt;
-&lt;li&gt;在 HTTP 数据传输完后，需要进行四次挥手关闭 TCP 连接；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;三次握手&lt;/strong&gt;：客户端与服务器建立 TCP 连接。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据传输&lt;/strong&gt;：客户端发送 HTTP 请求，服务器响应 HTTP 数据。如果 HTTP 数据量超过了 MSS（最大报文段长度），数据会被分割到多个 TCP 包中进行传输。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;四次挥手&lt;/strong&gt;：在数据传输完成后，通过四次挥手来关闭 TCP 连接。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;要使用 Scapy 生成 HTTP Pcap 包，其实我们要模拟就是上述过程。&lt;/p&gt;
 &lt;p&gt;有几点值得注意：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;纯 ACK 和 FIN 不占用序号，即 &lt;code&gt;ACK&lt;/code&gt; 数据包和 &lt;code&gt;FIN-ACK&lt;/code&gt; 数据包不占用序号；&lt;/li&gt;
+&lt;li&gt;纯 &lt;code&gt;ACK&lt;/code&gt;数据包不占用序号，下一个正常的数据包仍然使用当前的序列号；&lt;/li&gt;
 &lt;li&gt;推送数据使用 &lt;code&gt;PUSH-ACK&lt;/code&gt; 数据包，对端在收到一个或多个此类的数据包后通常会回一个 &lt;code&gt;ACK&lt;/code&gt; 包进行确认；&lt;/li&gt;
+&lt;li&gt;seq/ack 的维护必须准确，否则 Wireshark 等工具会将数据包标记为错误。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h2 id=&#34;五使用-scapy-构造-http1-的-pcap-包&#34;&gt;五、使用 Scapy 构造 HTTP1.* 的 Pcap 包
-&lt;/h2&gt;&lt;p&gt;本文主要讲解构造 HTTP1.* 的 Pcap 包，前面章节提到使用 Scapy 我们可以手动构造网络中每一层的协议，&lt;strong&gt;要构造 HTTP 这一应用层协议，我们就要手动处理应用层及往下的每一层协议&lt;/strong&gt;：应用层(HTTP) / 传输层(TCP) / 网络层(IP) / 数据链路层(以太网)&lt;/p&gt;
+&lt;p&gt;需要注意的是，本文旨在通过构造一系列 TCP 包来模拟一次理想状态下的 HTTP/1.* 交互。因此，我们仅关注 TCP 协议的基础流程，&lt;strong&gt;不涉及如窗口协商、拥塞控制、重传机制或连接异常等复杂情况&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;四pcap-构造工具scapy&#34;&gt;四、Pcap 构造工具：Scapy
+&lt;/h2&gt;&lt;p&gt;Scapy 是一个由 Python 编写的强大的交互式数据包处理程序。它能够伪造、发送、捕获、分析和操作网络数据包。Scapy 的核心特点是&lt;strong&gt;赋予了用户在极低层级上构建网络数据包的极高自由度&lt;/strong&gt;，因此被广泛用于网络测试、扫描、攻击、探测以及教学等领域。
+我们知道，Pcap 文件记录的是数据链路层上的一系列数据帧。这些数据帧是根据 OSI 或 TCP/IP 模型，从上层到下层逐层封装而成的。要手动构造 Pcap，本质上就是要模拟这一逐层封装的过程。&lt;/p&gt;
+&lt;p&gt;Scapy 通过&lt;strong&gt;重载除法运算符 (&lt;code&gt;/&lt;/code&gt;)&lt;/strong&gt; 来实现协议分层的叠加，这种设计巧妙地映射了数据包的层级结构，极大地简化了数据包的构造过程。&lt;/p&gt;
+&lt;p&gt;例如，一个发往 192.168.1.1 的 80 端口的 TCP SYN 包可以这样简洁地表示：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;scapy.all&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;packet&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Ether&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dst&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.1&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TCP&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dport&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;80&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;S&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;更多用法可参考 &lt;a class=&#34;link&#34; href=&#34;https://scapy.readthedocs.io/en/latest/usage.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Scapy 官方文档&lt;/a&gt;。
+关于 Pcap 文件格式的底层分析，可参阅往期文章《&lt;a class=&#34;link&#34; href=&#34;https://blog.heaciy.com/p/analyzing-libpcap-pcap-file/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Libpcap 格式 Pcap 包分析&lt;/a&gt;》。&lt;/p&gt;
+&lt;h2 id=&#34;五使用-scapy-构造-http-1-的-pcap-包&#34;&gt;五、使用 Scapy 构造 HTTP 1.* 的 Pcap 包
+&lt;/h2&gt;&lt;p&gt;本节将详细讲解如何构造 HTTP 1.* Pcap 包。如前所述，使用 Scapy 构造 HTTP 包，就需要我们手动处理从应用层到数据链路层的每一层协议：&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;HTTP (应用层)：自定义 HTTP 协议相关内容，如请求头、请求体、响应头、响应体。&lt;/li&gt;
-&lt;li&gt;TCP (传输层)：自定义 TCP 协议相关内容，如源端口和目的端口。&lt;/li&gt;
-&lt;li&gt;IP (网络层)：自定义 IP 协议相关内容，如源 IP 和目的 IP。&lt;/li&gt;
-&lt;li&gt;Ether (数据链路层)：自定义以太网协议相关内容，如源 MAC 和目的 MAC。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;HTTP (应用层)&lt;/strong&gt;：自定义 HTTP 协议相关内容，如请求头、请求体、响应头、响应体。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;TCP (传输层)&lt;/strong&gt;：自定义 TCP 协议相关内容，如源端口和目的端口。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;IP (网络层)&lt;/strong&gt;：自定义 IP 协议相关内容，如源 IP 和目的 IP。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ether (数据链路层)&lt;/strong&gt;：自定义以太网协议相关内容，如源 MAC 和目的 MAC。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;整体用 Scapy 的代码表示就是：&lt;code&gt;packet = Ether() / IP() / TCP() / Raw()&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;需要注意的是我们不单要定制每一层的数据，还要维护每一层之间的关系。比如：在构造 HTTP 数据时，如果 HTTP 数据量较大时，可能需要我们手动进行“分片”，因为 HTTP 数据使用 TCP 协议发送，所以会受到 MSS 和 MTU 影响，当单个 HTTP 请求或者响应超过 MSS 时需要我们在 TCP 层分包。同时在构造 HTTP 层的数据时，还要注意 HTTP1 协议的一些细节，比如 Content-Length 的计算，需要计算 请求体/响应体 字节串的长度。以及 HTTP 请求头中的 Host 字段中的端口需要和 IP 层中指定数据包的目的端口一致，这样才不至于被认为是错误的数据包。&lt;/p&gt;
-&lt;p&gt;HTTP1 协议使用 TCP 协议传输数据，所以本质上我们需要构造 TCP 协议的数据包来模拟 HTTP1 协议。因为我们需要自定义 HTTP 的请求和响应，并不是使用 Scapy 进行真实的网络请求，所以每个 TCP 包之间的关系也需要我们自己维护，其实就是要模拟真实的 TCP 连接，即维护 TCP 包的头部信息，如标志位、seq/ack 号。&lt;/p&gt;
-&lt;p&gt;总结一下我们需要维护的几点：&lt;/p&gt;
+&lt;p&gt;使用 Scapy，这个封装过程可以直观地表示为：&lt;code&gt;packet = Ether() / IP() / TCP() / Raw()&lt;/code&gt;。其中 &lt;code&gt;Raw()&lt;/code&gt; 层用于承载原始的 HTTP 报文字节流。&lt;/p&gt;
+&lt;p&gt;在构造过程中，我们不仅要定义每一层的数据，还要维护它们之间的关联和状态，确保生成的数据包是合法且有效的。关键点如下：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;维护 HTTP 协议本身的格式，需要注意一些需要计算的字段，如：Content-Type。&lt;/li&gt;
-&lt;li&gt;根据 MSS / MTU 对 HTTP 数据包切割后再作为 TCP 协议的 Body。&lt;/li&gt;
-&lt;li&gt;HTTP 请求中 Host 字段中的端口信息与 IP 包中的端口信息保持一致。&lt;/li&gt;
-&lt;li&gt;维护 TCP 包中的标志位、seq/ack 号来维护模拟 TCP 连接（如果这里的数据有差错将生成错误的包，打开 Wireshark 查看将看到被标记为黑色）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;维护 HTTP 报文格式&lt;/strong&gt;：确保 HTTP 报文格式的正确性，特别是需要动态计算的字段，例如 Content-Length（应为请求体/响应体的字节长度）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据分段&lt;/strong&gt;：当 HTTP 数据超过 MSS 时，需要手动将其分割，并通过多个 TCP 包发送。本文的示例为简化起见，未展示分段过程。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;字段一致性&lt;/strong&gt;：确保不同层级间的字段保持一致。例如，HTTP 请求头 &lt;code&gt;Host&lt;/code&gt; 字段中显式指定的端口号，应与 TCP 层的目的端口保持一致。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;维护 TCP 状态&lt;/strong&gt;：这是最关键的一步。我们需要精确地模拟 TCP 连接的生命周期，正确管理每个数据包的标志位（&lt;code&gt;S&lt;/code&gt;, &lt;code&gt;A&lt;/code&gt;, &lt;code&gt;P&lt;/code&gt;, &lt;code&gt;F&lt;/code&gt;）以及 seq 和 ack 号。（若 seq/ack 计算错误，Wireshark 等工具会将数据包标记为错误）。&lt;/li&gt;
 &lt;/ol&gt;
+&lt;p&gt;总而言之，构造 HTTP 1.* Pcap 的本质就是用 Scapy 模拟一次&lt;strong&gt;有状态的 TCP 完整通信&lt;/strong&gt;。由于并非真实的网络请求，我们需要自行维护 TCP 连接的状态，特别是 TCP 头部中的标志位 (Flags) 与序列号 (seq/ack)。&lt;/p&gt;
 &lt;p&gt;使用 Scapy 构造上一章节中举例的 HTTP 连接：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -322,7 +325,7 @@ sequenceDiagram
 	
 &gt;&lt;/p&gt;
 &lt;h2 id=&#34;六工具的封装和使用&#34;&gt;六、工具的封装和使用
-&lt;/h2&gt;&lt;p&gt;上述的代码封装为生成 HTTP1.* Pcap 的工具脚本，整个过程其实可以抽象为两个部分&lt;/p&gt;
+&lt;/h2&gt;&lt;p&gt;将上述代码封装为生成 HTTP1.* Pcap 的工具脚本，整个过程其实可以抽象为两个部分&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;封装生成 HTTP1.* 请求和响应的逻辑&lt;/li&gt;
 &lt;li&gt;封装模拟 TCP 传输数据生成相关网络包的逻辑&lt;/li&gt;
@@ -449,11 +452,22 @@ sequenceDiagram
 		data-flex-basis=&#34;344px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;七更多&#34;&gt;七、更多
+&lt;h2 id=&#34;七补充说明&#34;&gt;七、补充说明
 &lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;需要注意的是当前自己生成 Pcap 包并不能完全替代搭建靶场抓包的方式，因为构造的 Pcap 包中的数据毕竟是我们自己输入的，相较于真实的环境可能真实性并没有实际抓包的好。当然如果我们输入的数据与真实的数据一致，那也便没什么区别了。&lt;/li&gt;
-&lt;li&gt;只要知道一个协议的底层细节，我们便能通过 Scapy 进行模拟。故无论是 HTTP2.0、HTTP3.0 还是 TLS 都能通过 Scapy 构造，不同于 HTTP1.0 上述协议本身更加复杂，故使用 Scapy 模拟时将更为复杂。感兴趣的读者也可以自己尝试一下。不过话又说回来了，如果从底层掌握了网络细节，就算一个个字节拼接也能还原协议哈哈哈。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;真实性与局限性&lt;/strong&gt;：需要明确的是，手动构造 Pcap 并不能完全替代在真实环境中抓包。因为我们构造的数据是预设的，可能缺少真实网络环境中的一些细微特征（如 TCP 选项、时间戳、重传等）。但对于功能验证和规则测试等场景，这种方法的效率和灵活性优势巨大。当然，如果我们能确保输入数据与真实流量一致，那么二者便没有本质区别。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;构造更复杂的协议&lt;/strong&gt;：掌握了 Scapy 的基本用法后，只要深入理解协议的底层细节，我们就能模拟任何网络协议。无论是 HTTP/2、HTTP/3 还是 TLS，都可以通过 Scapy 构造。当然，这些协议本身的状态机和加密机制更为复杂，对构造逻辑的要求也更高。感兴趣的读者可以自行尝试。当然，从根本上说，如果已从底层掌握了网络细节，即便逐个字节拼接，也能还原出完整的协议。&lt;/li&gt;
 &lt;/ol&gt;
+&lt;h2 id=&#34;八总结&#34;&gt;八、总结
+&lt;/h2&gt;&lt;p&gt;本文详细介绍了一种使用 Python 和 Scapy 库手动构造 HTTP/1.* Pcap 的方法。文章从测试需求出发，阐述了手动构造 Pcap 相比传统抓包在灵活性和效率上的显著优势。本文的核心在于阐明：构造 HTTP/1.* Pcap 的本质，就是模拟一次完整的、有状态的 TCP 通信。通过 Scapy 工具，我们可以利用其强大的协议分层能力来实现这一过程。&lt;/p&gt;
+&lt;h2 id=&#34;九参考与延伸&#34;&gt;九、参考与延伸
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://scapy.readthedocs.io/en/latest/usage.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Scapy 官方文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.heaciy.com/p/analyzing-libpcap-pcap-file/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Libpcap 格式 Pcap 包分析&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://gist.github.com/Heaciy/95e7ae3120454efe4af97821da9080f6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Github Gist&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         <item>
